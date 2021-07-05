@@ -6,7 +6,8 @@
 	"scripts": {
 		"gulp": "gulp",
 		"gulp prod": "gulp prod",
-		"imagemin": "gulp imagemin"
+		"imagemin": "gulp imagemin",
+		"ttfToWoff": "gulp ttfToWoff"
 	},
 	"repository": {
 		"type": "git",

@@ -1,21 +1,21 @@
-const gulp = require("gulp");
-const rename = require("gulp-rename");
-const sass = require('gulp-sass')(require('sass'));
-const autoPrefixer = require("gulp-autoprefixer");
+const gulp = require("gulp")
+const rename = require("gulp-rename")
+const sass = require('gulp-sass')(require('sass'))
+const autoPrefixer = require("gulp-autoprefixer")
 const browserSync = require("browser-sync")
-	.create();
-const ttfToWoff = require('gulp-ttf2woff2');
-const uglify = require("gulp-uglify");
-const include = require("gulp-file-include");
-const clean = require("gulp-clean");
-const csso = require("gulp-csso");
-const sourcemaps = require("gulp-sourcemaps");
-const GulpMem = require("gulp-mem");
-const imagemin = require("gulp-imagemin");
-const browserify = require('gulp-browserify');
-const gulpMem = new GulpMem();
-gulpMem.serveBasePath = "./build";
-gulpMem.logFn = null;
+	.create()
+const ttf2woff2 = require('gulp-ttf2woff2')
+const uglify = require("gulp-uglify")
+const include = require("gulp-file-include")
+const clean = require("gulp-clean")
+const csso = require("gulp-csso")
+const sourcemaps = require("gulp-sourcemaps")
+const GulpMem = require("gulp-mem")
+const imagemin = require("gulp-imagemin")
+const browserify = require('gulp-browserify')
+const gulpMem = new GulpMem()
+gulpMem.serveBasePath = "./build"
+gulpMem.logFn = null
 
 function browserSyncF() {
 	return browserSync.init({
@@ -24,7 +24,7 @@ function browserSyncF() {
 			middleware: gulpMem.middleware,
 		},
 		port: 3000,
-	});
+	})
 }
 
 function browserSyncFProd() {
@@ -33,7 +33,7 @@ function browserSyncFProd() {
 			baseDir: "./build",
 		},
 		port: 3000,
-	});
+	})
 }
 
 function CSS() {
@@ -53,7 +53,7 @@ function CSS() {
 		}))
 		.pipe(sourcemaps.write("."))
 		.pipe(gulpMem.dest("./build/style/"))
-		.pipe(browserSync.stream()));
+		.pipe(browserSync.stream()))
 }
 
 function CSSProd() {
@@ -74,7 +74,7 @@ function CSSProd() {
 		.pipe(csso())
 		// .pipe(sourcemaps.write("."))
 		.pipe(gulp.dest("./build/style/"))
-		.pipe(browserSync.stream());
+		.pipe(browserSync.stream())
 }
 
 function JS() {
@@ -85,7 +85,7 @@ function JS() {
 		}))
 		.pipe(sourcemaps.write("."))
 		.pipe(gulpMem.dest("./build/script"))
-		.pipe(browserSync.stream());
+		.pipe(browserSync.stream())
 }
 
 function JSProd() {
@@ -97,21 +97,21 @@ function JSProd() {
 		.pipe(uglify())
 		// .pipe(sourcemaps.write("."))
 		.pipe(gulp.dest("./build/script"))
-		.pipe(browserSync.stream());
+		.pipe(browserSync.stream())
 }
 
 function HTML() {
 	return gulp.src(["./src/*.html", "!./src/_*.html"])
 		.pipe(include())
 		.pipe(gulpMem.dest("./build"))
-		.pipe(browserSync.stream());
+		.pipe(browserSync.stream())
 }
 
 function HTMLProd() {
 	return gulp.src(["./src/*.html", "!./src/_*.html"])
 		.pipe(include())
 		.pipe(gulp.dest("./build"))
-		.pipe(browserSync.stream());
+		.pipe(browserSync.stream())
 }
 
 function copyAssets() {
@@ -119,7 +119,7 @@ function copyAssets() {
 			allowEmpty: true
 		})
 		.pipe(gulpMem.dest("./build/assets"))
-		.pipe(browserSync.stream());
+		.pipe(browserSync.stream())
 }
 
 function copyPlugins() {
@@ -127,7 +127,7 @@ function copyPlugins() {
 			allowEmpty: true
 		})
 		.pipe(gulpMem.dest("./build/plugins"))
-		.pipe(browserSync.stream());
+		.pipe(browserSync.stream())
 }
 
 function imageminF() {
@@ -146,7 +146,7 @@ function copyAssetsProd() {
 			allowEmpty: true
 		})
 		.pipe(gulp.dest("./build/assets"))
-		.pipe(browserSync.stream());
+		.pipe(browserSync.stream())
 }
 
 function copyPluginsProd() {
@@ -154,7 +154,7 @@ function copyPluginsProd() {
 			allowEmpty: true
 		})
 		.pipe(gulp.dest("./build/plugins"))
-		.pipe(browserSync.stream());
+		.pipe(browserSync.stream())
 }
 
 function cleanCSS() {
@@ -162,7 +162,7 @@ function cleanCSS() {
 			read: false,
 			allowEmpty: true
 		})
-		.pipe(clean());
+		.pipe(clean())
 }
 
 function cleanHTML() {
@@ -170,7 +170,7 @@ function cleanHTML() {
 			read: false,
 			allowEmpty: true
 		})
-		.pipe(clean());
+		.pipe(clean())
 }
 
 function cleanJS() {
@@ -178,7 +178,7 @@ function cleanJS() {
 			read: false,
 			allowEmpty: true
 		})
-		.pipe(clean());
+		.pipe(clean())
 }
 
 function cleanAssets() {
@@ -186,7 +186,7 @@ function cleanAssets() {
 			read: false,
 			allowEmpty: true
 		})
-		.pipe(clean());
+		.pipe(clean())
 }
 
 function cleanPlugins() {
@@ -194,7 +194,7 @@ function cleanPlugins() {
 			read: false,
 			allowEmpty: true
 		})
-		.pipe(clean());
+		.pipe(clean())
 }
 
 function cleanBuild() {
@@ -202,39 +202,36 @@ function cleanBuild() {
 			read: false,
 			allowEmpty: true
 		})
-		.pipe(clean());
+		.pipe(clean())
 }
 
-function reload(done) {
-	browserSync.stream();
-	done();
+function reload() {
+	return browserSync.stream()
 }
 
 function watch() {
-	gulp.watch("./src/*.html", gulp.series(HTML));
-	gulp.watch("./src/script/*", gulp.series(JS));
-	gulp.watch("./src/style/**/*", gulp.series(CSS));
-	gulp.watch("./src/assets/**/*", gulp.series(copyAssets));
-	gulp.watch("./src/plugins/**/*", gulp.series(copyPlugins));
-	// gulp.watch(["./build/**/*", "!./build/style/*", "!./build/assets/*"], reload);
+	gulp.watch("./src/*.html", gulp.series(HTML))
+	gulp.watch("./src/script/*", gulp.series(JS))
+	gulp.watch("./src/style/**/*", gulp.series(CSS))
+	gulp.watch("./src/assets/**/*", gulp.series(copyAssets))
+	gulp.watch("./src/plugins/**/*", gulp.series(copyPlugins))
 }
 
 function watchProd() {
-	gulp.watch("./src/*.html", gulp.series(HTMLProd));
-	gulp.watch("./src/script/*", gulp.series(JSProd));
-	gulp.watch("./src/style/**/*", gulp.series(CSSProd));
-	gulp.watch("./src/assets/**/*", gulp.series(copyAssetsProd));
-	gulp.watch("./src/plugins/**/*", gulp.series(copyPluginsProd));
-	gulp.watch(["./build/**/*", "!./build/style/*", "!./build/assets/*"], reload);
+	gulp.watch("./src/*.html", gulp.series(HTMLProd))
+	gulp.watch("./src/script/*", gulp.series(JSProd))
+	gulp.watch("./src/style/**/*", gulp.series(CSSProd))
+	gulp.watch("./src/assets/**/*", gulp.series(copyAssetsProd))
+	gulp.watch("./src/plugins/**/*", gulp.series(copyPluginsProd))
 }
 
 function ttfToWoffF() {
 	return gulp.src(['./src/assets/font/*.ttf'])
 		.pipe(clean())
-		.pipe(ttfToWoff())
-		.pipe(gulp.dest('./src/assets/font/'));
+		.pipe(ttf2woff2())
+		.pipe(gulp.dest('./src/assets/font/'))
 }
-exports.default = gulp.series(gulp.parallel(CSS, JS, HTML, copyAssets, copyPlugins), browserSyncF, gulp.parallel(watch));
-exports.prod = gulp.series(cleanBuild, gulp.parallel(CSSProd, JSProd, HTMLProd, copyAssetsProd, copyPluginsProd), browserSyncFProd, gulp.parallel(watchProd));
-exports.imagemin = gulp.series(imageminF);
-exports.ttfToWoffG = gulp.series(ttfToWoffF);
+exports.default = gulp.series(gulp.parallel(CSS, JS, HTML, copyAssets, copyPlugins), browserSyncF, gulp.parallel(watch))
+exports.prod = gulp.series(cleanBuild, gulp.parallel(CSSProd, JSProd, HTMLProd, copyAssetsProd, copyPluginsProd), browserSyncFProd, gulp.parallel(watchProd))
+exports.imagemin = gulp.series(imageminF)
+exports.ttfToWoff = gulp.series(ttfToWoffF)
