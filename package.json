@@ -4,8 +4,8 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"gulp": "gulp",
-		"gulp prod": "gulp prod",
+		"dev": "gulp",
+		"prod": "gulp --prod",
 		"imagemin": "gulp imagemin",
 		"ttfToWoff": "gulp ttfToWoff"
 	},
@@ -35,6 +35,7 @@
 		"gulp-ttf2woff2": "^4.0.1",
 		"gulp-uglify": "^3.0.2",
 		"sass": "^1.35.1",
-		"vinyl-buffer": "^1.0.1"
+		"vinyl-buffer": "^1.0.1",
+		"yargs": "^15.4.1"
 	}
 }
