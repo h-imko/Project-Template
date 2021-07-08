@@ -6,7 +6,7 @@ const browserSync = require("browser-sync")
 	.create()
 const ttf2woff2 = require('gulp-ttf2woff2')
 const uglify = require("gulp-uglify")
-const include = require("gulp-file-include")
+const include = require("gulp-include")
 const clean = require("gulp-clean")
 const csso = require("gulp-csso")
 const sourcemaps = require("gulp-sourcemaps")
@@ -41,6 +41,7 @@ function CSS() {
 		.pipe(sass({
 			errLogToConsole: true,
 			outputStyle: argv.prod ? "compressed" : "expanded",
+			includePaths: ['node_modules']
 		}))
 		.on("error", console.error.bind(console))
 		.pipe(argv.prod ? autoPrefixer({
@@ -71,6 +72,7 @@ function JS() {
 function HTML() {
 	return gulp.src(["./src/*.html", "!./src/_*.html"])
 		.pipe(include())
+		.on('error', console.log)
 		.pipe(argv.prod ? gulp.dest("./build") : gulpMem.dest("./build"))
 		.pipe(browserSync.stream())
 }
