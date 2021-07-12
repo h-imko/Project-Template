@@ -1,5 +1,4 @@
 const gulp = require("gulp")
-const rename = require("gulp-rename")
 const sass = require('gulp-sass')(require('sass'))
 const autoPrefixer = require("gulp-autoprefixer")
 const browserSync = require("browser-sync")
@@ -19,7 +18,7 @@ const gulpMem = new GulpMem()
 gulpMem.logFn = null
 gulpMem.serveBasePath = "./build"
 
-function browserSyncF() {
+function browserSyncInit() {
 	browserSync.init({
 		server: {
 			baseDir: "./build",
@@ -48,9 +47,6 @@ function CSS() {
 			cascade: true,
 			overrideBrowserslist: ["last 3 versions"],
 		}) : emptyStream())
-		.pipe(rename({
-			extname: ".css"
-		}))
 		.pipe(argv.prod ? csso() : emptyStream())
 		.pipe(sourcemaps.write("."))
 		.pipe(argv.prod ? gulp.dest("./build/style/") : gulpMem.dest("./build/style/"))
@@ -85,15 +81,7 @@ function copyAssets() {
 		.pipe(browserSync.stream())
 }
 
-function copyPlugins() {
-	return gulp.src("./src/plugins/**/*", {
-			allowEmpty: true
-		})
-		.pipe(argv.prod ? gulp.dest("./build/plugins") : gulpMem.dest("./build/plugins"))
-		.pipe(browserSync.stream())
-}
-
-function imageminF() {
+function minimizeImgs() {
 	return gulp.src("./src/assets/img/**/*", {
 			allowEmpty: true
 		})
@@ -109,7 +97,6 @@ function watch() {
 	gulp.watch("./src/script/*", gulp.series(JS))
 	gulp.watch("./src/style/**/*", gulp.series(CSS))
 	gulp.watch("./src/assets/**/*", gulp.series(copyAssets))
-	gulp.watch("./src/plugins/**/*", gulp.series(copyPlugins))
 }
 
 function ttfToWoffF() {
@@ -118,6 +105,7 @@ function ttfToWoffF() {
 		.pipe(ttf2woff2())
 		.pipe(gulp.dest('./src/assets/font/'))
 }
-exports.default = gulp.series(gulp.parallel(CSS, JS, HTML, copyAssets, copyPlugins), gulp.parallel(browserSyncF, watch))
-exports.imagemin = gulp.series(imageminF)
+exports.default = gulp.series(gulp.parallel(CSS, JS, HTML, copyAssets), gulp.parallel(browserSyncInit, watch))
+exports.imagemin = gulp.series(minimizeImgs)
 exports.ttfToWoff = gulp.series(ttfToWoffF)
+exports.build = gulp.parallel(CSS, JS, HTML, copyAssets)
