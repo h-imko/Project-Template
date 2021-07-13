@@ -38,11 +38,11 @@ function CSS() {
 	return gulp.src("./src/style/style.scss")
 		.pipe(sourcemaps.init())
 		.pipe(sass({
-			errLogToConsole: true,
-			outputStyle: argv.prod ? "compressed" : "expanded",
-			includePaths: ['node_modules']
-		}))
-		.on("error", console.error.bind(console))
+				errLogToConsole: true,
+					outputStyle: argv.prod ? "compressed" : "expanded",
+					includePaths: ['node_modules']
+			})
+			.on('error', sass.logError))
 		.pipe(argv.prod ? autoPrefixer({
 			cascade: true,
 			overrideBrowserslist: ["last 3 versions"],
