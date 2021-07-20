@@ -8,10 +8,12 @@ const uglify = require("gulp-uglify")
 const include = require("gulp-include")
 const clean = require("gulp-clean")
 const csso = require("gulp-csso")
+const buffer = require('vinyl-buffer')
 const sourcemaps = require("gulp-sourcemaps")
 const GulpMem = require("gulp-mem")
 const imagemin = require("gulp-imagemin")
-const browserify = require('gulp-browserify')
+const browserify = require('browserify')
+var source = require('vinyl-source-stream');
 const argv = require('yargs')
 	.argv
 const gulpMem = new GulpMem()
@@ -54,14 +56,17 @@ function CSS() {
 }
 
 function JS() {
-	return gulp.src('./src/script/script.js')
-		.pipe(sourcemaps.init())
-		.pipe(browserify({
-				insertGlobals: true,
-			})
-			.on('error', console.log))
+	return browserify('./src/script/script.js', {
+			debug: true
+		})
+		.bundle()
+		.pipe(source('script.js'))
+		.pipe(buffer())
+		.pipe(sourcemaps.init({
+			loadMaps: true
+		}))
 		.pipe(argv.prod ? uglify() : emptyStream())
-		.pipe(sourcemaps.write("."))
+		.pipe(sourcemaps.write('./'))
 		.pipe(argv.prod ? gulp.dest("./build/script") : gulpMem.dest("./build/script"))
 		.pipe(browserSync.stream())
 }

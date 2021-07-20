@@ -24,7 +24,6 @@
 		"browser-sync": "^2.27.4",
 		"gulp": "^4.0.2",
 		"gulp-autoprefixer": "^8.0.0",
-		"gulp-browserify": "^0.5.1",
 		"gulp-clean": "^0.4.0",
 		"gulp-csso": "^4.0.1",
 		"gulp-imagemin": "^7.1.0",
@@ -37,5 +36,9 @@
 		"sass": "^1.35.2",
 		"vinyl-buffer": "^1.0.1",
 		"yargs": "^17.0.1"
+	},
+	"dependencies": {
+		"browserify": "^17.0.0",
+		"vinyl-source-stream": "^2.0.0"
 	}
 }
