@@ -39,8 +39,8 @@ function CSS() {
 		.pipe(sourcemaps.init())
 		.pipe(sass({
 				errLogToConsole: true,
-					outputStyle: argv.prod ? "compressed" : "expanded",
-					includePaths: ['node_modules']
+				outputStyle: argv.prod ? "compressed" : "expanded",
+				includePaths: ['node_modules']
 			})
 			.on('error', sass.logError))
 		.pipe(argv.prod ? autoPrefixer({
@@ -57,8 +57,9 @@ function JS() {
 	return gulp.src('./src/script/script.js')
 		.pipe(sourcemaps.init())
 		.pipe(browserify({
-			insertGlobals: true,
-		}))
+				insertGlobals: true,
+			})
+			.on('error', console.log))
 		.pipe(argv.prod ? uglify() : emptyStream())
 		.pipe(sourcemaps.write("."))
 		.pipe(argv.prod ? gulp.dest("./build/script") : gulpMem.dest("./build/script"))
@@ -67,8 +68,8 @@ function JS() {
 
 function HTML() {
 	return gulp.src(["./src/*.html", "!./src/_*.html"])
-		.pipe(include())
-		.on('error', console.log)
+		.pipe(include()
+			.on('error', console.log))
 		.pipe(argv.prod ? gulp.dest("./build") : gulpMem.dest("./build"))
 		.pipe(browserSync.stream())
 }
