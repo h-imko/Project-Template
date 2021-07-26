@@ -60,6 +60,10 @@ function JS() {
 			debug: true
 		})
 		.bundle()
+		.on('error', function (err) {
+			console.log(err.message)
+			this.emit('end')
+		})
 		.pipe(source('script.js'))
 		.pipe(buffer())
 		.pipe(sourcemaps.init({
