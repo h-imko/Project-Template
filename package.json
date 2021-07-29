@@ -4,9 +4,11 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"dev": "gulp",
-		"prod": "gulp --prod",
-		"build": "gulp build --prod",
+		"dev": "gulp --ram --watch",
+		"prod": "gulp --watch --min",
+		"build": "gulp --min",
+		"prod_expanded": "gulp --watch",
+		"build_expanded": "gulp",
 		"imagemin": "gulp imagemin",
 		"ttfToWoff": "gulp ttfToWoff"
 	},
@@ -22,6 +24,7 @@
 	"homepage": "https://github.com/herr-imko/Project-Template#readme",
 	"devDependencies": {
 		"browser-sync": "^2.27.4",
+		"browserify": "^17.0.0",
 		"gulp": "^4.0.2",
 		"gulp-autoprefixer": "^8.0.0",
 		"gulp-clean": "^0.4.0",
@@ -35,8 +38,10 @@
 		"gulp-uglify": "^3.0.2",
 		"sass": "^1.35.2",
 		"vinyl-buffer": "^1.0.1",
-		"yargs": "^17.0.1",
-		"browserify": "^17.0.0",
-		"vinyl-source-stream": "^2.0.0"
+		"vinyl-source-stream": "^2.0.0",
+		"yargs": "^17.0.1"
+	},
+	"dependencies": {
+		"gulp-replace": "^1.1.3"
 	}
 }
