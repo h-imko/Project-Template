@@ -39,9 +39,7 @@
 		"sass": "^1.35.2",
 		"vinyl-buffer": "^1.0.1",
 		"vinyl-source-stream": "^2.0.0",
-		"yargs": "^17.0.1"
-	},
-	"dependencies": {
+		"yargs": "^17.0.1",
 		"gulp-replace": "^1.1.3"
 	}
 }
