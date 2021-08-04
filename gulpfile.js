@@ -15,6 +15,8 @@ const GulpMem = require("gulp-mem")
 const imagemin = require("gulp-imagemin")
 const browserify = require('browserify')
 const source = require('vinyl-source-stream');
+const flatmap = require('gulp-flatmap');
+const path = require('path');
 const argv = require('yargs')
 	.argv
 const gulpMem = new GulpMem()
@@ -38,7 +40,7 @@ function emptyStream() {
 }
 
 function CSS() {
-	return gulp.src("./src/assets/style/style.scss")
+	return gulp.src(["./src/assets/style/*.scss", "!./src/assets/style/_*.scss"])
 		.pipe(sourcemaps.init())
 		.pipe(sass({
 				errLogToConsole: true,
@@ -58,32 +60,39 @@ function CSS() {
 }
 
 function JS() {
-	return browserify('./src/assets/script/script.js', {
-			debug: true
-		})
-		.bundle()
-		.on('error', function (err) {
-			console.log(err.message)
-			this.emit('end')
-		})
-		.pipe(source('script.js'))
-		.pipe(buffer())
-		.pipe(sourcemaps.init({
-			loadMaps: true
+	return gulp.src(['./src/assets/script/*.js', '!./src/assets/script/_*.js'])
+		.pipe(flatmap(function (stream, file) {
+			return browserify(`./src/assets/script/${path.basename(file.path)}`, {
+					debug: true
+				})
+				.bundle()
+				.on('error', function (err) {
+					console.log(err.message)
+					this.emit('end')
+				})
+				.pipe(source(`${path.basename(file.path)}`))
+				.pipe(buffer())
+				.pipe(sourcemaps.init({
+					loadMaps: true
+				}))
+				.pipe(argv.min ? uglify() : emptyStream())
+				.pipe(sourcemaps.write('./'))
+				.pipe(argv.ram ? gulpMem.dest("./build/src/assets/script/") : gulp.dest("./build/assets/script/"))
+				.pipe(browserSync.stream())
 		}))
-		.pipe(argv.min ? uglify() : emptyStream())
-		.pipe(sourcemaps.write('./'))
-		.pipe(argv.ram ? gulpMem.dest("./build/src/assets/script/") : gulp.dest("./build/assets/script/"))
-		.pipe(browserSync.stream())
 }
 
 function HTML() {
 	return gulp.src(["./src/*.html", "!./src/_*.html"])
-		.pipe(include()
-			.on('error', console.log))
-		.pipe(argv.ram ? emptyStream() : replace('/src/', '/'))
-		.pipe(argv.ram ? gulpMem.dest("./build") : gulp.dest("./build"))
-		.pipe(browserSync.stream())
+		.pipe(flatmap(function (stream, file) {
+			return stream.pipe(include()
+					.on('error', console.log))
+				.pipe(argv.ram ? emptyStream() : replace('/src/', '/'))
+				.pipe(argv.separate ? replace("style.css", `${path.basename(file.path , ".html")}.css`) : emptyStream())
+				.pipe(argv.separate ? replace("script.js", `${path.basename(file.path, ".html")}.js`) : emptyStream())
+				.pipe(argv.ram ? gulpMem.dest("./build") : gulp.dest("./build"))
+				.pipe(browserSync.stream())
+		}))
 }
 
 function copyStatic() {
@@ -109,7 +118,7 @@ function watch() {
 	gulp.watch("./src/*.html", gulp.series(HTML))
 	gulp.watch("./src/assets/script/*", gulp.series(JS))
 	gulp.watch("./src/assets/style/**/*", gulp.series(CSS))
-	gulp.watch("./src/assets/**/*", gulp.series(copyStatic))
+	gulp.watch("./src/assets/static/**/*", gulp.series(copyStatic))
 }
 
 function ttfToWoffF() {
