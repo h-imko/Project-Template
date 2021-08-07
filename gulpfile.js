@@ -19,6 +19,9 @@ const flatmap = require('gulp-flatmap')
 const path = require('path')
 const argv = require('yargs')
 	.argv
+const {
+	lastRun
+} = require("gulp")
 const gulpMem = new GulpMem()
 gulpMem.logFn = null
 gulpMem.serveBasePath = "./build"
@@ -97,7 +100,8 @@ function HTML() {
 
 function copyStatic() {
 	return gulp.src("./src/assets/static/**/*", {
-			allowEmpty: true
+			allowEmpty: true,
+			since: lastRun(copyStatic)
 		})
 		.pipe(argv.ram ? gulpMem.dest("./build/src/assets/static/") : gulp.dest("./build/assets/static/"))
 		.pipe(browserSync.stream())
