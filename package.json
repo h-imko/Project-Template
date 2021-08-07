@@ -48,6 +48,6 @@
 		"sass": "^1.37.5",
 		"vinyl-buffer": "^1.0.1",
 		"vinyl-source-stream": "^2.0.0",
-		"yargs": "^17.0.1"
+		"yargs": "^17.1.0"
 	}
 }
