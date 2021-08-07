@@ -14,9 +14,9 @@ const sourcemaps = require("gulp-sourcemaps")
 const GulpMem = require("gulp-mem")
 const imagemin = require("gulp-imagemin")
 const browserify = require('browserify')
-const source = require('vinyl-source-stream');
-const flatmap = require('gulp-flatmap');
-const path = require('path');
+const source = require('vinyl-source-stream')
+const flatmap = require('gulp-flatmap')
+const path = require('path')
 const argv = require('yargs')
 	.argv
 const gulpMem = new GulpMem()
