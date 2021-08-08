@@ -15,7 +15,8 @@
 		"build_watch_min": "gulp --watch --min",
 		"build_watch_min_separate": "gulp --watch --min --separate",
 		"imagemin": "gulp imagemin",
-		"ttfToWoff": "gulp ttfToWoff"
+		"ttfToWoff": "gulp ttfToWoff",
+		"setup": "npm i  && npm link gulp"
 	},
 	"repository": {
 		"type": "git",
@@ -33,7 +34,6 @@
 		"gulp": "^4.0.2",
 		"gulp-autoprefixer": "^8.0.0",
 		"gulp-clean": "^0.4.0",
-		"gulp-cli": "^2.3.0",
 		"gulp-csso": "^4.0.1",
 		"gulp-flatmap": "^1.0.2",
 		"gulp-imagemin": "^7.1.0",
