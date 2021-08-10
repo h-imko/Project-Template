@@ -17,11 +17,9 @@ const browserify = require('browserify')
 const source = require('vinyl-source-stream')
 const flatmap = require('gulp-flatmap')
 const path = require('path')
+const cache = require('gulp-cached')
 const argv = require('yargs')
 	.argv
-const {
-	lastRun
-} = require("gulp")
 const gulpMem = new GulpMem()
 gulpMem.logFn = null
 gulpMem.serveBasePath = "./build"
@@ -44,6 +42,7 @@ function emptyStream() {
 
 function CSS() {
 	return gulp.src(["./src/assets/style/*.scss", "!./src/assets/style/_*.scss"])
+		.pipe(cache('style'))
 		.pipe(sourcemaps.init())
 		.pipe(sass({
 				errLogToConsole: true,
@@ -64,9 +63,10 @@ function CSS() {
 
 function JS() {
 	return gulp.src(['./src/assets/script/*.js', '!./src/assets/script/_*.js'])
+		.pipe(cache('script'))
 		.pipe(flatmap(function (stream, file) {
 			return browserify(`./src/assets/script/${path.basename(file.path)}`, {
-					debug: true
+					debug: true,
 				})
 				.bundle()
 				.on('error', function (err) {
@@ -87,6 +87,7 @@ function JS() {
 
 function HTML() {
 	return gulp.src(["./src/*.html", "!./src/_*.html"])
+		.pipe(cache('html'))
 		.pipe(flatmap(function (stream, file) {
 			return stream.pipe(include()
 					.on('error', console.log))
@@ -100,17 +101,15 @@ function HTML() {
 
 function copyStatic() {
 	return gulp.src("./src/assets/static/**/*", {
-			allowEmpty: true,
-			since: lastRun(copyStatic)
+			allowEmpty: true
 		})
+		.pipe(cache('static'))
 		.pipe(argv.ram ? gulpMem.dest("./build/src/assets/static/") : gulp.dest("./build/assets/static/"))
 		.pipe(browserSync.stream())
 }
 
 function minimizeImgs() {
-	return gulp.src("./src/assets/static/img/**/*", {
-			allowEmpty: true
-		})
+	return gulp.src("./src/assets/static/img/**/*")
 		.pipe(imagemin({
 			optimizationLevel: 5,
 			verbose: true,
@@ -119,10 +118,10 @@ function minimizeImgs() {
 }
 
 function watch() {
-	gulp.watch("./src/*.html", gulp.series(HTML))
-	gulp.watch("./src/assets/script/*", gulp.series(JS))
-	gulp.watch("./src/assets/style/**/*", gulp.series(CSS))
-	gulp.watch("./src/assets/static/**/*", gulp.series(copyStatic))
+	gulp.watch("./src/*.html", HTML)
+	gulp.watch("./src/assets/script/*", JS)
+	gulp.watch("./src/assets/style/**/*", CSS)
+	gulp.watch("./src/assets/static/**/*", copyStatic)
 }
 
 function ttfToWoffF() {
