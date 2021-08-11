@@ -42,7 +42,6 @@ function emptyStream() {
 
 function CSS() {
 	return gulp.src(["./src/assets/style/*.scss", "!./src/assets/style/_*.scss"])
-		.pipe(cache('style'))
 		.pipe(sourcemaps.init())
 		.pipe(sass({
 				errLogToConsole: true,
@@ -63,7 +62,6 @@ function CSS() {
 
 function JS() {
 	return gulp.src(['./src/assets/script/*.js', '!./src/assets/script/_*.js'])
-		.pipe(cache('script'))
 		.pipe(flatmap(function (stream, file) {
 			return browserify(`./src/assets/script/${path.basename(file.path)}`, {
 					debug: true,
@@ -87,7 +85,6 @@ function JS() {
 
 function HTML() {
 	return gulp.src(["./src/*.html", "!./src/_*.html"])
-		.pipe(cache('html'))
 		.pipe(flatmap(function (stream, file) {
 			return stream.pipe(include()
 					.on('error', console.log))
