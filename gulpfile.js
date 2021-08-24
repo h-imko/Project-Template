@@ -25,23 +25,30 @@ import {
 const argv = yargs(hideBin(process.argv))
 	.argv
 const gulpMem = new GulpMem()
+gulpMem.logFn = null
+gulpMem.serveBasePath = "./build"
 const sass = GulpSass(Sass)
 
 function browserSyncInit() {
-	gulpMem.logFn = null
-	gulpMem.serveBasePath = "./build"
 	browserSync.create()
 	browserSync.init({
 		server: {
 			baseDir: "./build",
 			middleware: argv.ram ? gulpMem.middleware : false
 		},
-		port: 3000
+		port: 3000,
+		logConnections: true
 	})
 }
 
-function emptyStream() {
-	return source('fake-stream').pipe(buffer())
+function emptyTask(cb) {
+	cb()
+}
+
+function emptyBuffer() {
+	return gulp.src('neverUsedName', {
+		allowEmpty: true
+	})
 }
 
 function CSS() {
@@ -53,12 +60,12 @@ function CSS() {
 				includePaths: ['node_modules']
 			})
 			.on('error', sass.logError))
-		.pipe(argv.ram ? emptyStream() : autoPrefixer({
+		.pipe(argv.ram ? emptyBuffer() : autoPrefixer({
 			cascade: true,
 			overrideBrowserslist: ["last 3 versions"],
 		}))
-		.pipe(argv.min ? csso() : emptyStream())
-		.pipe(argv.ram ? emptyStream() : replace('/src/', '/'))
+		.pipe(argv.min ? csso() : emptyBuffer())
+		.pipe(argv.ram ? emptyBuffer() : replace('/src/', '/'))
 		.pipe(sourcemaps.write("."))
 		.pipe(argv.ram ? gulpMem.dest("./build/src/assets/style/") : gulp.dest("./build/assets/style/"))
 		.pipe(browserSync.stream())
@@ -81,7 +88,7 @@ function JS() {
 		.pipe(sourcemaps.init({
 			loadMaps: true
 		}))
-		.pipe(argv.min ? uglify() : emptyStream())
+		.pipe(argv.min ? uglify() : emptyBuffer())
 		.pipe(sourcemaps.write('./'))
 		.pipe(argv.ram ? gulpMem.dest("./build/src/assets/script/") : gulp.dest("./build/assets/script/"))
 		.pipe(browserSync.stream())
@@ -92,9 +99,9 @@ function HTML() {
 		.pipe(flatmap(function (stream, file) {
 			return stream.pipe(include()
 					.on('error', console.log))
-				.pipe(argv.ram ? emptyStream() : replace('/src/', '/'))
-				.pipe(argv.separate ? replace("style.css", `${path.basename(file.path , ".html")}.css`) : emptyStream())
-				.pipe(argv.separate ? replace("script.js", `${path.basename(file.path, ".html")}.js`) : emptyStream())
+				.pipe(argv.ram ? emptyBuffer() : replace('/src/', '/'))
+				.pipe(argv.separate ? replace("style.css", `${path.basename(file.path , ".html")}.css`) : emptyBuffer())
+				.pipe(argv.separate ? replace("script.js", `${path.basename(file.path, ".html")}.js`) : emptyBuffer())
 		}))
 		.pipe(argv.ram ? gulpMem.dest("./build") : gulp.dest("./build"))
 		.pipe(browserSync.stream())
@@ -119,18 +126,10 @@ function minimizeImgs() {
 }
 
 function watch() {
-	gulp.watch("./src/*.html", {
-		ignoreInitial: false
-	}, HTML)
-	gulp.watch("./src/assets/script/*", {
-		ignoreInitial: false
-	}, JS)
-	gulp.watch("./src/assets/style/**/*", {
-		ignoreInitial: false
-	}, CSS)
-	gulp.watch("./src/assets/static/**/*", {
-		ignoreInitial: false
-	}, copyStatic)
+	gulp.watch("./src/*.html", HTML)
+	gulp.watch("./src/assets/script/*", JS)
+	gulp.watch("./src/assets/style/**/*", CSS)
+	gulp.watch("./src/assets/static/**/*", copyStatic)
 }
 
 function cleanBuild() {
@@ -147,6 +146,6 @@ function ttfToWoff() {
 		.pipe(ttf2woff2())
 		.pipe(gulp.dest('./src/assets/static/font/'))
 }
-gulp.task('default', argv.watch ? gulp.parallel(watch, browserSyncInit) : gulp.series(cleanBuild, gulp.parallel(CSS, JS, HTML, copyStatic)))
+gulp.task('default', gulp.series(argv.ram ? emptyBuffer : cleanBuild, gulp.parallel(CSS, JS, HTML, copyStatic), argv.watch ? gulp.parallel(watch, browserSyncInit) : emptyBuffer))
 gulp.task('imagemin', minimizeImgs)
 gulp.task('ttfToWoff', ttfToWoff)
