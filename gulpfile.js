@@ -1,30 +1,36 @@
-const gulp = require("gulp")
-const sass = require('gulp-sass')(require('sass'))
-const autoPrefixer = require("gulp-autoprefixer")
-const browserSync = require("browser-sync")
-	.create()
-const replace = require('gulp-replace')
-const ttf2woff2 = require('gulp-ttf2woff2')
-const uglify = require("gulp-uglify")
-const include = require("gulp-include")
-const clean = require("gulp-clean")
-const csso = require("gulp-csso")
-const buffer = require('vinyl-buffer')
-const sourcemaps = require("gulp-sourcemaps")
-const GulpMem = require("gulp-mem")
-const imagemin = require("gulp-imagemin")
-const browserify = require('browserify')
-const source = require('vinyl-source-stream')
-const flatmap = require('gulp-flatmap')
-const path = require('path')
-const cache = require('gulp-cached')
-const argv = require('yargs')
+import gulp from "gulp"
+import GulpSass from 'gulp-sass'
+import Sass from 'sass'
+import autoPrefixer from "gulp-autoprefixer"
+import browserSync from "browser-sync"
+import replace from 'gulp-replace'
+import ttf2woff2 from 'gulp-ttf2woff2'
+import uglify from "gulp-uglify"
+import include from "gulp-include"
+import clean from "gulp-clean"
+import csso from "gulp-csso"
+import buffer from 'vinyl-buffer'
+import sourcemaps from "gulp-sourcemaps"
+import GulpMem from "gulp-mem"
+import imagemin from "gulp-imagemin"
+import browserify from 'browserify'
+import source from 'vinyl-source-stream'
+import flatmap from 'gulp-flatmap'
+import path from 'path'
+import cache from 'gulp-cached'
+import yargs from 'yargs'
+import {
+	hideBin
+} from 'yargs/helpers'
+const argv = yargs(hideBin(process.argv))
 	.argv
 const gulpMem = new GulpMem()
-gulpMem.logFn = null
-gulpMem.serveBasePath = "./build"
+const sass = GulpSass(Sass)
 
 function browserSyncInit() {
+	gulpMem.logFn = null
+	gulpMem.serveBasePath = "./build"
+	browserSync.create()
 	browserSync.init({
 		server: {
 			baseDir: "./build",
@@ -43,7 +49,7 @@ function emptyStream() {
 function CSS() {
 	return gulp.src(["./src/assets/style/*.scss", "!./src/assets/style/_*.scss"])
 		.pipe(sourcemaps.init())
-		.pipe(sass({
+		.pipe(sass.sync({
 				errLogToConsole: true,
 				outputStyle: argv.min ? "compressed" : "expanded",
 				includePaths: ['node_modules']
@@ -73,14 +79,14 @@ function JS() {
 				})
 				.pipe(source(`${path.basename(file.path)}`))
 				.pipe(buffer())
-				.pipe(sourcemaps.init({
-					loadMaps: true
-				}))
-				.pipe(argv.min ? uglify() : emptyStream())
-				.pipe(sourcemaps.write('./'))
-				.pipe(argv.ram ? gulpMem.dest("./build/src/assets/script/") : gulp.dest("./build/assets/script/"))
-				.pipe(browserSync.stream())
 		}))
+		.pipe(sourcemaps.init({
+			loadMaps: true
+		}))
+		.pipe(argv.min ? uglify() : emptyStream())
+		.pipe(sourcemaps.write('./'))
+		.pipe(argv.ram ? gulpMem.dest("./build/src/assets/script/") : gulp.dest("./build/assets/script/"))
+		.pipe(browserSync.stream())
 }
 
 function HTML() {
@@ -91,9 +97,9 @@ function HTML() {
 				.pipe(argv.ram ? emptyStream() : replace('/src/', '/'))
 				.pipe(argv.separate ? replace("style.css", `${path.basename(file.path , ".html")}.css`) : emptyStream())
 				.pipe(argv.separate ? replace("script.js", `${path.basename(file.path, ".html")}.js`) : emptyStream())
-				.pipe(argv.ram ? gulpMem.dest("./build") : gulp.dest("./build"))
-				.pipe(browserSync.stream())
 		}))
+		.pipe(argv.ram ? gulpMem.dest("./build") : gulp.dest("./build"))
+		.pipe(browserSync.stream())
 }
 
 function copyStatic() {
@@ -115,18 +121,34 @@ function minimizeImgs() {
 }
 
 function watch() {
-	gulp.watch("./src/*.html", HTML)
-	gulp.watch("./src/assets/script/*", JS)
-	gulp.watch("./src/assets/style/**/*", CSS)
-	gulp.watch("./src/assets/static/**/*", copyStatic)
+	gulp.watch("./src/*.html", {
+		ignoreInitial: false
+	}, HTML)
+	gulp.watch("./src/assets/script/*", {
+		ignoreInitial: false
+	}, JS)
+	gulp.watch("./src/assets/style/**/*", {
+		ignoreInitial: false
+	}, CSS)
+	gulp.watch("./src/assets/static/**/*", {
+		ignoreInitial: false
+	}, copyStatic)
 }
 
-function ttfToWoffF() {
+function cleanBuild() {
+	return gulp.src("./build", {
+			allowEmpty: true,
+			read: false
+		})
+		.pipe(clean())
+}
+
+function ttfToWoff() {
 	return gulp.src(['./src/assets/static/font/*.ttf'])
 		.pipe(clean())
 		.pipe(ttf2woff2())
 		.pipe(gulp.dest('./src/assets/static/font/'))
 }
-exports.default = gulp.series(gulp.parallel(CSS, JS, HTML, copyStatic), argv.watch ? gulp.parallel(browserSyncInit, watch) : gulp.series(emptyStream))
-exports.imagemin = gulp.series(minimizeImgs)
-exports.ttfToWoff = gulp.series(ttfToWoffF)
+gulp.task('default', argv.watch ? gulp.parallel(watch, browserSyncInit) : gulp.series(cleanBuild, gulp.parallel(CSS, JS, HTML, copyStatic)))
+gulp.task('imagemin', minimizeImgs)
+gulp.task('ttfToWoff', ttfToWoff)
