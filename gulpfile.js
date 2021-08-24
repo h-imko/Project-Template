@@ -41,9 +41,7 @@ function browserSyncInit() {
 }
 
 function emptyStream() {
-	return gulp.src('neverUsedName', {
-		allowEmpty: true
-	})
+	return source('fake-stream').pipe(buffer())
 }
 
 function CSS() {
