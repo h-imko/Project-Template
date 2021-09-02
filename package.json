@@ -19,16 +19,6 @@
 		"ttfToWoff": "gulp ttfToWoff",
 		"setup": "npm i  && npm i -g gulp-cli"
 	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/herr-imko/Project-Template.git"
-	},
-	"author": "",
-	"license": "ISC",
-	"bugs": {
-		"url": "https://github.com/herr-imko/Project-Template/issues"
-	},
-	"homepage": "https://github.com/herr-imko/Project-Template#readme",
 	"devDependencies": {
 		"browser-sync": "^2.27.5",
 		"browserify": "^17.0.0",
