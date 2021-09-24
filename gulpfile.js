@@ -19,15 +19,17 @@ import flatmap from 'gulp-flatmap'
 import path from 'path'
 import cache from 'gulp-cached'
 import yargs from 'yargs'
+import notify from 'gulp-notify'
 import {
 	hideBin
 } from 'yargs/helpers'
 const argv = yargs(hideBin(process.argv))
-	.argv
-const gulpMem = new GulpMem()
+	.argv,
+	sass = GulpSass(Sass),
+	gulpMem = new GulpMem()
 gulpMem.logFn = null
 gulpMem.serveBasePath = "./build"
-const sass = GulpSass(Sass)
+notify.logLevel(0)
 
 function browserSyncInit() {
 	browserSync.create()
@@ -59,7 +61,11 @@ function CSS() {
 				outputStyle: argv.min ? "compressed" : "expanded",
 				includePaths: ['node_modules']
 			})
-			.on('error', sass.logError))
+			.on('error', sass.logError)
+			.on('error', notify.onError({
+				message: "<%= error.message %>",
+				title: "SASS"
+			})))
 		.pipe(argv.ram ? emptyBuffer() : autoPrefixer({
 			cascade: true,
 			overrideBrowserslist: ["last 3 versions"],
@@ -78,10 +84,14 @@ function JS() {
 					debug: true,
 				})
 				.bundle()
-				.on('error', function (err) {
-					console.log(err.message)
+				.on('error', function (error) {
+					console.log(error.message)
 					this.emit('end')
 				})
+				.on('error', notify.onError({
+					message: "<%= error.message %>",
+					title: "JS"
+				}))
 				.pipe(source(`${path.basename(file.path)}`))
 				.pipe(buffer())
 		}))
@@ -98,7 +108,11 @@ function HTML() {
 	return gulp.src(["./src/*.html", "!./src/_*.html"])
 		.pipe(flatmap(function (stream, file) {
 			return stream.pipe(include()
-					.on('error', console.log))
+					.on('error', console.log)
+					.on('error', notify.onError({
+						message: "<%= error.message %>",
+						title: "JS"
+					})))
 				.pipe(argv.ram ? emptyBuffer() : replace('/src/', '/'))
 				.pipe(argv.separate ? replace("style.css", `${path.basename(file.path , ".html")}.css`) : emptyBuffer())
 				.pipe(argv.separate ? replace("script.js", `${path.basename(file.path, ".html")}.js`) : emptyBuffer())
