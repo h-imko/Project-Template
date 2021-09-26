@@ -111,7 +111,7 @@ function HTML() {
 					.on('error', console.log)
 					.on('error', notify.onError({
 						message: "<%= error.message %>",
-						title: "JS"
+						title: "HTML"
 					})))
 				.pipe(argv.ram ? emptyBuffer() : replace('/src/', '/'))
 				.pipe(argv.separate ? replace("style.css", `${path.basename(file.path , ".html")}.css`) : emptyBuffer())
