@@ -12,7 +12,12 @@ import csso from "gulp-csso"
 import buffer from "vinyl-buffer"
 import sourcemaps from "gulp-sourcemaps"
 import GulpMem from "gulp-mem"
-import imagemin from "gulp-imagemin"
+import imagemin, {
+	mozjpeg,
+	optipng,
+	svgo,
+	gifsicle
+} from "gulp-imagemin"
 import browserify from "browserify"
 import source from "vinyl-source-stream"
 import flatmap from "gulp-flatmap"
