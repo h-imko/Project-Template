@@ -1,6 +1,6 @@
 import gulp from "gulp"
 import GulpSass from "gulp-sass"
-import Sass from "sass"
+import Sass from "node-sass"
 import autoPrefixer from "gulp-autoprefixer"
 import browserSync from "browser-sync"
 import replace from "gulp-replace"
@@ -61,7 +61,7 @@ function emptyBuffer() {
 function CSS() {
 	return gulp.src(["./src/assets/style/*.scss", "!./src/assets/style/_*.scss"])
 		.pipe(sourcemaps.init())
-		.pipe(sass.sync({
+		.pipe(sass({
 				errLogToConsole: true,
 				outputStyle: argv.min ? "compressed" : "expanded",
 				includePaths: ["node_modules"]
