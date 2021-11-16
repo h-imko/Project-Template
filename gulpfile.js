@@ -103,6 +103,7 @@ function JS() {
 		.pipe(sourcemaps.init({
 			loadMaps: true
 		}))
+		.pipe(argv.ram ? emptyBuffer() : replace("/src/", "/"))
 		.pipe(argv.min ? uglify() : emptyBuffer())
 		.pipe(sourcemaps.write("./"))
 		.pipe(argv.ram ? gulpMem.dest("./build/src/assets/script/") : gulp.dest("./build/assets/script/"))
@@ -165,6 +166,6 @@ function ttfToWoff() {
 		.pipe(ttf2woff2())
 		.pipe(gulp.dest("./src/assets/static/font/"))
 }
-gulp.task("default", gulp.series(argv.ram ? emptyBuffer : cleanBuild, gulp.parallel(CSS, JS, HTML, copyStatic), argv.watch ? gulp.parallel(watch, browserSyncInit) : emptyBuffer))
+gulp.task("default", gulp.series(argv.ram ? emptyBuffer : cleanBuild, gulp.parallel(CSS, JS, HTML, copyStatic), argv.watch ? gulp.parallel(watch, argv.server ? browserSyncInit : emptyTask) : emptyBuffer))
 gulp.task("imagemin", minimizeImgs)
 gulp.task("ttfToWoff", ttfToWoff)
