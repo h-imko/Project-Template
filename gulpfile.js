@@ -9,6 +9,7 @@ import uglify from "gulp-uglify"
 import include from "gulp-include"
 import clean from "gulp-clean"
 import csso from "gulp-csso"
+import esmify from "esmify"
 import buffer from "vinyl-buffer"
 import sourcemaps from "gulp-sourcemaps"
 import GulpMem from "gulp-mem"
@@ -88,6 +89,7 @@ function JS() {
 			return browserify(`./src/assets/script/${path.basename(file.path)}`, {
 					debug: true,
 				})
+				.plugin(esmify)
 				.bundle()
 				.on("error", function (error) {
 					console.log(error.message)
