@@ -60,7 +60,7 @@ function emptyBuffer() {
 }
 
 function CSS() {
-	return gulp.src(["./src/assets/style/*.scss", "!./src/assets/style/_*.scss"])
+	return gulp.src(["./src/assets/style/**/*.scss", "!./src/assets/style/**/_*.scss"])
 		.pipe(sourcemaps.init())
 		.pipe(sass({
 				errLogToConsole: true,
@@ -84,7 +84,7 @@ function CSS() {
 }
 
 function JS() {
-	return gulp.src(["./src/assets/script/*.js", "!./src/assets/script/_*.js"])
+	return gulp.src(["./src/assets/script/**/*.js", "!./src/assets/script/**/_*.js"])
 		.pipe(flatmap(function (stream, file) {
 			return browserify(`./src/assets/script/${path.basename(file.path)}`, {
 					debug: true,
@@ -149,7 +149,7 @@ function minimizeImgs() {
 
 function watch() {
 	gulp.watch("./src/*.html", HTML)
-	gulp.watch("./src/assets/script/*", JS)
+	gulp.watch("./src/assets/script/**/*", JS)
 	gulp.watch("./src/assets/style/**/*", CSS)
 	gulp.watch("./src/assets/static/**/*", copyStatic)
 }
@@ -163,7 +163,7 @@ function cleanBuild() {
 }
 
 function ttfToWoff() {
-	return gulp.src(["./src/assets/static/font/*.ttf"])
+	return gulp.src(["./src/assets/static/font/**/*.ttf"])
 		.pipe(clean())
 		.pipe(ttf2woff2())
 		.pipe(gulp.dest("./src/assets/static/font/"))
