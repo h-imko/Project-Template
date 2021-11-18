@@ -1,6 +1,6 @@
 import gulp from "gulp"
 import GulpSass from "gulp-sass"
-import Sass from "node-sass"
+import Sass from "sass"
 import autoPrefixer from "gulp-autoprefixer"
 import browserSync from "browser-sync"
 import replace from "gulp-replace"
