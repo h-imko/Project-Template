@@ -9,6 +9,7 @@ import uglify from "gulp-uglify"
 import include from "gulp-include"
 import clean from "gulp-clean"
 import csso from "gulp-csso"
+import pngquant from "imagemin-pngquant"
 import esmify from "esmify"
 import buffer from "vinyl-buffer"
 import sourcemaps from "gulp-sourcemaps"
@@ -140,10 +141,11 @@ function copyStatic() {
 
 function minimizeImgs() {
 	return gulp.src("./src/assets/static/img/**/*")
-		.pipe(imagemin({
-			optimizationLevel: 5,
-			verbose: true,
-		}))
+		.pipe(imagemin([
+			argv.pnglossy ? pngquant() : optipng(),
+			svgo(),
+			mozjpeg()
+		]))
 		.pipe(gulp.dest("./build/assets/static/img"))
 }
 

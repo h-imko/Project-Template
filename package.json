@@ -20,6 +20,7 @@
 		"build_watch_separate_server": "node ./node_modules/gulp/bin/gulp.js --watch --separate  --server",
 		"build_watch_min_separate_server": "node ./node_modules/gulp/bin/gulp.js --watch --min --separate --server",
 		"imagemin": "node ./node_modules/gulp/bin/gulp.js imagemin",
+		"imagemin_pnglossy": "node ./node_modules/gulp/bin/gulp.js imagemin --pnglossy",
 		"ttfToWoff": "node ./node_modules/gulp/bin/gulp.js ttfToWoff",
 		"setup": "npm i"
 	},
@@ -42,6 +43,7 @@
 		"gulp-sourcemaps": "^3.0.0",
 		"gulp-ttf2woff2": "^4.0.1",
 		"gulp-uglify": "^3.0.2",
+		"imagemin-pngquant": "^9.0.2",
 		"path": "^0.12.7",
 		"sass": "^1.43.4",
 		"vinyl-buffer": "^1.0.1",
