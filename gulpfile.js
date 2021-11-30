@@ -63,7 +63,7 @@ function emptyBuffer() {
 function CSS() {
 	return gulp.src(["./src/assets/style/**/*.scss", "!./src/assets/style/**/_*.scss"])
 		.pipe(sourcemaps.init())
-		.pipe(sass({
+		.pipe(sass.sync({
 				errLogToConsole: true,
 				outputStyle: argv.min ? "compressed" : "expanded",
 				includePaths: ["node_modules"]
