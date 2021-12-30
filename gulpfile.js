@@ -164,6 +164,14 @@ function cleanBuild() {
 		.pipe(clean())
 }
 
+function cleanPlaceholders() {
+	return gulp.src("./src/**/.placeholder", {
+			allowEmpty: true,
+			read: false
+		})
+		.pipe(clean())
+}
+
 function ttfToWoff() {
 	return gulp.src(["./src/assets/static/font/**/*.ttf"])
 		.pipe(clean())
@@ -173,3 +181,4 @@ function ttfToWoff() {
 gulp.task("default", gulp.series(argv.ram ? emptyBuffer : cleanBuild, gulp.parallel(CSS, JS, HTML, copyStatic), argv.watch ? gulp.parallel(watch, argv.server ? browserSyncInit : emptyTask) : emptyBuffer))
 gulp.task("imagemin", minimizeImgs)
 gulp.task("ttfToWoff", ttfToWoff)
+gulp.task("init", gulp.parallel(cleanPlaceholders))

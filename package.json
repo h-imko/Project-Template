@@ -22,7 +22,7 @@
 		"imagemin": "node ./node_modules/gulp/bin/gulp.js imagemin",
 		"imagemin_pnglossy": "node ./node_modules/gulp/bin/gulp.js imagemin --pnglossy",
 		"ttfToWoff": "node ./node_modules/gulp/bin/gulp.js ttfToWoff",
-		"setup": "npm i",
+		"setup": "npm i && node ./node_modules/gulp/bin/gulp.js init",
 		"update unsafe" : "ncu -u && npm i"
 	},
 	"devDependencies": {
