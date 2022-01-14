@@ -141,12 +141,13 @@ function copyStatic() {
 
 function minimizeImgs() {
 	return gulp.src("./src/assets/static/img/**/*")
+		.pipe(gulp.dest("./src/assets/static/img-old/"))
 		.pipe(imagemin([
 			argv.pnglossy ? pngquant() : optipng(),
 			svgo(),
 			mozjpeg()
 		]))
-		.pipe(gulp.dest("./build/assets/static/img"))
+		.pipe(gulp.dest("./src/assets/static/img/"))
 }
 
 function watch() {
