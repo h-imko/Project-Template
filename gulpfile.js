@@ -11,6 +11,7 @@ import clean from "gulp-clean"
 import csso from "gulp-csso"
 import pngquant from "imagemin-pngquant"
 import esmify from "esmify"
+import tsify from "tsify"
 import buffer from "vinyl-buffer"
 import sourcemaps from "gulp-sourcemaps"
 import GulpMem from "gulp-mem"
@@ -90,6 +91,7 @@ function JS() {
 			return browserify(`./src/assets/script/${path.basename(file.path)}`, {
 					debug: true,
 				})
+				.plugin(tsify)
 				.plugin(esmify)
 				.bundle()
 				.on("error", function (error) {
