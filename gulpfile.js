@@ -1,10 +1,11 @@
 import gulp from "gulp"
-import GulpSass from "gulp-sass"
-import Sass from "sass"
+// import GulpSass from "gulp-sass"
+// import Sass from "sass"
+import sass from "gulp-dart-sass"
 import autoPrefixer from "gulp-autoprefixer"
 import browserSync from "browser-sync"
 import replace from "gulp-replace"
-import ttf2woff2 from "gulp-ttf2woff2"
+import ttf2woff2 from "ttf2woff2"
 import uglify from "gulp-uglify"
 import include from "gulp-include"
 import clean from "gulp-clean"
@@ -33,7 +34,7 @@ import {
 } from "yargs/helpers"
 const argv = yargs(hideBin(process.argv))
 	.argv,
-	sass = GulpSass(Sass),
+	// sass = GulpSass(Sass),
 	gulpMem = new GulpMem()
 gulpMem.logFn = null
 gulpMem.serveBasePath = "./build"
@@ -178,10 +179,17 @@ function cleanPlaceholders() {
 function ttfToWoff() {
 	return gulp.src(["./src/assets/static/font/**/*.ttf"])
 		.pipe(clean())
-		.pipe(ttf2woff2())
+		.pipe(flatmap((function (stream, file) {
+			stream = source(`${path.basename(file.path, path.extname(file.path))}.woff2`)
+			stream.write(ttf2woff2(file.contents))
+			process.nextTick(function () {
+				stream.end()
+			})
+			return stream.pipe(buffer())
+		})))
 		.pipe(gulp.dest("./src/assets/static/font/"))
 }
-gulp.task("default", gulp.series(argv.ram ? emptyBuffer : cleanBuild, gulp.parallel(CSS, JS, HTML, copyStatic), argv.watch ? gulp.parallel(watch, argv.server ? browserSyncInit : emptyTask) : emptyBuffer))
+gulp.task("default", gulp.series(argv.ram ? emptyBuffer : cleanBuild, gulp.parallel(CSS, JS, HTML, copyStatic), argv.watch ? gulp.parallel(watch, browserSyncInit) : emptyBuffer))
 gulp.task("imagemin", minimizeImgs)
 gulp.task("ttfToWoff", ttfToWoff)
 gulp.task("init", gulp.parallel(cleanPlaceholders))
