@@ -1,7 +1,6 @@
 import gulp from "gulp"
-// import GulpSass from "gulp-sass"
-// import Sass from "sass"
-import sass from "gulp-dart-sass"
+import GulpSass from "gulp-sass"
+import Sass from "sass"
 import autoPrefixer from "gulp-autoprefixer"
 import browserSync from "browser-sync"
 import replace from "gulp-replace"
@@ -34,7 +33,7 @@ import {
 } from "yargs/helpers"
 const argv = yargs(hideBin(process.argv))
 	.argv,
-	// sass = GulpSass(Sass),
+	sass = GulpSass(Sass),
 	gulpMem = new GulpMem()
 gulpMem.logFn = null
 gulpMem.serveBasePath = "./build"
@@ -52,14 +51,12 @@ function browserSyncInit() {
 	})
 }
 
-function emptyTask(cb) {
-	cb()
-}
-
-function emptyBuffer() {
-	return gulp.src("neverUsedName", {
-		allowEmpty: true
+function emptyStream() {
+	let stream = source('')
+	process.nextTick(function () {
+		stream.end()
 	})
+	return stream.pipe(buffer())
 }
 
 function CSS() {
@@ -75,12 +72,12 @@ function CSS() {
 				message: "<%= error.message %>",
 				title: "SASS"
 			})))
-		.pipe(argv.ram ? emptyBuffer() : autoPrefixer({
+		.pipe(argv.ram ? emptyStream() : autoPrefixer({
 			cascade: true,
 			overrideBrowserslist: ["last 3 versions"],
 		}))
-		.pipe(argv.min ? csso() : emptyBuffer())
-		.pipe(argv.ram ? emptyBuffer() : replace("/src/", "/"))
+		.pipe(argv.min ? csso() : emptyStream())
+		.pipe(argv.ram ? emptyStream() : replace("/src/", "/"))
 		.pipe(sourcemaps.write("."))
 		.pipe(argv.ram ? gulpMem.dest("./build/src/assets/style/") : gulp.dest("./build/assets/style/"))
 		.pipe(browserSync.stream())
@@ -109,8 +106,8 @@ function JS() {
 		.pipe(sourcemaps.init({
 			loadMaps: true
 		}))
-		.pipe(argv.ram ? emptyBuffer() : replace("/src/", "/"))
-		.pipe(argv.min ? uglify() : emptyBuffer())
+		.pipe(argv.ram ? emptyStream() : replace("/src/", "/"))
+		.pipe(argv.min ? uglify() : emptyStream())
 		.pipe(sourcemaps.write("./"))
 		.pipe(argv.ram ? gulpMem.dest("./build/src/assets/script/") : gulp.dest("./build/assets/script/"))
 		.pipe(browserSync.stream())
@@ -125,9 +122,9 @@ function HTML() {
 						message: "<%= error.message %>",
 						title: "HTML"
 					})))
-				.pipe(argv.ram ? emptyBuffer() : replace("/src/", "/"))
-				.pipe(argv.separate ? replace("style.css", `${path.basename(file.path , ".html")}.css`) : emptyBuffer())
-				.pipe(argv.separate ? replace("script.js", `${path.basename(file.path, ".html")}.js`) : emptyBuffer())
+				.pipe(argv.ram ? emptyStream() : replace("/src/", "/"))
+				.pipe(argv.separate ? replace("style.css", `${path.basename(file.path , ".html")}.css`) : emptyStream())
+				.pipe(argv.separate ? replace("script.js", `${path.basename(file.path, ".html")}.js`) : emptyStream())
 		}))
 		.pipe(argv.ram ? gulpMem.dest("./build") : gulp.dest("./build"))
 		.pipe(browserSync.stream())
@@ -189,7 +186,7 @@ function ttfToWoff() {
 		})))
 		.pipe(gulp.dest("./src/assets/static/font/"))
 }
-gulp.task("default", gulp.series(argv.ram ? emptyBuffer : cleanBuild, gulp.parallel(CSS, JS, HTML, copyStatic), argv.watch ? gulp.parallel(watch, browserSyncInit) : emptyBuffer))
+gulp.task("default", gulp.series(argv.ram ? emptyStream : cleanBuild, gulp.parallel(CSS, JS, HTML, copyStatic), argv.watch ? gulp.parallel(watch, browserSyncInit) : emptyStream))
 gulp.task("imagemin", minimizeImgs)
 gulp.task("ttfToWoff", ttfToWoff)
 gulp.task("init", gulp.parallel(cleanPlaceholders))
