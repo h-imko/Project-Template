@@ -52,11 +52,16 @@ function browserSyncInit() {
 }
 
 function emptyStream() {
-	let stream = source('')
+	return source("")
+		.pipe(buffer())
+}
+
+function emptyFunc() {
+	let strm = source("")
 	process.nextTick(function () {
-		stream.end()
+		strm.end()
 	})
-	return stream.pipe(buffer())
+	return strm.pipe(buffer())
 }
 
 function CSS() {
@@ -186,7 +191,7 @@ function ttfToWoff() {
 		})))
 		.pipe(gulp.dest("./src/assets/static/font/"))
 }
-gulp.task("default", gulp.series(argv.ram ? emptyStream : cleanBuild, gulp.parallel(CSS, JS, HTML, copyStatic), argv.watch ? gulp.parallel(watch, browserSyncInit) : emptyStream))
+gulp.task("default", gulp.series(argv.ram ? emptyFunc : cleanBuild, gulp.parallel(CSS, JS, HTML, copyStatic), argv.watch ? gulp.parallel(watch, browserSyncInit) : emptyFunc))
 gulp.task("imagemin", minimizeImgs)
 gulp.task("ttfToWoff", ttfToWoff)
 gulp.task("init", gulp.parallel(cleanPlaceholders))
