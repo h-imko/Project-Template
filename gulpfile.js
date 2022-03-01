@@ -27,7 +27,6 @@ import flatmap from "gulp-flatmap"
 import path from "path"
 import cache from "gulp-cached"
 import yargs from "yargs"
-import notify from "gulp-notify"
 import {
 	hideBin
 } from "yargs/helpers"
@@ -37,17 +36,14 @@ const argv = yargs(hideBin(process.argv))
 	gulpMem = new GulpMem()
 gulpMem.logFn = null
 gulpMem.serveBasePath = "./build"
-notify.logLevel(0)
 
 function browserSyncInit() {
-	browserSync.create()
 	browserSync.init({
 		server: {
 			baseDir: "./build",
 			middleware: argv.ram ? gulpMem.middleware : false
 		},
 		port: 3000,
-		logConnections: true
 	})
 }
 
@@ -58,6 +54,22 @@ function nothing() {
 	})
 }
 
+function printPaintedMessage(message, module) {
+	let errs = [...message.matchAll(new RegExp(/(?:[A-Za-z]+:*\\[а-яА-Яa-zA-Z-_.\\/]+)|('[а-яА-Яa-zA-Z-_.\\/]+')/gm))].map(function (curr) {
+			return {
+				text: curr[0],
+				index: curr.index,
+				length: curr[0].length
+			}
+		})
+		.reverse()
+	message = message.split("")
+	errs.forEach(item => {
+		message.splice(item.index, item.length, "\x1b[0m", '\x1b[35m', item.text, "\x1b[0m")
+	})
+	console.log(`[\x1b[31m${module}\x1b[0m] ${message.join("")}`)
+}
+
 function CSS() {
 	return gulp.src(["./src/assets/style/**/*.scss", "!./src/assets/style/**/_*.scss"])
 		.pipe(sourcemaps.init())
@@ -66,11 +78,11 @@ function CSS() {
 				outputStyle: argv.min ? "compressed" : "expanded",
 				includePaths: ["node_modules"]
 			})
-			.on("error", sass.logError)
-			.on("error", notify.onError({
-				message: "<%= error.message %>",
-				title: "SASS"
-			})))
+			.on("error", function (error) {
+				printPaintedMessage(error.message, "Sass")
+				browserSync.notify("SASS Error")
+				this.emit("end")
+			}))
 		.pipe(argv.ram ? nothing() : autoPrefixer({
 			cascade: true,
 			overrideBrowserslist: ["last 3 versions"],
@@ -85,20 +97,17 @@ function CSS() {
 function JS() {
 	return gulp.src(["./src/assets/script/**/*.js", "!./src/assets/script/**/_*.js"])
 		.pipe(flatmap(function (stream, file) {
-			return browserify(`./src/assets/script/${path.basename(file.path)}`, {
+			return browserify(file.path, {
 					debug: true,
 				})
 				.plugin(tsify)
 				.plugin(esmify)
 				.bundle()
 				.on("error", function (error) {
-					console.log(error.message)
+					printPaintedMessage(error.message, "Browserify")
+					browserSync.notify("JS Error")
 					this.emit("end")
 				})
-				.on("error", notify.onError({
-					message: "<%= error.message %>",
-					title: "JS"
-				}))
 				.pipe(source(`${path.basename(file.path)}`))
 				.pipe(buffer())
 		}))
@@ -117,13 +126,12 @@ function HTML() {
 		.pipe(flatmap(function (stream, file) {
 			return stream.pipe(include()
 					.on("error", console.log)
-					.on("error", notify.onError({
-						message: "<%= error.message %>",
-						title: "HTML"
-					})))
+					.on("error", function () {
+						browserSync.notify("HTML Error")
+					}))
 				.pipe(argv.ram ? nothing() : replace("/src/", "/"))
-				.pipe(argv.separate ? replace("style.css", `${path.basename(file.path , ".html")}.css`) : nothing())
-				.pipe(argv.separate ? replace("script.js", `${path.basename(file.path, ".html")}.js`) : nothing())
+				.pipe(argv.separate ? replace("style.css", `${path.basename(file.path , ".html")}.css`)
+					.pipe(replace("script.js", `${path.basename(file.path, ".html")}.js`)) : nothing())
 		}))
 		.pipe(argv.ram ? gulpMem.dest("./build") : gulp.dest("./build"))
 		.pipe(browserSync.stream())
