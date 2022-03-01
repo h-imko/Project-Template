@@ -19,7 +19,8 @@
 		"imagemin_pnglossy": "node ./node_modules/gulp/bin/gulp.js imagemin --pnglossy",
 		"ttfToWoff": "node ./node_modules/gulp/bin/gulp.js ttfToWoff",
 		"setup": "npm i && node ./node_modules/gulp/bin/gulp.js init",
-		"update unsafe": "ncu -u && npm i"
+		"check packages update": "node ./node_modules/npm-check-updates/build/src/bin/cli.js",
+		"update packages unsafe": "node ./node_modules/npm-check-updates/build/src/bin/cli.js -u && npm i"
 	},
 	"devDependencies": {
 		"browser-sync": "^2.27.7",
@@ -41,8 +42,9 @@
 		"gulp-ttf2woff2": "^4.0.1",
 		"gulp-uglify": "^3.0.2",
 		"imagemin-pngquant": "^9.0.2",
+		"npm-check-updates": "^12.4.0",
 		"path": "^0.12.7",
-		"sass": "^1.49.8",
+		"sass": "^1.49.9",
 		"tsify": "^5.0.4",
 		"ttf2woff2": "^4.0.4",
 		"vinyl-buffer": "^1.0.1",
