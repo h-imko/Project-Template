@@ -51,17 +51,11 @@ function browserSyncInit() {
 	})
 }
 
-function emptyStream() {
-	return source("")
-		.pipe(buffer())
-}
-
-function emptyFunc() {
-	let strm = source("")
-	process.nextTick(function () {
-		strm.end()
+function nothing() {
+	return gulp.src("neverUsedName", {
+		allowEmpty: true,
+		read: false
 	})
-	return strm.pipe(buffer())
 }
 
 function CSS() {
@@ -77,12 +71,12 @@ function CSS() {
 				message: "<%= error.message %>",
 				title: "SASS"
 			})))
-		.pipe(argv.ram ? emptyStream() : autoPrefixer({
+		.pipe(argv.ram ? nothing() : autoPrefixer({
 			cascade: true,
 			overrideBrowserslist: ["last 3 versions"],
 		}))
-		.pipe(argv.min ? csso() : emptyStream())
-		.pipe(argv.ram ? emptyStream() : replace("/src/", "/"))
+		.pipe(argv.min ? csso() : nothing())
+		.pipe(argv.ram ? nothing() : replace("/src/", "/"))
 		.pipe(sourcemaps.write("."))
 		.pipe(argv.ram ? gulpMem.dest("./build/src/assets/style/") : gulp.dest("./build/assets/style/"))
 		.pipe(browserSync.stream())
@@ -111,8 +105,8 @@ function JS() {
 		.pipe(sourcemaps.init({
 			loadMaps: true
 		}))
-		.pipe(argv.ram ? emptyStream() : replace("/src/", "/"))
-		.pipe(argv.min ? uglify() : emptyStream())
+		.pipe(argv.ram ? nothing() : replace("/src/", "/"))
+		.pipe(argv.min ? uglify() : nothing())
 		.pipe(sourcemaps.write("./"))
 		.pipe(argv.ram ? gulpMem.dest("./build/src/assets/script/") : gulp.dest("./build/assets/script/"))
 		.pipe(browserSync.stream())
@@ -127,9 +121,9 @@ function HTML() {
 						message: "<%= error.message %>",
 						title: "HTML"
 					})))
-				.pipe(argv.ram ? emptyStream() : replace("/src/", "/"))
-				.pipe(argv.separate ? replace("style.css", `${path.basename(file.path , ".html")}.css`) : emptyStream())
-				.pipe(argv.separate ? replace("script.js", `${path.basename(file.path, ".html")}.js`) : emptyStream())
+				.pipe(argv.ram ? nothing() : replace("/src/", "/"))
+				.pipe(argv.separate ? replace("style.css", `${path.basename(file.path , ".html")}.css`) : nothing())
+				.pipe(argv.separate ? replace("script.js", `${path.basename(file.path, ".html")}.js`) : nothing())
 		}))
 		.pipe(argv.ram ? gulpMem.dest("./build") : gulp.dest("./build"))
 		.pipe(browserSync.stream())
@@ -191,7 +185,7 @@ function ttfToWoff() {
 		})))
 		.pipe(gulp.dest("./src/assets/static/font/"))
 }
-gulp.task("default", gulp.series(argv.ram ? emptyFunc : cleanBuild, gulp.parallel(CSS, JS, HTML, copyStatic), argv.watch ? gulp.parallel(watch, browserSyncInit) : emptyFunc))
+gulp.task("default", gulp.series(argv.ram ? nothing : cleanBuild, gulp.parallel(CSS, JS, HTML, copyStatic), argv.watch ? gulp.parallel(watch, browserSyncInit) : nothing))
 gulp.task("imagemin", minimizeImgs)
 gulp.task("ttfToWoff", ttfToWoff)
 gulp.task("init", gulp.parallel(cleanPlaceholders))
