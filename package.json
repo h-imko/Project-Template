@@ -18,13 +18,14 @@
 		"imagemin": "node ./node_modules/gulp/bin/gulp.js imagemin",
 		"imagemin_pnglossy": "node ./node_modules/gulp/bin/gulp.js imagemin --pnglossy",
 		"ttfToWoff": "node ./node_modules/gulp/bin/gulp.js ttfToWoff",
-		"setup": "npm i && node ./node_modules/gulp/bin/gulp.js init",
+		"init": "npm i && node ./node_modules/gulp/bin/gulp.js init",
 		"check packages update": "node ./node_modules/npm-check-updates/build/src/bin/cli.js",
 		"update packages unsafe": "node ./node_modules/npm-check-updates/build/src/bin/cli.js -u && npm i"
 	},
 	"devDependencies": {
 		"browser-sync": "^2.27.7",
 		"browserify": "^17.0.0",
+		"del": "^6.0.0",
 		"esmify": "^2.1.1",
 		"gulp": "^4.0.2",
 		"gulp-autoprefixer": "^8.0.0",
@@ -47,6 +48,7 @@
 		"tsify": "^5.0.4",
 		"ttf2woff2": "^4.0.4",
 		"vinyl-buffer": "^1.0.1",
+		"vinyl-paths": "^4.0.0",
 		"vinyl-source-stream": "^2.0.0",
 		"yargs": "^17.3.1"
 	}

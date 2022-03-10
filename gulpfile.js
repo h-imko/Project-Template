@@ -7,7 +7,6 @@ import replace from "gulp-replace"
 import ttf2woff2 from "ttf2woff2"
 import uglify from "gulp-uglify"
 import include from "gulp-include"
-import clean from "gulp-clean"
 import csso from "gulp-csso"
 import pngquant from "imagemin-pngquant"
 import esmify from "esmify"
@@ -25,6 +24,8 @@ import browserify from "browserify"
 import source from "vinyl-source-stream"
 import flatmap from "gulp-flatmap"
 import path from "path"
+import del from "del"
+import vinylPaths from "vinyl-paths"
 import cache from "gulp-cached"
 import yargs from "yargs"
 import {
@@ -164,25 +165,19 @@ function watch() {
 	gulp.watch("./src/assets/static/**/*", copyStatic)
 }
 
-function cleanBuild() {
-	return gulp.src("./build", {
+function rm(glob) {
+	return gulp.src(glob, {
 			allowEmpty: true,
 			read: false
 		})
-		.pipe(clean())
-}
-
-function cleanPlaceholders() {
-	return gulp.src("./src/**/.placeholder", {
-			allowEmpty: true,
-			read: false
-		})
-		.pipe(clean())
+		.pipe(vinylPaths(del))
 }
 
 function ttfToWoff() {
-	return gulp.src(["./src/assets/static/font/**/*.ttf"])
-		.pipe(clean())
+	return gulp.src(["./src/assets/static/font/**/*.ttf"], {
+			allowEmpty: true
+		})
+		.pipe(vinylPaths(del))
 		.pipe(flatmap((function (stream, file) {
 			stream = source(`${path.basename(file.path, path.extname(file.path))}.woff2`)
 			stream.write(ttf2woff2(file.contents))
@@ -193,7 +188,11 @@ function ttfToWoff() {
 		})))
 		.pipe(gulp.dest("./src/assets/static/font/"))
 }
-gulp.task("default", gulp.series(argv.ram ? nothing : cleanBuild, gulp.parallel(CSS, JS, HTML, copyStatic), argv.watch ? gulp.parallel(watch, browserSyncInit) : nothing))
+gulp.task("default", gulp.series(argv.ram ? nothing : function () {
+	return del("./build")
+}, gulp.parallel(CSS, JS, HTML, copyStatic), argv.watch ? gulp.parallel(watch, browserSyncInit) : nothing))
 gulp.task("imagemin", minimizeImgs)
 gulp.task("ttfToWoff", ttfToWoff)
-gulp.task("init", gulp.parallel(cleanPlaceholders))
+gulp.task("init", function () {
+	return del("./src/**/.placeholder")
+})
