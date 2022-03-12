@@ -162,7 +162,7 @@ function watch() {
 	gulp.watch("./src/*.html", HTML)
 	gulp.watch("./src/assets/script/**/*", JS)
 	gulp.watch("./src/assets/style/**/*", CSS)
-	gulp.watch("./src/assets/static/**/*", copyStatic)
+	gulp.watch(["./src/assets/static/**/*", "!./src/assets/static/img-old/"], copyStatic)
 }
 
 function rm(glob) {
