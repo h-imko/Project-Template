@@ -8,17 +8,14 @@ import ttf2woff2 from "ttf2woff2"
 import uglify from "gulp-uglify"
 import include from "gulp-include"
 import csso from "gulp-csso"
-import pngquant from "imagemin-pngquant"
 import esmify from "esmify"
 import tsify from "tsify"
 import buffer from "vinyl-buffer"
 import sourcemaps from "gulp-sourcemaps"
 import GulpMem from "gulp-mem"
+import webp from "imagemin-webp"
 import imagemin, {
-	mozjpeg,
-	optipng,
 	svgo,
-	gifsicle
 } from "gulp-imagemin"
 import browserify from "browserify"
 import source from "vinyl-source-stream"
@@ -151,9 +148,12 @@ function minimizeImgs() {
 	return gulp.src("./src/assets/static/img/**/*")
 		.pipe(gulp.dest("./src/assets/static/img-old/"))
 		.pipe(imagemin([
-			argv.pnglossy ? pngquant() : optipng(),
 			svgo(),
-			mozjpeg()
+			webp({
+				quality: 50,
+				autoFilter: true,
+				method: 6,
+			})
 		]))
 		.pipe(gulp.dest("./src/assets/static/img/"))
 }
