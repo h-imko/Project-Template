@@ -136,7 +136,7 @@ function HTML() {
 }
 
 function copyStatic() {
-	return gulp.src("./src/assets/static/**/*", {
+	return gulp.src(["./src/assets/static/**/*", "!./src/assets/static/img-old/"], {
 			allowEmpty: true
 		})
 		.pipe(cache("static"))
