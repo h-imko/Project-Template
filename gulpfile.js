@@ -15,6 +15,7 @@ import sourcemaps from "gulp-sourcemaps"
 import GulpMem from "gulp-mem"
 import webp from "imagemin-webp"
 import imagemin, {
+	gifsicle,
 	svgo,
 } from "gulp-imagemin"
 import browserify from "browserify"
@@ -148,12 +149,11 @@ function minimizeImgs() {
 	return gulp.src("./src/assets/static/img/**/*")
 		.pipe(gulp.dest("./src/assets/static/img-old/"))
 		.pipe(imagemin([
-			svgo(),
 			webp({
 				quality: 50,
-				autoFilter: true,
-				method: 6,
-			})
+			}),
+			svgo(),
+			gifsicle()
 		]))
 		.pipe(gulp.dest("./src/assets/static/img/"))
 }
