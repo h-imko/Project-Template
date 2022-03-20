@@ -36,6 +36,10 @@ const argv = yargs(hideBin(process.argv))
 gulpMem.logFn = null
 gulpMem.serveBasePath = "./build"
 
+function universalDel(anypath, options) {
+	return del(pathToPOSIX(anypath), options)
+}
+
 function browserSyncInit() {
 	browserSync.init({
 		server: {
@@ -165,19 +169,16 @@ function watch() {
 	gulp.watch(["./src/assets/static/**/*", "!./src/assets/static/img-old/"], copyStatic)
 }
 
-function rm(glob) {
-	return gulp.src(glob, {
-			allowEmpty: true,
-			read: false
-		})
-		.pipe(vinylPaths(del))
+function pathToPOSIX(anypath) {
+	return anypath.split(path.sep)
+		.join(path.posix.sep)
 }
 
 function ttfToWoff() {
 	return gulp.src(["./src/assets/static/font/**/*.ttf"], {
 			allowEmpty: true
 		})
-		.pipe(vinylPaths(del))
+		.pipe(vinylPaths(universalDel))
 		.pipe(flatmap((function (stream, file) {
 			stream = source(`${path.basename(file.path, path.extname(file.path))}.woff2`)
 			stream.write(ttf2woff2(file.contents))
