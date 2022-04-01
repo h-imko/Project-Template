@@ -13,8 +13,9 @@ import tsify from "tsify"
 import buffer from "vinyl-buffer"
 import sourcemaps from "gulp-sourcemaps"
 import GulpMem from "gulp-mem"
-import webp from "imagemin-webp"
+import pngquant from "imagemin-pngquant"
 import imagemin, {
+	mozjpeg,
 	gifsicle,
 	svgo,
 } from "gulp-imagemin"
@@ -153,9 +154,8 @@ function minimizeImgs() {
 	return gulp.src("./src/assets/static/img/**/*")
 		.pipe(gulp.dest("./src/assets/static/img-old/"))
 		.pipe(imagemin([
-			webp({
-				quality: 50,
-			}),
+			pngquant(),
+			mozjpeg(),
 			svgo(),
 			gifsicle()
 		]))

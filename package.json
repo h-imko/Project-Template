@@ -22,7 +22,7 @@
 		"update packages unsafe": "node ./node_modules/npm-check-updates/build/src/bin/cli.js -u && npm i"
 	},
 	"devDependencies": {
-		"browser-sync": "^2.27.7",
+		"browser-sync": "^2.27.9",
 		"browserify": "^17.0.0",
 		"del": "^6.0.0",
 		"esmify": "^2.1.1",
@@ -38,15 +38,16 @@
 		"gulp-sass": "^5.1.0",
 		"gulp-sourcemaps": "^3.0.0",
 		"gulp-uglify": "^3.0.2",
+		"imagemin-pngquant": "^9.0.2",
 		"imagemin-webp": "^7.0.0",
-		"npm-check-updates": "^12.5.2",
+		"npm-check-updates": "^12.5.4",
 		"path": "^0.12.7",
-		"sass": "^1.49.9",
+		"sass": "^1.49.10",
 		"tsify": "^5.0.4",
 		"ttf2woff2": "^4.0.4",
 		"vinyl-buffer": "^1.0.1",
 		"vinyl-paths": "^4.0.0",
 		"vinyl-source-stream": "^2.0.0",
-		"yargs": "^17.3.1"
+		"yargs": "^17.4.0"
 	}
 }
