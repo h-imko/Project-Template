@@ -1,0 +1,30 @@
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+	outline: none;
+	text-decoration: none;
+
+	&::before,
+	&::after {
+		box-sizing: border-box;
+		margin: 0;
+		padding: 0;
+		outline: none;
+		text-decoration: none;
+	}
+}
+
+img {
+	max-width: 100%;
+	object-fit: contain;
+	display: block;
+}
+
+html {
+	scroll-behavior: smooth;
+
+	&.noscroll {
+		overflow: hidden;
+	}
+}

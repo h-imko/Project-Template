@@ -1,0 +1,127 @@
+.custom-input {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	position: relative;
+
+	.input-title {
+		margin-bottom: 4px;
+		order: 1;
+		// @extend %h5;
+	}
+
+	.input-tip {
+		margin-top: 4px;
+		order: 3;
+		// @extend %small-text;
+	}
+
+	input {
+		width: 100%;
+		border-width: 2px;
+		border-style: solid;
+		// border-color: $grey3;
+		height: var(--button-height);
+		font-weight: 400;
+		font-size: 16px;
+		line-height: 150%;
+		background: white;
+		padding: 0 24px;
+		order: 2;
+		// color: $grey2;
+		outline: none;
+		@include transition-base;
+
+		&::placeholder {
+			// color: $grey2;
+		}
+
+		&:focus {
+			// color: $black;
+			// border-color: $grey2;
+		}
+
+		&:valid {
+			&:not(:placeholder-shown):not(:focus) {
+				// color: $black;
+				// border-color: $grey2;
+			}
+		}
+
+		&:hover {
+			// color: $black;
+			// border-color: $grey2;
+		}
+
+		&:invalid {
+			&:not(:placeholder-shown):not(:focus) {
+				// color: $red;
+				// border-color: $red;
+
+				~ .input-tip,
+				~ .input-title {
+					// color: $red;
+				}
+			}
+		}
+
+		&:disabled {
+			// color: $grey3;
+
+			~ .tip,
+			~ .input-title {
+				// color: $grey3;
+			}
+		}
+	}
+
+	select {
+		user-select: none;
+		width: 100%;
+		border-width: 2px;
+		border-style: solid;
+		height: var(--button-height);
+		font-weight: 400;
+		font-size: 16px;
+		line-height: 150%;
+		order: 2;
+		appearance: none;
+		background-color: white;
+		background-image: url(/src/assets/static/img/icon/arrow-down.svg);
+		background-position: right 24px center;
+		background-repeat: no-repeat;
+		background-size: 24px;
+		cursor: pointer;
+		position: relative;
+		outline: none;
+		// color: $black;
+		// border-color: $grey2;
+		padding: 0 24px;
+
+		&.opened {
+			background-image: url(/src/assets/static/img/icon/arrow-up.svg);
+		}
+
+		&:disabled {
+			pointer-events: none;
+			opacity: 1;
+			// border-color: $grey3;
+			// color: $grey3;
+			background-image: none;
+		}
+	}
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="tel"],
+input[type="number"],
+textarea {
+	appearance: textfield;
+
+	&::-webkit-inner-spin-button,
+	&::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+	}
+}

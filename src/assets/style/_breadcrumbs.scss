@@ -1,0 +1,38 @@
+.breadcrumbs {
+	margin-bottom: 24px;
+
+	.container {
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+	}
+
+	.item {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+
+		&:last-child {
+			a {
+				// color: $black;
+				pointer-events: none;
+			}
+		}
+
+		&:not(:last-child) {
+			a {
+				// color: $red;
+			}
+
+			&::after {
+				margin: 0 10px;
+				content: "";
+				// @extend %icon,
+				// %icon-arrow-mini;
+				// background: $grey1;
+				width: 16px;
+				height: 16px;
+			}
+		}
+	}
+}

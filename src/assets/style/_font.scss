@@ -46,15 +46,6 @@ h6,
 	@media screen and (max-width: $mobile) {}
 }
 
-.caption,
-%caption {
-
-	&.bold,
-	&%bold {}
-
-	@media screen and (max-width: $mobile) {}
-}
-
 body,
 input {
 	@media screen and (max-width: $mobile) {}
