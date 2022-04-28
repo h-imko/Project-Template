@@ -1,4 +1,5 @@
 import Splide from "@splidejs/splide"
+import "fslightbox"
 document.addEventListener('DOMContentLoaded', function () {})
 
 function initQuantity() {

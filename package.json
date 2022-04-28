@@ -52,6 +52,7 @@
 	},
 	"dependencies": {
 		"@splidejs/splide": "^4.0.1",
+		"fslightbox": "^3.3.1",
 		"typescript": "^4.6.3"
 	}
 }
