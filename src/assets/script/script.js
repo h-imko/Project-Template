@@ -44,3 +44,40 @@ function makeSlideToggle(elem) {
 		}
 	}
 }
+
+function toggleNoscrollBody() {
+	if (document.body.classList.contains('noscroll')) {
+		document.querySelector('html')
+			.classList.remove('noscroll')
+		document.body.classList.remove('noscroll')
+		document.body.style.paddingRight = ""
+	} else {
+		document.body.style.paddingRight = `${window.innerWidth - document.documentElement.clientWidth}px`
+		document.body.classList.add('noscroll')
+		document.querySelector('html')
+			.classList.add('noscroll')
+	}
+}
+
+function initPopups() {
+	document.querySelectorAll(".popup-opener")
+		.forEach(function (button) {
+			let targetId = button.dataset.target
+			let popup = document.querySelector(`#${targetId}`)
+			button.addEventListener('click', function () {
+				event.preventDefault()
+				event.stopPropagation()
+				toggleNoscrollBody()
+				popup.classList.add("show")
+			})
+			popup.querySelectorAll(".popup-closer")
+				.forEach(closer => {
+					closer.addEventListener("click", function () {
+						event.preventDefault()
+						event.stopPropagation()
+						toggleNoscrollBody()
+						popup.classList.remove("show")
+					})
+				})
+		})
+}
