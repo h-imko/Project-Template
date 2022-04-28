@@ -1,0 +1,99 @@
+.custom-form {
+	width: 100%;
+
+	.checkbox-group {
+		display: flex;
+		align-items: center;
+		cursor: pointer;
+		user-select: none;
+
+		.custom-checkbox {
+			margin-right: 8px;
+		}
+	}
+
+	.form-group {
+		display: flex;
+
+		+ .form-group {
+			margin-top: 48px;
+		}
+
+		.form-col {
+			flex: 1 1 0;
+			min-width: none;
+
+			+ .form-col {
+				margin-left: 24px;
+			}
+
+			.form-title {
+				margin-bottom: 32px;
+
+				.subtitle {
+					color: $grey3;
+				}
+			}
+
+			.form-row {
+				display: flex;
+
+				+ .form-row {
+					margin-top: 24px;
+				}
+
+				.form-cell {
+					flex: 1 1 0;
+
+					&.big {
+						flex: 3 1 0;
+					}
+
+					+ .form-cell {
+						margin-left: 24px;
+					}
+
+					> *:not([class^=button]) {
+						width: 100%;
+					}
+				}
+			}
+		}
+	}
+
+	@media (max-width: $tablet) {
+		.form-group {
+			flex-direction: column;
+
+			+ .form-group {
+				margin-top: 24px;
+			}
+
+			.form-col {
+				+ .form-col {
+					margin-left: 0;
+					margin-top: 24px;
+				}
+
+				.form-title {
+					margin-bottom: 24px;
+				}
+
+				.form-row {
+					flex-direction: column;
+
+					+ .form-row {
+						margin-top: 12px;
+					}
+
+					.form-cell {
+						+ .form-cell {
+							margin-left: 0;
+							margin-top: 14px;
+						}
+					}
+				}
+			}
+		}
+	}
+}
