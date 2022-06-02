@@ -13,6 +13,7 @@ import tsify from "tsify"
 import buffer from "vinyl-buffer"
 import sourcemaps from "gulp-sourcemaps"
 import GulpMem from "gulp-mem"
+import dircompare from 'dir-compare'
 import pngquant from "imagemin-pngquant"
 import imagemin, {
 	mozjpeg,
@@ -142,7 +143,7 @@ function HTML() {
 }
 
 function copyStatic() {
-	return gulp.src(["./src/assets/static/**/*", "!./src/assets/static/img-old/"], {
+	return gulp.src(["./src/assets/static/**/*", "!./src/assets/static/img-raw/**/*"], {
 			allowEmpty: true
 		})
 		.pipe(cache("static"))
@@ -151,27 +152,56 @@ function copyStatic() {
 }
 
 function minimizeImgs() {
-	return gulp.src("./src/assets/static/img/**/*")
-		.pipe(gulp.dest("./src/assets/static/img-old/"))
-		.pipe(imagemin([
-			pngquant(),
-			mozjpeg(),
-			svgo(),
-			gifsicle()
-		]))
-		.pipe(gulp.dest("./src/assets/static/img/"))
+	function compareImgDirs() {
+		return dircompare.compareSync("./src/assets/static/img-raw/", "./src/assets/static/img/", {
+				skipEmptyDirs: true,
+			})
+			.diffSet.reduce(function (previousValue, currentValue) {
+					if (currentValue.type2 == "missing" && currentValue.type1 == "file") {
+						return [...previousValue, currentValue.path1 + currentValue.name1]
+					} else {
+						return previousValue
+					}
+				},
+				[])
+	}
+	let difs = compareImgDirs()
+	if (difs.length) {
+		return gulp.src(difs, {
+				allowEmpty: true
+			})
+			.pipe(imagemin([
+				pngquant(),
+				mozjpeg(),
+				svgo(),
+				gifsicle()
+			]))
+			.pipe(gulp.dest("./src/assets/static/img/"))
+	} else {
+		console.log('\x1b[36mСписок файлов сопадает!\x1b[0m')
+		return nothing()
+	}
 }
 
 function watch() {
 	gulp.watch("./src/*.html", HTML)
 	gulp.watch("./src/assets/script/**/*", JS)
 	gulp.watch("./src/assets/style/**/*", CSS)
-	gulp.watch(["./src/assets/static/**/*", "!./src/assets/static/img-old/"], copyStatic)
+	gulp.watch("./src/assets/static/img-raw/**/*", minimizeImgs)
+	gulp.watch(["./src/assets/static/**/*", "!./src/assets/static/img-raw/**/*"], copyStatic)
 }
 
 function pathToPOSIX(anypath) {
 	return anypath.split(path.sep)
 		.join(path.posix.sep)
+}
+
+function cleanBuild() {
+	if (argv.ram) {
+		return nothing()
+	} else {
+		return del("./build")
+	}
 }
 
 function ttfToWoff() {
@@ -189,11 +219,11 @@ function ttfToWoff() {
 		})))
 		.pipe(gulp.dest("./src/assets/static/font/"))
 }
-gulp.task("default", gulp.series(argv.ram ? nothing : function () {
-	return del("./build")
-}, gulp.parallel(CSS, JS, HTML, copyStatic), argv.watch ? gulp.parallel(watch, browserSyncInit) : nothing))
+
+function cleanInitials() {
+	return del("./src/**/.placeholder")
+}
+gulp.task("default", gulp.series(cleanBuild, gulp.parallel(CSS, JS, HTML, gulp.series(minimizeImgs, copyStatic)), argv.watch ? gulp.parallel(watch, browserSyncInit) : nothing))
 gulp.task("imagemin", minimizeImgs)
 gulp.task("ttfToWoff", ttfToWoff)
-gulp.task("init", function () {
-	return del("./src/**/.placeholder")
-})
+gulp.task("init", cleanInitials)
