@@ -6,6 +6,7 @@ import browserSync from "browser-sync"
 import replace from "gulp-replace"
 import ttf2woff2 from "ttf2woff2"
 import uglify from "gulp-uglify"
+import newer from "gulp-newer"
 import include from "gulp-include"
 import csso from "gulp-csso"
 import esmify from "esmify"
@@ -152,35 +153,17 @@ function copyStatic() {
 }
 
 function minimizeImgs() {
-	function compareImgDirs() {
-		return dircompare.compareSync("./src/assets/static/img-raw/", "./src/assets/static/img/", {
-				skipEmptyDirs: true,
-			})
-			.diffSet.reduce(function (previousValue, currentValue) {
-					if (currentValue.type2 == "missing" && currentValue.type1 == "file") {
-						return [...previousValue, currentValue.path1 + currentValue.name1]
-					} else {
-						return previousValue
-					}
-				},
-				[])
-	}
-	let difs = compareImgDirs()
-	if (difs.length) {
-		return gulp.src(difs, {
-				allowEmpty: true
-			})
-			.pipe(imagemin([
-				pngquant(),
-				mozjpeg(),
-				svgo(),
-				gifsicle()
-			]))
-			.pipe(gulp.dest("./src/assets/static/img/"))
-	} else {
-		console.log('\x1b[36mСписок файлов сопадает!\x1b[0m')
-		return nothing()
-	}
+	return gulp.src("./src/assets/static/img-raw/**/*", {
+			allowEmpty: true,
+		})
+		.pipe(newer("./src/assets/static/img/**/*"))
+		.pipe(imagemin([
+			pngquant(),
+			mozjpeg(),
+			svgo(),
+			gifsicle()
+		]))
+		.pipe(gulp.dest("./src/assets/static/img/"))
 }
 
 function watch() {
