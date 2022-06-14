@@ -1,11 +1,11 @@
 .spoiler {
-	.content {
+	&-content {
 		overflow: hidden;
 		@include transition-base;
 		max-height: 0;
 	}
 
-	.toggler {
+	&-toggler {
 		width: 100%;
 		cursor: pointer;
 		user-select: none;
@@ -17,76 +17,19 @@
 		a {
 			display: flex;
 			align-items: center;
-			// color: $red;
 
 			.icon {
-				// background: $red;
 				margin-left: 4px;
 			}
 		}
 	}
 
-	&.product-detail-description,
-	&.product-detail-delivery,
-	&-review {
-		.content {
-			padding-bottom: 72px;
+	&.spoiler-opened &-toggler {
+		.icon {
+			transform: scaleY(-1);
 		}
 
-		.toggler {
-			display: flex;
-			justify-content: center;
-			padding: 24px 0;
-			background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.7) 5%, rgba(255, 255, 255, 1) 100%);
-			position: absolute;
-			bottom: 0;
-			left: 0;
-		}
-	}
-
-	&-review {
-		.content {
-			max-height: 500px;
-			// background: $white;
-		}
-	}
-
-	&.product-detail-description {
-		position: relative;
-
-		.content {
-			max-height: 830px;
-		}
-	}
-
-	&.product-detail-delivery {
-		position: relative;
-
-		.content {
-			max-height: 370px;
-		}
-	}
-
-	&.no-shadow {
-		&.spoiler-review {
-			.content {
-				padding-bottom: 0;
-			}
-
-			.toggler {
-				display: none;
-			}
-		}
-	}
-
-	&.spoiler-opened {
-		.toggler {
-			.icon {
-				transform: scaleY(-1);
-			}
-		}
-
-		.initial {
+		&-initial {
 			display: none !important;
 		}
 	}
