@@ -107,6 +107,15 @@ function initTabs() {
 		})
 }
 
+function calcTopForSticky() {
+	document.querySelectorAll('[data-sticky]')
+		.forEach(sticky => {
+			console.log(sticky.dataset.sticky)
+			console.log(sticky.getBoundingClientRect()
+				.top)
+			sticky.style.setProperty(sticky.dataset.sticky, `${sticky.getBoundingClientRect().top}px`)
+		})
+}
 function toggleNoscrollBody() {
 	if (document.body.classList.contains('noscroll')) {
 		document.body.classList.remove('noscroll')
