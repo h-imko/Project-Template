@@ -19,7 +19,8 @@
 		"ttfToWoff": "node ./node_modules/gulp/bin/gulp.js ttfToWoff",
 		"init": "npm i && node ./node_modules/gulp/bin/gulp.js init",
 		"check packages update": "node ./node_modules/npm-check-updates/build/src/bin/cli.js",
-		"update packages unsafe": "node ./node_modules/npm-check-updates/build/src/bin/cli.js -u && npm i"
+		"update packages unsafe": "node ./node_modules/npm-check-updates/build/src/bin/cli.js -u && npm i",
+		"refresh":"git fetch --all && npm i"
 	},
 	"devDependencies": {
 		"browser-sync": "^2.27.10",
