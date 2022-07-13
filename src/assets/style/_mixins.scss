@@ -1,5 +1,5 @@
-@mixin transition-base {
-	transition: all .2s ease;
+@mixin transition-base($property: all) {
+	transition: $property .2s ease;
 }
 
 @mixin text-line-clip($lines) {
