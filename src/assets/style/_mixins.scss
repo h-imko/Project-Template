@@ -8,3 +8,29 @@
 	-webkit-box-orient: vertical;
 	overflow: hidden;
 }
+
+@function proportion($width, $height) {
+	@return math.div($height, $width) * 100%;
+}
+
+@mixin absolute-container($width, $height) {
+	display: block;
+	position: relative;
+	height: 0;
+	width: 100%;
+	padding-bottom: proportion($width : $width, $height : $height);
+	overflow: hidden;
+
+	> :first-child {
+		border-radius: inherit;
+		mask-image: radial-gradient(#000, #000);
+		overflow: hidden;
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100% !important;
+		height: 100% !important;
+		object-fit: cover;
+		object-position: center;
+	}
+}

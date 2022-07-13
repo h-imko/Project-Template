@@ -4,37 +4,3 @@
 	width: 100%;
 	padding: 0 16px;
 }
-
-@function proportion($width, $height) {
-	@return math.div($height, $width) * 100%;
-}
-
-@mixin absolute-container($width, $height) {
-	display: block;
-	position: relative;
-	height: 0;
-	width: 100%;
-	padding-bottom: proportion($width : $width, $height : $height);
-
-	.content {
-		mask-image: radial-gradient(#000, #000);
-		overflow: hidden;
-		position: absolute;
-		top: 0;
-		left: 0;
-		height: 100%;
-		width: 100%;
-
-		> iframe {
-			width: 100% !important;
-			height: 100% !important;
-		}
-
-		> img {
-			height: 100%;
-			width: 100%;
-			object-fit: cover;
-			object-position: center;
-		}
-	}
-}
