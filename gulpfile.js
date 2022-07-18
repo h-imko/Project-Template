@@ -8,13 +8,11 @@ import ttf2woff2 from "ttf2woff2"
 import uglify from "gulp-uglify"
 import newer from "gulp-newer"
 import include from "gulp-include"
-import csso from "gulp-csso"
 import esmify from "esmify"
 import tsify from "tsify"
 import buffer from "vinyl-buffer"
 import sourcemaps from "gulp-sourcemaps"
 import GulpMem from "gulp-mem"
-import dircompare from 'dir-compare'
 import pngquant from "imagemin-pngquant"
 import imagemin, {
 	mozjpeg,
@@ -62,12 +60,12 @@ function nothing() {
 
 function printPaintedMessage(message, module) {
 	let errs = [...message.matchAll(new RegExp(/(?:[A-Za-z]+:*\\[а-яА-Яa-zA-Z-_.\\/]+)|('[а-яА-Яa-zA-Z-_.\\/]+')/gm))].map(function (curr) {
-			return {
-				text: curr[0],
-				index: curr.index,
-				length: curr[0].length
-			}
-		})
+		return {
+			text: curr[0],
+			index: curr.index,
+			length: curr[0].length
+		}
+	})
 		.reverse()
 	message = message.split("")
 	errs.forEach(item => {
@@ -80,20 +78,18 @@ function CSS() {
 	return gulp.src(["./src/assets/style/**/*.scss", "!./src/assets/style/**/_*.scss"])
 		.pipe(sourcemaps.init())
 		.pipe(sass.sync({
-				errLogToConsole: true,
-				outputStyle: argv.min ? "compressed" : "expanded",
-				includePaths: ["node_modules"]
-			})
+			errLogToConsole: true,
+			outputStyle: "compressed",
+			includePaths: ["node_modules"]
+		})
 			.on("error", function (error) {
 				printPaintedMessage(error.message, "Sass")
 				browserSync.notify("SASS Error")
 				this.emit("end")
 			}))
 		.pipe(argv.ram ? nothing() : autoPrefixer({
-			cascade: true,
-			overrideBrowserslist: ["last 3 versions"],
+			cascade: false,
 		}))
-		.pipe(argv.min ? csso() : nothing())
 		.pipe(argv.ram ? nothing() : replace("/src/", "../../"))
 		.pipe(sourcemaps.write("."))
 		.pipe(argv.ram ? gulpMem.dest("./build/src/assets/style/") : gulp.dest("./build/assets/style/"))
@@ -104,8 +100,8 @@ function JS() {
 	return gulp.src(["./src/assets/script/**/*.js", "!./src/assets/script/**/_*.js"])
 		.pipe(flatmap(function (stream, file) {
 			return browserify(file.path, {
-					debug: true,
-				})
+				debug: true,
+			})
 				.plugin(tsify)
 				.plugin(esmify)
 				.bundle()
@@ -131,12 +127,12 @@ function HTML() {
 	return gulp.src(["./src/*.html", "!./src/_*.html"])
 		.pipe(flatmap(function (stream, file) {
 			return stream.pipe(include()
-					.on("error", console.log)
-					.on("error", function () {
-						browserSync.notify("HTML Error")
-					}))
+				.on("error", console.log)
+				.on("error", function () {
+					browserSync.notify("HTML Error")
+				}))
 				.pipe(argv.ram ? nothing() : replace("/src/", "./"))
-				.pipe(argv.separate ? replace("style.css", `${path.basename(file.path , ".html")}.css`)
+				.pipe(argv.separate ? replace("style.css", `${path.basename(file.path, ".html")}.css`)
 					.pipe(replace("script.js", `${path.basename(file.path, ".html")}.js`)) : nothing())
 		}))
 		.pipe(argv.ram ? gulpMem.dest("./build") : gulp.dest("./build"))
@@ -145,8 +141,8 @@ function HTML() {
 
 function copyStatic() {
 	return gulp.src(["./src/assets/static/**/*", "!./src/assets/static/img-raw/**/*"], {
-			allowEmpty: true
-		})
+		allowEmpty: true
+	})
 		.pipe(cache("static"))
 		.pipe(argv.ram ? gulpMem.dest("./build/src/assets/static/") : gulp.dest("./build/assets/static/"))
 		.pipe(browserSync.stream())
@@ -154,8 +150,8 @@ function copyStatic() {
 
 function minimizeImgs() {
 	return gulp.src("./src/assets/static/img-raw/**/*", {
-			allowEmpty: true,
-		})
+		allowEmpty: true,
+	})
 		.pipe(newer("./src/assets/static/img/**/*"))
 		.pipe(imagemin([
 			pngquant(),
@@ -189,8 +185,8 @@ function cleanBuild() {
 
 function ttfToWoff() {
 	return gulp.src(["./src/assets/static/font/**/*.ttf"], {
-			allowEmpty: true
-		})
+		allowEmpty: true
+	})
 		.pipe(vinylPaths(universalDel))
 		.pipe(flatmap((function (stream, file) {
 			stream = source(`${path.basename(file.path, path.extname(file.path))}.woff2`)
