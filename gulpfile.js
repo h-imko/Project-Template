@@ -79,7 +79,7 @@ function CSS() {
 		.pipe(sourcemaps.init())
 		.pipe(sass.sync({
 			errLogToConsole: true,
-			outputStyle: "compressed",
+			outputStyle: argv.min ? "compressed" : null,
 			includePaths: ["node_modules"]
 		})
 			.on("error", function (error) {
