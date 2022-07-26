@@ -23,7 +23,7 @@ import browserify from "browserify"
 import source from "vinyl-source-stream"
 import flatmap from "gulp-flatmap"
 import path from "path"
-import del from "del"
+import {deleteSync} from 'del';
 import vinylPaths from "vinyl-paths"
 import cache from "gulp-cached"
 import yargs from "yargs"
@@ -38,7 +38,7 @@ gulpMem.logFn = null
 gulpMem.serveBasePath = "./build"
 
 function universalDel(anypath, options) {
-	return del(pathToPOSIX(anypath), options)
+	return deleteSync(pathToPOSIX(anypath), options)
 }
 
 function browserSyncInit() {
@@ -179,7 +179,7 @@ function cleanBuild() {
 	if (argv.ram) {
 		return nothing()
 	} else {
-		return del("./build")
+		return deleteSync("./build")
 	}
 }
 
@@ -200,7 +200,7 @@ function ttfToWoff() {
 }
 
 function cleanInitials() {
-	return del("./src/**/.placeholder")
+	return deleteSync("./src/**/.placeholder")
 }
 gulp.task("default", gulp.series(cleanBuild, gulp.parallel(CSS, JS, HTML, gulp.series(minimizeImgs, copyStatic)), argv.watch ? gulp.parallel(watch, browserSyncInit) : nothing))
 gulp.task("imagemin", minimizeImgs)
