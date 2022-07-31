@@ -179,7 +179,8 @@ function cleanBuild() {
 	if (argv.ram) {
 		return nothing()
 	} else {
-		return deleteSync("./build")
+		deleteSync("./build")
+		return nothing()
 	}
 }
 

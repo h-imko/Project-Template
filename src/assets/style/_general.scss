@@ -26,5 +26,9 @@ html {
 
 	&.noscroll {
 		overflow: hidden;
+		top: calc(-1 * var(--scroll-position, 0));
+		padding-right: var(--scrollbar-width, 0);
+		position: fixed;
+		width: 100%;
 	}
 }
