@@ -23,7 +23,9 @@ img {
 
 html {
 	scroll-behavior: smooth;
+}
 
+body {
 	&.noscroll {
 		overflow: hidden;
 		top: calc(-1 * var(--scroll-position, 0));

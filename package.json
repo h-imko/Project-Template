@@ -41,7 +41,7 @@
 		"gulp-uglify": "^3.0.2",
 		"imagemin-pngquant": "^9.0.2",
 		"imagemin-webp": "^7.0.0",
-		"npm-check-updates": "^16.0.1",
+		"npm-check-updates": "^16.0.5",
 		"path": "^0.12.7",
 		"sass": "^1.54.0",
 		"tsify": "^5.0.4",
