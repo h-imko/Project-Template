@@ -201,8 +201,10 @@ function ttfToWoff() {
 }
 
 function cleanInitials() {
-	return deleteSync("./src/**/.placeholder")
+	deleteSync("./src/**/.placeholder")
+	return nothing()
 }
+
 gulp.task("default", gulp.series(cleanBuild, gulp.parallel(CSS, JS, HTML, gulp.series(minimizeImgs, copyStatic)), argv.watch ? gulp.parallel(watch, browserSyncInit) : nothing))
 gulp.task("imagemin", minimizeImgs)
 gulp.task("ttfToWoff", ttfToWoff)
