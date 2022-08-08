@@ -5,3 +5,4 @@ pnpm-lock.yaml
 .vscode
 .idea
 package-lock.json
+src/assets/static/img
