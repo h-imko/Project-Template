@@ -43,7 +43,7 @@
 		"imagemin-webp": "^7.0.0",
 		"npm-check-updates": "^16.0.5",
 		"path": "^0.12.7",
-		"sass": "^1.54.0",
+		"sass": "^1.54.4",
 		"tsify": "^5.0.4",
 		"ttf2woff2": "^4.0.5",
 		"vinyl-buffer": "^1.0.1",
