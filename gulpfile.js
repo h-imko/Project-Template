@@ -90,7 +90,7 @@ function CSS() {
 		.pipe(argv.ram ? nothing() : autoPrefixer({
 			cascade: false,
 		}))
-		.pipe(argv.ram ? nothing() : replace("/src/", "../../"))
+		.pipe(argv.ram ? nothing() : replace("/src/", "/"))
 		.pipe(sourcemaps.write("."))
 		.pipe(argv.ram ? gulpMem.dest("./build/src/assets/style/") : gulp.dest("./build/assets/style/"))
 		.pipe(browserSync.stream())
@@ -116,7 +116,7 @@ function JS() {
 		.pipe(sourcemaps.init({
 			loadMaps: true
 		}))
-		.pipe(argv.ram ? nothing() : replace("/src/", "../../"))
+		.pipe(argv.ram ? nothing() : replace("/src/", "/"))
 		.pipe(argv.min ? uglify() : nothing())
 		.pipe(sourcemaps.write("./"))
 		.pipe(argv.ram ? gulpMem.dest("./build/src/assets/script/") : gulp.dest("./build/assets/script/"))
@@ -131,7 +131,7 @@ function HTML() {
 				.on("error", function () {
 					browserSync.notify("HTML Error")
 				}))
-				.pipe(argv.ram ? nothing() : replace("/src/", "./"))
+				.pipe(argv.ram ? nothing() : replace("/src/", "/"))
 				.pipe(argv.separate ? replace("style.css", `${path.basename(file.path, ".html")}.css`)
 					.pipe(replace("script.js", `${path.basename(file.path, ".html")}.js`)) : nothing())
 		}))
