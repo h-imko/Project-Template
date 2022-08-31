@@ -1,0 +1,13 @@
+@import 'tippy.js/dist/tippy';
+
+[data-tippy-root] {}
+
+.tippy {
+	&-box {}
+
+	&-backdrop {}
+
+	&-arrow {}
+
+	&-content {}
+}

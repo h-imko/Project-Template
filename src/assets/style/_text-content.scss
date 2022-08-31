@@ -1,52 +1,36 @@
 .text-content,
 %text-content {
-	// @extend %text;
+	--p-magrin: 16px;
 
-	.text-content-title {
-		margin-bottom: 24px;
-
-		h1 {
-			margin-bottom: 8px;
-		}
-
-		.subtitle {
-			// color: $grey2;
-		}
-	}
+	&__title {}
 
 	p {
-		margin: 16px 0;
+		margin: var(--p-magrin) 0;
 	}
 
 	h2 {
 		margin-top: 32px;
-		margin-bottom: 16px;
 	}
 
 	h3 {
 		margin-top: 32px;
-		margin-bottom: 12px;
 	}
 
 	h4 {
 		margin-top: 32px;
-		margin-bottom: 12px;
 	}
 
 	img {
-		width: 100%;
-		height: auto;
-		object-fit: contain;
-		margin: 16px 0;
+		margin: var(--p-magrin) 0;
 	}
 
 	ul,
 	ol {
-		margin: 16px 0;
+		margin: var(--p-magrin) 0;
 		list-style-position: inside;
 
 		li {
-			+ li {
+			&:nth-child(n+2) {
 				margin-top: 8px;
 			}
 		}

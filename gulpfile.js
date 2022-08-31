@@ -6,14 +6,16 @@ import browserSync from "browser-sync"
 import replace from "gulp-replace"
 import ttf2woff2 from "ttf2woff2"
 import uglify from "gulp-uglify"
-import newer from "gulp-newer"
-import include from "gulp-include"
+import clean from "gulp-clean"
 import esmify from "esmify"
 import tsify from "tsify"
 import buffer from "vinyl-buffer"
 import sourcemaps from "gulp-sourcemaps"
 import GulpMem from "gulp-mem"
+import hb from "gulp-hb"
+import glob from "glob"
 import pngquant from "imagemin-pngquant"
+import rename from "gulp-rename"
 import imagemin, {
 	mozjpeg,
 	gifsicle,
@@ -23,23 +25,16 @@ import browserify from "browserify"
 import source from "vinyl-source-stream"
 import flatmap from "gulp-flatmap"
 import path from "path"
-import {deleteSync} from 'del';
-import vinylPaths from "vinyl-paths"
-import cache from "gulp-cached"
 import yargs from "yargs"
 import {
 	hideBin
 } from "yargs/helpers"
-const argv = yargs(hideBin(process.argv))
-	.argv,
+import fs from "fs"
+const argv = yargs(hideBin(process.argv)).argv,
 	sass = GulpSass(Sass),
 	gulpMem = new GulpMem()
 gulpMem.logFn = null
 gulpMem.serveBasePath = "./build"
-
-function universalDel(anypath, options) {
-	return deleteSync(pathToPOSIX(anypath), options)
-}
 
 function browserSyncInit() {
 	browserSync.init({
@@ -124,16 +119,18 @@ function JS() {
 }
 
 function HTML() {
-	return gulp.src(["./src/*.html", "!./src/_*.html"])
-		.pipe(flatmap(function (stream, file) {
-			return stream.pipe(include()
-				.on("error", console.log)
-				.on("error", function () {
-					browserSync.notify("HTML Error")
-				}))
-				.pipe(argv.ram ? nothing() : replace("/src/", "/"))
-				.pipe(argv.separate ? replace("style.css", `${path.basename(file.path, ".html")}.css`)
-					.pipe(replace("script.js", `${path.basename(file.path, ".html")}.js`)) : nothing())
+	return gulp.src(["./src/*.html", "./src/*.hbs"])
+		.pipe(
+			hb()
+				.partials('./src/assets/hbs/**/*.hbs').on("error", function (error) {
+					printPaintedMessage(error.message, "HBS")
+					browserSync.notify("HBS Error")
+					this.emit("end")
+				})
+		)
+		.pipe(argv.ram ? nothing() : replace("/src/", "/"))
+		.pipe(rename(function (path) {
+			path.extname = ".html"
 		}))
 		.pipe(argv.ram ? gulpMem.dest("./build") : gulp.dest("./build"))
 		.pipe(browserSync.stream())
@@ -141,18 +138,30 @@ function HTML() {
 
 function copyStatic() {
 	return gulp.src(["./src/assets/static/**/*", "!./src/assets/static/img-raw/**/*"], {
-		allowEmpty: true
+		allowEmpty: true,
+		since: gulp.lastRun(copyStatic)
 	})
-		.pipe(cache("static"))
 		.pipe(argv.ram ? gulpMem.dest("./build/src/assets/static/") : gulp.dest("./build/assets/static/"))
 		.pipe(browserSync.stream())
+}
+
+function makeIconsSCSS() {
+	glob("./src/assets/static/img-raw/icon/**/*.svg", {}, function (er, files) {
+		fs.writeFileSync("./src/assets/style/_icons.scss", "")
+		fs.appendFileSync("./src/assets/style/_icons.scss", files.reduce(function (prev, curr) {
+			let name = path.parse(path.relative("./src/assets/static/img-raw/icon/", curr).replaceAll('\\', '__')).name
+			let css = `.icon--${name},%icon--${name}{mask-image: url(${curr.replace(".", "").replace("/img-raw/", "/img/")});}`
+			return prev.concat(css)
+		}, ""))
+	})
+	return nothing()
 }
 
 function minimizeImgs() {
 	return gulp.src("./src/assets/static/img-raw/**/*", {
 		allowEmpty: true,
+		since: gulp.lastRun(minimizeImgs)
 	})
-		.pipe(newer("./src/assets/static/img/**/*"))
 		.pipe(imagemin([
 			pngquant(),
 			mozjpeg(),
@@ -162,33 +171,15 @@ function minimizeImgs() {
 		.pipe(gulp.dest("./src/assets/static/img/"))
 }
 
-function watch() {
-	gulp.watch("./src/*.html", HTML)
-	gulp.watch("./src/assets/script/**/*", JS)
-	gulp.watch("./src/assets/style/**/*", CSS)
-	gulp.watch("./src/assets/static/img-raw/**/*", minimizeImgs)
-	gulp.watch(["./src/assets/static/**/*", "!./src/assets/static/img-raw/**/*"], copyStatic)
-}
-
-function pathToPOSIX(anypath) {
-	return anypath.split(path.sep)
-		.join(path.posix.sep)
-}
-
 function cleanBuild() {
-	if (argv.ram) {
-		return nothing()
-	} else {
-		deleteSync("./build")
-		return nothing()
-	}
+	return argv.ram ? nothing() : gulp.src("./build").pipe(clean())
 }
 
 function ttfToWoff() {
 	return gulp.src(["./src/assets/static/font/**/*.ttf"], {
 		allowEmpty: true
 	})
-		.pipe(vinylPaths(universalDel))
+		.pipe(clean())
 		.pipe(flatmap((function (stream, file) {
 			stream = source(`${path.basename(file.path, path.extname(file.path))}.woff2`)
 			stream.write(ttf2woff2(file.contents))
@@ -201,11 +192,44 @@ function ttfToWoff() {
 }
 
 function cleanInitials() {
-	deleteSync("./src/**/.placeholder")
-	return nothing()
+	return gulp.src("./src/**/.placeholder").pipe(clean())
 }
 
-gulp.task("default", gulp.series(cleanBuild, gulp.parallel(CSS, JS, HTML, gulp.series(minimizeImgs, copyStatic)), argv.watch ? gulp.parallel(watch, browserSyncInit) : nothing))
+function watch() {
+	gulp.watch(["./src/**/*.html", "./src/**/*.hbs"], HTML)
+	gulp.watch(["./src/assets/script/**/*"], JS)
+	gulp.watch(["./src/assets/style/**/*"], CSS)
+	gulp.watch("./src/assets/static/img-raw/icon/**/*.svg", {
+		events: ["add", "unlink", "unlinkDir"]
+	}, makeIconsSCSS)
+	gulp.watch("./src/assets/static/img-raw/**/*", minimizeImgs)
+	gulp.watch(["./src/assets/static/**/*", "!./src/assets/static/img-raw/**/*"], copyStatic)
+}
+
+gulp.task("default",
+	gulp.series(
+		gulp.parallel(
+			cleanBuild,
+			makeIconsSCSS
+		),
+		gulp.parallel(
+			CSS,
+			JS,
+			HTML,
+			gulp.series(
+				minimizeImgs,
+				copyStatic
+			)
+		),
+		argv.watch ?
+			gulp.parallel(
+				watch,
+				browserSyncInit
+			)
+			:
+			nothing
+	)
+)
 gulp.task("imagemin", minimizeImgs)
 gulp.task("ttfToWoff", ttfToWoff)
 gulp.task("init", cleanInitials)

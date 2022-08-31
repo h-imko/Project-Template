@@ -1,0 +1,64 @@
+.spoiler {
+	&__content {
+		overflow: hidden;
+		max-height: 0;
+		@include transition-base;
+	}
+
+	&__toggler {
+		cursor: pointer;
+		user-select: none;
+
+		.icon {
+			@include transition-base;
+		}
+	}
+
+	&--mobile > &__content {
+		@media (min-width: $mobile) {
+			max-height: initial;
+		}
+	}
+
+	&--mobile > &__toggler {
+		@media (min-width: $mobile) {
+			pointer-events: none;
+		}
+	}
+
+	&--is-opened > &__toggler {
+		.icon {
+			transform: scaleY(-1);
+		}
+	}
+
+	&--is-opened {
+		&.spoiler--hard > .spoiler__content {
+			max-height: unset;
+		}
+
+		.spoiler__when-closed:not(.spoiler .spoiler *) {
+			display: none !important;
+		}
+	}
+
+	&:not(&--is-opened) {
+		.spoiler__when-opened:not(.spoiler .spoiler *) {
+			display: none !important;
+		}
+	}
+
+	.spoiler {
+		&--is-opened {
+			.spoiler__when-closed {
+				display: none !important;
+			}
+		}
+
+		&:not(&--is-opened) {
+			.spoiler__when-opened {
+				display: none !important;
+			}
+		}
+	}
+}

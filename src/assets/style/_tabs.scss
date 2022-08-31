@@ -1,0 +1,26 @@
+.tabs {
+	&__control {
+		input {
+			visibility: hidden;
+			position: absolute;
+			pointer-events: none;
+		}
+
+		&__visual {
+			cursor: pointer;
+			user-select: none;
+		}
+	}
+
+	&__contents {
+		input {
+			visibility: hidden;
+			position: absolute;
+			pointer-events: none;
+
+			&:not(:checked) ~ .tabs__content__visual {
+				display: none !important;
+			}
+		}
+	}
+}

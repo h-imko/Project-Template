@@ -1,113 +1,60 @@
 .custom-input {
 	display: flex;
-	flex-direction: column;
-	align-items: stretch;
-	position: relative;
+	width: 100%;
+	gap: 8px;
 
-	.input-title {
-		margin-bottom: 4px;
+	&__label {
 		order: 1;
-		// @extend %h5;
 	}
 
-	.input-tip {
-		margin-top: 4px;
+	&__helper {
 		order: 3;
-		// @extend %small-text;
+		@include transition-base;
 	}
 
-	input {
-		width: 100%;
-		border-width: 2px;
-		border-style: solid;
-		// border-color: $grey3;
-		height: var(--button-height);
-		font-weight: 400;
-		font-size: 16px;
-		line-height: 150%;
-		background: white;
-		padding: 0 24px;
+	%base {
 		order: 2;
-		// color: $grey2;
 		outline: none;
 		@include transition-base;
-
-		&::placeholder {
-			// color: $grey2;
-		}
-
-		&:focus {
-			// color: $black;
-			// border-color: $grey2;
-		}
-
-		&:valid {
-			&:not(:placeholder-shown):not(:focus) {
-				// color: $black;
-				// border-color: $grey2;
-			}
-		}
-
-		&:hover {
-			// color: $black;
-			// border-color: $grey2;
-		}
-
-		&:invalid {
-			&:not(:placeholder-shown):not(:focus) {
-				// color: $red;
-				// border-color: $red;
-
-				~ .input-tip,
-				~ .input-title {
-					// color: $red;
-				}
-			}
-		}
+		-moz-appearance: initial;
+		-webkit-appearance: initial;
 
 		&:disabled {
-			// color: $grey3;
+			~ .custom-input__helper {}
 
-			~ .tip,
-			~ .input-title {
-				// color: $grey3;
-			}
+			~ .custom-input__label {}
+		}
+
+		&:not(:disabled) {
+			&:hover {}
+
+			&:focus {}
 		}
 	}
 
 	select {
-		user-select: none;
-		width: 100%;
-		border-width: 2px;
-		border-style: solid;
-		height: var(--button-height);
-		font-weight: 400;
-		font-size: 16px;
-		line-height: 150%;
-		order: 2;
-		appearance: none;
-		background-color: white;
-		background-image: url(/src/assets/static/img/icon/arrow-down.svg);
-		background-position: right 24px center;
-		background-repeat: no-repeat;
-		background-size: 24px;
-		cursor: pointer;
-		position: relative;
-		outline: none;
-		// color: $black;
-		// border-color: $grey2;
-		padding: 0 24px;
+		@extend %base;
+	}
 
-		&.opened {
-			background-image: url(/src/assets/static/img/icon/arrow-up.svg);
-		}
+	input {
+		@extend %base;
 
-		&:disabled {
-			pointer-events: none;
-			opacity: 1;
-			// border-color: $grey3;
-			// color: $grey3;
-			background-image: none;
+		&::placeholder {}
+
+		&:not(:disabled) {
+			&:not(:focus):not(:hover):not(:placeholder-shown) {
+				&:valid {
+					~ .custom-input__helper {}
+
+					~ .custom-input__label {}
+				}
+
+				&:invalid {
+					~ .custom-input__helper {}
+
+					~ .custom-input__label {}
+				}
+			}
 		}
 	}
 }

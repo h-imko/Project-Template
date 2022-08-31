@@ -1,16 +1,22 @@
 .custom-radio {
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+	--size: 24px;
+	--border-width: 2px;
+	--check-size: 14px;
+
 	input[type="radio"] {
-		width: 20px;
-		height: 20px;
+		width: var(--size);
+		height: var(--size);
 		visibility: hidden;
 		position: relative;
 		cursor: pointer;
-		display: inline-flex;
+		display: flex;
 		align-items: center;
 		justify-content: center;
 		appearance: none;
 		user-select: none;
-		@include transition-base;
 
 		&::before {
 			visibility: visible;
@@ -18,9 +24,12 @@
 			content: "";
 			width: 100%;
 			height: 100%;
-			// border: 2px solid $grey3;
+			border-width: var(--border-width);
+			border-style: solid;
+			// border-color: ;
+			// background: ;
 			border-radius: 50%;
-			transition: all 0.3s ease;
+			@include transition-base;
 		}
 
 		&::after {
@@ -28,20 +37,22 @@
 			position: absolute;
 			content: "";
 			border-radius: 50%;
-			transition: all 0.3s ease;
-			// border: 7px solid $red;
+			@include transition-base;
+			border-width: calc(var(--check-size) / 2);
+			border-style: solid;
+			// border-color: ;
 			opacity: 0;
 		}
 
 		&:hover {
 			&::before {
-				// border: 2px solid $black;
+				// border-color: ;
 			}
 		}
 
 		&:checked {
 			&::before {
-				// border: 2px solid $red;
+				// border-color: ;
 			}
 
 			&::after {

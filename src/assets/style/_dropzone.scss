@@ -34,7 +34,7 @@
 
 			&::after {
 				content: "";
-				background: url(/src/assets/static/img/icon/plus.svg);
+				// background: url(/src/assets/static/img/icon/plus.svg);
 				background-repeat: no-repeat;
 				background-size: 24px;
 				background-position: center;
@@ -68,18 +68,6 @@
 			border-radius: 8px;
 			position: relative;
 			overflow: hidden;
-
-			&:nth-child(3n+2) {
-				--bg: #{$alert__bg-pink};
-			}
-
-			&:nth-child(3n+1) {
-				--bg: #{$alert__bg-yellow};
-			}
-
-			&:nth-child(3n) {
-				--bg: #{$alert__bg-green};
-			}
 
 			&::after {
 				position: absolute;
