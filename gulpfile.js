@@ -23,7 +23,6 @@ import imagemin, {
 } from "gulp-imagemin"
 import browserify from "browserify"
 import source from "vinyl-source-stream"
-import flatmap from "gulp-flatmap"
 import path from "path"
 import yargs from "yargs"
 import {
@@ -176,19 +175,14 @@ function cleanBuild() {
 }
 
 function ttfToWoff() {
-	return gulp.src(["./src/assets/static/font/**/*.ttf"], {
-		allowEmpty: true
+	globbySync("./src/assets/static/font/**/*.ttf").forEach(function (file) {
+		let relativeDir = path.relative("./src/assets/static/font/", path.dirname(file))
+		let name = `${path.basename(file, path.extname(file))}.woff2`
+		let destFull = path.join("./src/assets/static/font/", relativeDir, name)
+		fs.writeFileSync(destFull, ttf2woff2(fs.readFileSync(file)))
+		fs.unlink(file, function(){})
 	})
-		.pipe(clean())
-		.pipe(flatmap((function (stream, file) {
-			stream = source(`${path.basename(file.path, path.extname(file.path))}.woff2`)
-			stream.write(ttf2woff2(file.contents))
-			process.nextTick(function () {
-				stream.end()
-			})
-			return stream.pipe(buffer())
-		})))
-		.pipe(gulp.dest("./src/assets/static/font/"))
+	return nothing()
 }
 
 function cleanInitials() {
