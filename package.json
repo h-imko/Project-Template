@@ -23,7 +23,6 @@
 		"globby": "^13.1.2",
 		"gulp": "^4.0.2",
 		"gulp-autoprefixer": "^8.0.0",
-		"gulp-clean": "^0.4.0",
 		"gulp-hb": "^8.0.0",
 		"gulp-imagemin": "^8.0.0",
 		"gulp-include": "^2.4.1",

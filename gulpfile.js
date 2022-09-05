@@ -6,7 +6,6 @@ import browserSync from "browser-sync"
 import replace from "gulp-replace"
 import ttf2woff2 from "ttf2woff2"
 import uglify from "gulp-uglify"
-import clean from "gulp-clean"
 import esmify from "esmify"
 import tsify from "tsify"
 import buffer from "vinyl-buffer"
@@ -170,8 +169,11 @@ function minimizeImgs() {
 		.pipe(gulp.dest("./src/assets/static/img/"))
 }
 
-function cleanBuild() {
-	return argv.ram ? nothing() : gulp.src("./build").pipe(clean())
+function cleanBuild(cb) {
+	if (!argv.ram) {
+		fs.rmSync("./build", { recursive: true })
+	}
+	cb()
 }
 
 function ttfToWoff() {
@@ -180,13 +182,16 @@ function ttfToWoff() {
 		let name = `${path.basename(file, path.extname(file))}.woff2`
 		let destFull = path.join("./src/assets/static/font/", relativeDir, name)
 		fs.writeFileSync(destFull, ttf2woff2(fs.readFileSync(file)))
-		fs.unlink(file, function(){})
+		fs.unlink(file, function () { })
 	})
 	return nothing()
 }
 
-function cleanInitials() {
-	return gulp.src("./src/**/.placeholder").pipe(clean())
+function cleanInitials(cb) {
+	globbySync("./src/**/.placeholder").forEach(function (file) {
+		fs.unlinkSync(file)
+	})
+	cb()
 }
 
 function watch() {
