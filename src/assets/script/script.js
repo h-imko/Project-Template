@@ -72,6 +72,8 @@ function headerHeightToCSS() {
 }
 
 function initPopups() {
+	console.log(123)
+
 	document.querySelectorAll("[data-popup]").forEach(function (popup) {
 		let openedClass = "show"
 		let inner = popup.querySelector(".popup__inner")
@@ -79,6 +81,7 @@ function initPopups() {
 		let openers = controllers.filter(controller => controller.dataset.popupControl == "open")
 		let togglers = controllers.filter(controller => controller.dataset.popupControl == "toggle")
 		let closers = [...controllers.filter(controller => controller.dataset.popupControl == "close"), ...popup.querySelectorAll(".popup__selfcloser")]
+console.log(321)
 
 		function closePopup(event) {
 			popup.classList.remove(openedClass)

@@ -13,7 +13,7 @@ import buffer from "vinyl-buffer"
 import sourcemaps from "gulp-sourcemaps"
 import GulpMem from "gulp-mem"
 import hb from "gulp-hb"
-import glob from "glob"
+import { globby, globbySync } from "globby"
 import pngquant from "imagemin-pngquant"
 import rename from "gulp-rename"
 import imagemin, {
@@ -92,30 +92,30 @@ function CSS() {
 }
 
 function JS() {
-	return gulp.src(["./src/assets/script/**/*.js", "!./src/assets/script/**/_*.js"])
-		.pipe(flatmap(function (stream, file) {
-			return browserify(file.path, {
-				debug: true,
+	globbySync(["./src/assets/script/**/*.js", "!./src/assets/script/**/_*.js"]).forEach(function (file) {
+		browserify(file, {
+			debug: true,
+		})
+			.plugin(tsify)
+			.plugin(esmify)
+			.bundle()
+			.on("error", function (error) {
+				printPaintedMessage(error.message, "Browserify")
+				browserSync.notify("JS Error")
+				this.emit("end")
 			})
-				.plugin(tsify)
-				.plugin(esmify)
-				.bundle()
-				.on("error", function (error) {
-					printPaintedMessage(error.message, "Browserify")
-					browserSync.notify("JS Error")
-					this.emit("end")
-				})
-				.pipe(source(`${path.basename(file.path)}`))
-				.pipe(buffer())
-		}))
-		.pipe(sourcemaps.init({
-			loadMaps: true
-		}))
-		.pipe(argv.ram ? nothing() : replace("/src/", "/"))
-		.pipe(argv.min ? uglify() : nothing())
-		.pipe(sourcemaps.write("./"))
-		.pipe(argv.ram ? gulpMem.dest("./build/src/assets/script/") : gulp.dest("./build/assets/script/"))
-		.pipe(browserSync.stream())
+			.pipe(source(`${path.basename(file)}`))
+			.pipe(buffer())
+			.pipe(sourcemaps.init({
+				loadMaps: true
+			}))
+			.pipe(argv.ram ? nothing() : replace("/src/", "/"))
+			.pipe(argv.min ? uglify() : nothing())
+			.pipe(sourcemaps.write("./"))
+			.pipe(argv.ram ? gulpMem.dest("./build/src/assets/script/") : gulp.dest("./build/assets/script/"))
+			.pipe(browserSync.stream())
+	})
+	return nothing()
 }
 
 function HTML() {
@@ -146,7 +146,7 @@ function copyStatic() {
 }
 
 function makeIconsSCSS() {
-	glob("./src/assets/static/img-raw/icon/**/*.svg", {}, function (er, files) {
+	globby("./src/assets/static/img-raw/icon/**/*.svg", {}, function (er, files) {
 		fs.writeFileSync("./src/assets/style/_icons.scss", "")
 		fs.appendFileSync("./src/assets/style/_icons.scss", files.reduce(function (prev, curr) {
 			let name = path.parse(path.relative("./src/assets/static/img-raw/icon/", curr).replaceAll('\\', '__')).name
