@@ -8,6 +8,7 @@ import ttf2woff2 from "ttf2woff2"
 import uglify from "gulp-uglify"
 import esmify from "esmify"
 import tsify from "tsify"
+import newer from "gulp-newer"
 import buffer from "vinyl-buffer"
 import sourcemaps from "gulp-sourcemaps"
 import GulpMem from "gulp-mem"
@@ -157,9 +158,9 @@ function makeIconsSCSS() {
 
 function minimizeImgs() {
 	return gulp.src("./src/assets/static/img-raw/**/*", {
-		allowEmpty: true,
-		since: gulp.lastRun(minimizeImgs)
+		allowEmpty: true
 	})
+		.pipe(newer("./src/assets/static/img"))
 		.pipe(imagemin([
 			pngquant(),
 			mozjpeg(),

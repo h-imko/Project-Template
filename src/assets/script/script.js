@@ -3,6 +3,7 @@ import Cleave from "cleave.js"
 import 'cleave.js/dist/addons/cleave-phone.ru'
 import Splide from "@splidejs/splide"
 import Tippy from "tippy.js"
+import { Popup } from "./_Popup"
 
 document.addEventListener('DOMContentLoaded', function () {
 	initPopups()
@@ -28,117 +29,15 @@ function initPhoneMask() {
 		})
 }
 
-function toggleNoscrollBody(action) {
-
-	function disable() {
-		document.body.style.setProperty("--scroll-position", `${window.pageYOffset}px`)
-		document.body.style.setProperty("--scrollbar-width", `${window.innerWidth - document.documentElement.clientWidth}px`)
-		document.body.classList.add('noscroll')
-	}
-
-	function enable() {
-		document.body.classList.remove('noscroll')
-		window.scrollTo({
-			top: document.body.style.getPropertyValue('--scroll-position')
-				.replace('px', ""),
-			left: 0,
-			behavior: "instant"
-		})
-	}
-
-	function toggle() {
-		if (document.body.classList.contains('noscroll')) {
-			enable()
-		} else {
-			disable()
-		}
-	}
-
-	if (typeof action !== "undefined") {
-		if (action) {
-			disable()
-		} else {
-			enable()
-		}
-	} else {
-		toggle()
-	}
-
-}
-
 function headerHeightToCSS() {
 	document.querySelector(':root')
 		.style.setProperty('--header-height', `${document.querySelector('header').getBoundingClientRect().height}px`)
 }
 
 function initPopups() {
-	console.log(123)
-
 	document.querySelectorAll("[data-popup]").forEach(function (popup) {
-		let openedClass = "show"
-		let inner = popup.querySelector(".popup__inner")
-		let controllers = Array.from(document.querySelectorAll(`[data-popup-target="${popup.id}"]`))
-		let openers = controllers.filter(controller => controller.dataset.popupControl == "open")
-		let togglers = controllers.filter(controller => controller.dataset.popupControl == "toggle")
-		let closers = [...controllers.filter(controller => controller.dataset.popupControl == "close"), ...popup.querySelectorAll(".popup__selfcloser")]
-console.log(321)
-
-		function closePopup(event) {
-			popup.classList.remove(openedClass)
-			toggleNoscrollBody(false)
-		}
-
-		function openPopup(event) {
-			popup.classList.add(openedClass)
-			toggleNoscrollBody(true)
-		}
-
-		function togglePopup(event) {
-			popup.classList.toggle(openedClass)
-			toggleNoscrollBody()
-		}
-
-		window[`closePopup_${popup.id}`] = closePopup
-		window[`openPopup_${popup.id}`] = openPopup
-		window[`togglePopup_${popup.id}`] = togglePopup
-
-		openers.forEach(function (opener) {
-			opener.addEventListener('click', function () {
-				openPopup()
-				opener.classList.add("popup-controller--active")
-			})
-		})
-
-		togglers.forEach(function (toggler) {
-			toggler.addEventListener('click', function () {
-				togglePopup()
-				toggler.classList.toggle("popup-controller--active")
-			})
-		})
-
-		closers.forEach(function (closer) {
-			closer.addEventListener('click', function () {
-				closePopup()
-			})
-		})
-
-		document.addEventListener('click', function (event) {
-			if (!ifClickInside(event, [inner, ...openers, ...togglers, ...closers]) && popup.classList.contains(openedClass)) {
-				closePopup(event)
-			}
-		})
+		new Popup(popup).bindGlobalControls()
 	})
-}
-
-function ifClickInside(event, targets) {
-
-	targets.reduce(function (accumulator, currentValue, index, array) {
-		return accumulator + event.composedPath().includes(currentValue)
-	}, false)
-
-	return targets.reduce(function (accumulator, currentValue, index, array) {
-		return accumulator + event.composedPath().includes(currentValue)
-	}, false)
 }
 
 function initTabs() {
@@ -351,7 +250,6 @@ function initQuantity() {
 			.forEach((btn) => {
 				btn.addEventListener("click", function () {
 					let newValue = +input.value + +this.dataset.value
-					console.log(input.min, input.max)
 					if (input.min == "" || input.max == "") {
 						input.value = newValue
 						return
