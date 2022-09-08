@@ -53,13 +53,14 @@ function nothing() {
 }
 
 function printPaintedMessage(message, module) {
-	let errs = [...message.matchAll(new RegExp(/(?:[A-Za-z]+:*\\[а-яА-Яa-zA-Z-_.\\/]+)|('[а-яА-Яa-zA-Z-_.\\/]+')/gm))].map(function (curr) {
-		return {
-			text: curr[0],
-			index: curr.index,
-			length: curr[0].length
-		}
-	})
+	let errs = [...message.matchAll(new RegExp(/(?:[A-Za-z]+:*\\[а-яА-Яa-zA-Z-_.\\/]+)|('[а-яА-Яa-zA-Z-_.\\/]+')/gm))]
+		.map(function (curr) {
+			return {
+				text: curr[0],
+				index: curr.index,
+				length: curr[0].length
+			}
+		})
 		.reverse()
 	message = message.split("")
 	errs.forEach(item => {
@@ -122,7 +123,7 @@ function HTML() {
 		.pipe(
 			hb()
 				.partials('./src/assets/hbs/**/*.hbs').on("error", function (error) {
-					printPaintedMessage(error.message, "HBS")
+					printPaintedMessage(`${error.fileName} ${error.message}`, "HBS")
 					browserSync.notify("HBS Error")
 					this.emit("end")
 				})
