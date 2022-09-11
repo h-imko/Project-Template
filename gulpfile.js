@@ -1,34 +1,32 @@
-import gulp from "gulp"
-import GulpSass from "gulp-sass"
-import Sass from "sass"
-import autoPrefixer from "gulp-autoprefixer"
 import browserSync from "browser-sync"
-import replace from "gulp-replace"
-import ttf2woff2 from "ttf2woff2"
-import uglify from "gulp-uglify"
-import esmify from "esmify"
-import tsify from "tsify"
-import newer from "gulp-newer"
-import buffer from "vinyl-buffer"
-import sourcemaps from "gulp-sourcemaps"
-import GulpMem from "gulp-mem"
-import hb from "gulp-hb"
-import { globby, globbySync } from "globby"
-import pngquant from "imagemin-pngquant"
-import rename from "gulp-rename"
-import imagemin, {
-	mozjpeg,
-	gifsicle,
-	svgo,
-} from "gulp-imagemin"
 import browserify from "browserify"
-import source from "vinyl-source-stream"
+import esmify from "esmify"
+import fs from "fs"
+import { globby, globbySync } from "globby"
+import gulp from "gulp"
+import autoPrefixer from "gulp-autoprefixer"
+import hb from "gulp-hb"
+import imagemin, {
+	gifsicle, mozjpeg, svgo
+} from "gulp-imagemin"
+import GulpMem from "gulp-mem"
+import newer from "gulp-newer"
+import rename from "gulp-rename"
+import replace from "gulp-replace"
+import GulpSass from "gulp-sass"
+import sourcemaps from "gulp-sourcemaps"
+import uglify from "gulp-uglify"
+import pngquant from "imagemin-pngquant"
 import path from "path"
+import Sass from "sass"
+import tsify from "tsify"
+import ttf2woff2 from "ttf2woff2"
+import buffer from "vinyl-buffer"
+import source from "vinyl-source-stream"
 import yargs from "yargs"
 import {
 	hideBin
 } from "yargs/helpers"
-import fs from "fs"
 const argv = yargs(hideBin(process.argv)).argv,
 	sass = GulpSass(Sass),
 	gulpMem = new GulpMem()
@@ -73,9 +71,8 @@ function CSS() {
 	return gulp.src(["./src/assets/style/**/*.scss", "!./src/assets/style/**/_*.scss"])
 		.pipe(sourcemaps.init())
 		.pipe(sass.sync({
-			errLogToConsole: true,
 			outputStyle: argv.min ? "compressed" : null,
-			includePaths: ["node_modules"]
+			includePaths: ["node_modules"],
 		})
 			.on("error", function (error) {
 				printPaintedMessage(error.message, "Sass")
