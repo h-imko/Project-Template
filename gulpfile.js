@@ -95,6 +95,7 @@ function JS() {
 	globbySync(["./src/assets/script/**/*.js", "!./src/assets/script/**/_*.js"]).forEach(function (file) {
 		browserify(file, {
 			debug: true,
+			paths: ['node_modules']
 		})
 			.plugin(tsify)
 			.plugin(esmify)
