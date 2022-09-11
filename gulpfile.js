@@ -99,12 +99,12 @@ function JS() {
 		})
 			.plugin(tsify)
 			.plugin(esmify)
-			.bundle()
 			.on("error", function (error) {
 				printPaintedMessage(error.message, "Browserify")
 				browserSync.notify("JS Error")
 				this.emit("end")
 			})
+			.bundle()
 			.pipe(source(`${path.basename(file)}`))
 			.pipe(buffer())
 			.pipe(sourcemaps.init({
