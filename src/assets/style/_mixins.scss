@@ -14,22 +14,32 @@
 }
 
 @mixin absolute-container($width, $height) {
+	width: 100%;
 	display: block;
 	position: relative;
-	height: 0;
-	width: 100%;
-	padding-bottom: proportion($width : $width, $height : $height);
 	overflow: hidden;
+
+	@supports (aspect-ratio : 1 / 1) {
+		aspect-ratio: calc($width / $height);
+	}
+
+	@supports not (aspect-ratio : 1 / 1) {
+		height: 0;
+		padding-bottom: proportion($width : $width, $height : $height);
+
+		> :first-child {
+			position: absolute;
+			top: 0;
+			left: 0;
+		}
+	}
 
 	> :first-child {
 		border-radius: inherit;
 		mask-image: radial-gradient(#000, #000);
 		overflow: hidden;
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100% !important;
-		height: 100% !important;
+		width: 100%;
+		height: 100%;
 		object-fit: cover;
 		object-position: center;
 	}

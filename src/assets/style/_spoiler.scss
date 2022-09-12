@@ -1,4 +1,6 @@
 .spoiler {
+	$parent: &;
+
 	&__content {
 		overflow: hidden;
 		max-height: 0;
@@ -14,49 +16,53 @@
 		}
 	}
 
-	&--mobile > &__content {
-		@media (min-width: $mobile) {
-			max-height: initial;
-		}
-	}
+	&--mobile {
+		> {
+			#{$parent}__content {
+				@media (min-width: $mobile) {
+					max-height: initial;
+				}
+			}
 
-	&--mobile > &__toggler {
-		@media (min-width: $mobile) {
-			pointer-events: none;
-		}
-	}
-
-	&--is-opened > &__toggler {
-		.icon {
-			transform: scaleY(-1);
+			#{$parent}__toggler {
+				@media (min-width: $mobile) {
+					pointer-events: none;
+				}
+			}
 		}
 	}
 
 	&--is-opened {
-		&.spoiler--hard > .spoiler__content {
-			max-height: unset;
+		> #{$parent}__toggler {
+			.icon {
+				transform: scaleY(-1);
+			}
 		}
 
-		.spoiler__when-closed:not(.spoiler .spoiler *) {
-			display: none !important;
+		&#{$parent}--hard {
+			> {
+				#{$parent}__content {
+					max-height: unset;
+				}
+			}
+		}
+
+		#{$parent}__when-closed {
+			&:not(#{$parent} #{$parent} *) {
+				display: none !important;
+			}
 		}
 	}
 
-	&:not(&--is-opened) {
-		.spoiler__when-opened:not(.spoiler .spoiler *) {
-			display: none !important;
-		}
-	}
-
-	.spoiler {
+	#{$parent} {
 		&--is-opened {
-			.spoiler__when-closed {
+			#{$parent}__when-closed {
 				display: none !important;
 			}
 		}
 
 		&:not(&--is-opened) {
-			.spoiler__when-opened {
+			#{$parent}__when-opened {
 				display: none !important;
 			}
 		}

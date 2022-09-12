@@ -2,6 +2,7 @@
 	display: flex;
 	width: 100%;
 	gap: 8px;
+	$parent: &;
 
 	&__label {
 		order: 1;
@@ -20,9 +21,9 @@
 		-webkit-appearance: initial;
 
 		&:disabled {
-			~ .custom-input__helper {}
+			~ #{$parent}__helper {}
 
-			~ .custom-input__label {}
+			~ #{$parent}__label {}
 		}
 
 		&:not(:disabled) {
@@ -44,15 +45,15 @@
 		&:not(:disabled) {
 			&:not(:focus):not(:hover):not(:placeholder-shown) {
 				&:valid {
-					~ .custom-input__helper {}
+					~ #{$parent}__helper {}
 
-					~ .custom-input__label {}
+					~ #{$parent}__label {}
 				}
 
 				&:invalid {
-					~ .custom-input__helper {}
+					~ #{$parent}__helper {}
 
-					~ .custom-input__label {}
+					~ #{$parent}__label {}
 				}
 			}
 		}

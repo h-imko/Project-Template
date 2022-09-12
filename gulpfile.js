@@ -18,6 +18,7 @@ import sourcemaps from "gulp-sourcemaps"
 import uglify from "gulp-uglify"
 import pngquant from "imagemin-pngquant"
 import path from "path"
+import { env } from "process"
 import Sass from "sass"
 import tsify from "tsify"
 import ttf2woff2 from "ttf2woff2"
@@ -27,6 +28,7 @@ import yargs from "yargs"
 import {
 	hideBin
 } from "yargs/helpers"
+env.biba = "boba"
 const argv = yargs(hideBin(process.argv)).argv,
 	sass = GulpSass(Sass),
 	gulpMem = new GulpMem()
@@ -79,8 +81,9 @@ function CSS() {
 				browserSync.notify("SASS Error")
 				this.emit("end")
 			}))
-		.pipe(argv.ram ? nothing() : autoPrefixer({
+		.pipe(autoPrefixer({
 			cascade: false,
+			flexbox: false,
 		}))
 		.pipe(argv.ram ? nothing() : replace("/src/", "/"))
 		.pipe(sourcemaps.write("."))
@@ -171,7 +174,7 @@ function minimizeImgs() {
 
 function cleanBuild(cb) {
 	if (!argv.ram) {
-		fs.rmSync("./build", { recursive: true })
+		fs.rmSync("./build", { recursive: true, force: true })
 	}
 	cb()
 }

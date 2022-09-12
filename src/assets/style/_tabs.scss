@@ -13,12 +13,14 @@
 	}
 
 	&__contents {
+		$parent: &;
+
 		input {
 			visibility: hidden;
 			position: absolute;
 			pointer-events: none;
 
-			&:not(:checked) ~ .tabs__content__visual {
+			&:not(:checked) ~ #{$parent}__visual {
 				display: none !important;
 			}
 		}
