@@ -1,4 +1,4 @@
-import { toggleNoscrollBody, ifClickInside } from "./_helpers"
+import { ifClickInside, toggleNoscrollBody } from "./_helpers"
 
 export class Popup {
 	/**

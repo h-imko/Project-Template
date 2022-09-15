@@ -4,6 +4,7 @@ import 'cleave.js/dist/addons/cleave-phone.ru'
 import Splide from "@splidejs/splide"
 import Tippy from "tippy.js"
 import { Popup } from "./_Popup"
+import { Spoiler } from "./_Spoiler"
 
 document.addEventListener('DOMContentLoaded', function () {
 	initPopups()
@@ -205,39 +206,12 @@ class Dropzone {
 	}
 }
 
-function makeSlideToggle(elem) {
-	let initialHeight = getComputedStyle(elem)
-		.maxHeight
-	return function (event) {
-		event?.preventDefault()
 
-		if (elem.style.maxHeight == "") {
-			elem.focus()
-			elem.style.maxHeight = `${elem.scrollHeight}px`
-		} else if (elem.style.maxHeight != initialHeight) {
-			elem.blur()
-			elem.style.maxHeight = initialHeight
-		} else {
-			elem.focus()
-			elem.style.maxHeight = `${elem.scrollHeight}px`
-		}
-	}
-}
 
 function initSpoilers() {
 	document.querySelectorAll('.spoiler')
 		.forEach(spoiler => {
-			let slideToggle = makeSlideToggle(spoiler.querySelector(".spoiler__content"))
-			spoiler.querySelector('.spoiler__toggler')
-				.addEventListener('click', function () {
-					if (!spoiler.classList.contains("spoiler--hard")) {
-						slideToggle()
-					}
-					spoiler.classList.toggle("spoiler--is-opened")
-				})
-			if (spoiler.dataset.spoilerDefaultOpened) {
-				slideToggle()
-			}
+			new Spoiler(spoiler)
 		})
 }
 
