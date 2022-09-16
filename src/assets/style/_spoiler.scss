@@ -14,7 +14,10 @@
 
 	#{$content} {
 		overflow: hidden;
-		max-height: 0;
+
+		&:not(.is-active) {
+			max-height: 0;
+		}
 	}
 
 	#{$toggler} {
