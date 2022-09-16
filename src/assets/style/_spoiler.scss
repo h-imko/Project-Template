@@ -1,70 +1,52 @@
 .spoiler {
 	$parent: &;
+	$toggler: #{$parent}__toggler;
+	$content: #{$parent}__content;
+	$initial: #{$parent}__initial;
+	$final: #{$parent}__final;
+	$flipper: #{$parent}__flipper;
 
-	&__content {
-		overflow: hidden;
-		max-height: 0;
-		@include transition-base;
-	}
-
-	&__toggler {
-		cursor: pointer;
-		user-select: none;
-
-		.icon {
+	&:not(&--hard) {
+		#{$content} {
 			@include transition-base;
 		}
 	}
 
-	&--mobile {
-		> {
-			#{$parent}__content {
-				@media (min-width: $mobile) {
-					max-height: initial;
-				}
-			}
+	#{$content} {
+		overflow: hidden;
+		max-height: 0;
+	}
 
-			#{$parent}__toggler {
-				@media (min-width: $mobile) {
-					pointer-events: none;
-				}
-			}
+	#{$toggler} {
+		cursor: pointer;
+		user-select: none;
+	}
+
+	#{$flipper} {
+		@include transition-base;
+	}
+
+	&.is-active {
+		#{$flipper} {
+			transform: scaleX(-1);
+		}
+
+		#{$initial} {
+			display: none;
+		}
+
+		#{$final} {
+			display: block;
 		}
 	}
 
-	&--is-opened {
-		> #{$parent}__toggler {
-			.icon {
-				transform: scaleY(-1);
-			}
+	&:not(.is-active) {
+		#{$initial} {
+			display: block;
 		}
 
-		&#{$parent}--hard {
-			> {
-				#{$parent}__content {
-					max-height: unset;
-				}
-			}
-		}
-
-		#{$parent}__when-closed {
-			&:not(#{$parent} #{$parent} *) {
-				display: none !important;
-			}
-		}
-	}
-
-	#{$parent} {
-		&--is-opened {
-			#{$parent}__when-closed {
-				display: none !important;
-			}
-		}
-
-		&:not(&--is-opened) {
-			#{$parent}__when-opened {
-				display: none !important;
-			}
+		#{$final} {
+			display: none;
 		}
 	}
 }

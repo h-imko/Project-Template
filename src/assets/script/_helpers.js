@@ -49,18 +49,5 @@ function ifClickInside(event, targets) {
 	}, false)
 }
 
-function makeSlideToggle(elem) {
-	let initialHeight = getComputedStyle(elem).maxHeight
 
-	return function () {
-		if (elem.style.maxHeight == "") {
-			elem.style.maxHeight = `${elem.scrollHeight}px`
-		} else if (elem.style.maxHeight != initialHeight) {
-			elem.style.maxHeight = initialHeight
-		} else {
-			elem.style.maxHeight = `${elem.scrollHeight}px`
-		}
-	}
-}
-
-export { toggleNoscrollBody, ifClickInside, makeSlideToggle }
+export { toggleNoscrollBody, ifClickInside }
