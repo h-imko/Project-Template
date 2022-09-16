@@ -5,6 +5,7 @@
 	$initial: #{$parent}__initial;
 	$final: #{$parent}__final;
 	$flipper: #{$parent}__flipper;
+	--initial-height: 0px;
 
 	&:not(&--hard) {
 		#{$content} {
@@ -16,7 +17,7 @@
 		overflow: hidden;
 
 		&:not(.is-active) {
-			max-height: 0;
+			max-height: var(--initial-height);
 		}
 	}
 

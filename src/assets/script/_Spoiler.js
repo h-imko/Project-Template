@@ -16,21 +16,17 @@ class Spoiler {
 		this.injectDuration()
 	}
 
-	makeSlideToggle(elem, duration) {
-		let initialHeight = getComputedStyle(elem).maxHeight
+	makeSlideToggle(elem) {
+		// let initialHeight = getComputedStyle(elem).maxHeight
 
 		return function () {
-			let currentMaxHeight = elem.style.getPropertyValue("max-height")
-
-			if (currentMaxHeight == "" || currentMaxHeight == initialHeight) {
-				elem.style.setProperty("max-height", `${elem.scrollHeight}px`)
-				setTimeout(() => {
-					elem.style.removePropery("max-height")
-				}, this.duration);
-			} else {
-				elem.style.setProperty("max-height", initialHeight)
-			}
+			elem.style.setProperty("max-height", `${elem.scrollHeight}px`)
+			setTimeout(() => {
+				elem.style.removeProperty("max-height")
+			}, this.duration)
 		}
+
+
 	}
 
 	injectDuration() {
