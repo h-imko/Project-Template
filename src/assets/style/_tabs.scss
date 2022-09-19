@@ -21,7 +21,7 @@
 			pointer-events: none;
 
 			&:not(:checked) ~ #{$parent}__visual {
-				display: none !important;
+				display: none;
 			}
 		}
 	}
