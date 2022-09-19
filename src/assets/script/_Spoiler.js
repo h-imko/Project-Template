@@ -17,8 +17,6 @@ class Spoiler {
 	}
 
 	makeSlideToggle(elem) {
-		// let initialHeight = getComputedStyle(elem).maxHeight
-
 		return function () {
 			elem.style.setProperty("max-height", `${elem.scrollHeight}px`)
 			setTimeout(() => {
