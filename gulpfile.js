@@ -97,13 +97,13 @@ function JS() {
 			debug: true,
 			paths: ['node_modules']
 		})
-			.plugin(tsify)
-			.plugin(esmify)
 			.on("error", function (error) {
 				printPaintedMessage(error.message, "Browserify")
 				browserSync.notify("JS Error")
 				this.emit("end")
 			})
+			.plugin(tsify)
+			.plugin(esmify)
 			.bundle()
 			.pipe(source(`${path.basename(file)}`))
 			.pipe(buffer())

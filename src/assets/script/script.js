@@ -1,6 +1,7 @@
 import Cleave from "cleave.js"
 import 'cleave.js/dist/addons/cleave-phone.ru'
 import "fslightbox"
+import { findGroups, InputContollerGroup } from "./_InputControllerGroup"
 import { Popup } from "./_Popup"
 import Quantity from "./_Quantity"
 import { Spoiler } from "./_Spoiler"
@@ -11,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	// initPhoneMask()
 	// initQuantity()
 	// initSpoilers()
+	test()
 })
 
 window.addEventListener("load", function () {
@@ -20,6 +22,12 @@ window.addEventListener("load", function () {
 function initQuantity() {
 	document.querySelectorAll(".quantity").forEach(item => {
 		new Quantity(item)
+	})
+}
+
+function test() {
+	findGroups().forEach(group => {
+		new InputContollerGroup(group)
 	})
 }
 

@@ -1,0 +1,69 @@
+
+function initCheckInputStateControl() {
+	function tmpUnrequireTargetAndChilds(target) {
+		if (target.getAttribute('required')) {
+			target.removeAttribute("required")
+			target.setAttribute("data-control-tmp-unreqired", "")
+		}
+		target.querySelectorAll("[required]")
+			.forEach(required => {
+				required.removeAttribute("required")
+				required.setAttribute("data-control-tmp-unreqired", "")
+			})
+	}
+
+	function cancelTmpUnrequireTargetAndChilds(target) {
+		if (target.getAttribute("data-control-tmp-unreqired")) {
+			target.setAttribute("required", "")
+			target.removeAttribute("data-control-tmp-unreqired")
+		}
+		target.querySelectorAll("[data-control-tmp-unreqired]")
+			.forEach(required => {
+				required.setAttribute("required", "")
+				required.removeAttribute("data-control-tmp-unreqired")
+			})
+	}
+
+	function defineControlParameters(master, slave) {
+		let inverted = slave.dataset.controlInverted === "true" ? true : false,
+			type = slave.dataset.controlType,
+			disable, enable
+		switch (type) {
+			case "display": {
+				disable = function () {
+					slave.classList.add("hidden")
+					tmpUnrequireTargetAndChilds(slave)
+				}
+				enable = function () {
+					slave.classList.remove("hidden")
+					cancelTmpUnrequireTargetAndChilds(slave)
+				}
+				break
+			}
+			default: {
+				disable = function () {
+					slave.setAttribute("disabled", "")
+				}
+				enable = function () {
+					slave.removeAttribute("disabled")
+				}
+			}
+		}
+		return [master, inverted, disable, enable]
+	}
+
+	function chengeState(master, inverted, disable, enable) {
+		inverted ^ master.checked ? enable() : disable()
+	}
+	document.querySelectorAll("[data-control-group][data-control-mode=master]")
+		.forEach(controller => {
+			document.querySelectorAll(`[data-control-group=${controller.dataset.controlGroup}][data-control-mode=slave]`)
+				.forEach(controlled => {
+					let [master, inverted, disable, enable] = defineControlParameters(controller, controlled)
+					chengeState(master, inverted, disable, enable)
+					master.addEventListener("change", function () {
+						chengeState(master, inverted, disable, enable)
+					})
+				})
+		})
+}

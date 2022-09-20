@@ -9,7 +9,7 @@ export class Popup {
 		this.openedClass = "show"
 		this.popup = target
 		this.inner = target.querySelector(".popup__inner")
-		this.controllers = Array.from(document.querySelectorAll(`[data-popup-target="${target.id}"]`))
+		this.controllers = [...document.querySelectorAll(`[data-popup-target="${target.id}"]`)]
 		this.openers = this.controllers.filter(controller => controller.dataset.popupControl == "open")
 		this.togglers = this.controllers.filter(controller => controller.dataset.popupControl == "toggle")
 		this.closers = [...this.controllers.filter(controller => controller.dataset.popupControl == "close"), ...target.querySelectorAll(".popup__selfcloser")]
