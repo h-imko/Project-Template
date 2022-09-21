@@ -1,44 +1,75 @@
 class InputContollerGroup {
+	/**
+	 *
+	 * @param {Array<HTMLElement>} members
+	 */
 	constructor(members) {
-		this.masters = []
-		this.slaves = new Map()
 
-		// this.setMasters(members)
-		// this.setSlaves(members)
-
-		members.filter((element) => {
+		this.masters = members.filter((element) => {
 			return element.dataset.controlMode == "master"
 		})
-		members.filter((element) => {
+
+		this.slaves = members.filter((element) => {
 			return element.dataset.controlMode == "slave"
-		}).forEach(slave => {
-			this.slaves.set(slave, {
-				isInverted: slave.dataset.controlInverted,
-				controlType: slave.dataset.controlType ? slave.dataset.controlType : "disable",
-				requireds: [...[...slave.querySelectorAll("*:required"), slave.required ? slave : null]]
+		}).map((curr) => {
+			return new this.constructor.Slave(curr)
+		})
+
+		this.bindEvents()
+
+		console.log(this)
+	}
+
+
+	static Slave = class {
+		/**
+		 *
+		 * @param {HTMLElement} element
+		 */
+		constructor(element) {
+			this.element = element
+			// this.isInverted = element.dataset.controlInverted
+			this.controlType = element.dataset.controlType ? element.dataset.controlType : "disable"
+			this.requireds = [...element.querySelectorAll("*:required")]
+			if (element.required) {
+				this.requireds.push(this.element)
+			}
+		}
+
+		toggleSelf() {
+			switch (this.controlType) {
+				case "display": {
+					this.element.classList.toggle("hidden")
+					break
+				}
+				case "disable": {
+					this.element.toggleAttribute("disabled")
+					break
+				}
+			}
+		}
+
+		toggleRequired() {
+			this.requireds.forEach(element => {
+				element.toggleAttribute("required")
+			})
+		}
+
+		toggle() {
+			this.toggleSelf()
+			this.toggleRequired()
+		}
+	}
+
+	bindEvents() {
+		this.masters.forEach(master => {
+			master.addEventListener("change", () => {
+				this.slaves.forEach(slave => {
+					slave.toggle()
+				})
 			})
 		})
 	}
-
-	setMasters(members) {
-		members.filter((element) => {
-			return element.dataset.controlMode == "master"
-		})
-	}
-
-	setSlaves(members) {
-		members.filter((element) => {
-			return element.dataset.controlMode == "slave"
-		}).forEach(slave => {
-			this.slaves.set(slave, {
-				isInverted: slave.dataset.controlInverted,
-				controlType: slave.dataset.controlType ? slave.dataset.controlType : "disable",
-				requireds: [...[...slave.querySelectorAll("*:required"), slave.required ? slave : null]]
-			})
-		})
-	}
-
-
 }
 
 function findGroups() {
