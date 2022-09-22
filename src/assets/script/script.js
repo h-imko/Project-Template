@@ -1,7 +1,7 @@
 import Cleave from "cleave.js"
 import 'cleave.js/dist/addons/cleave-phone.ru'
 import "fslightbox"
-import { findGroups, InputContollerGroup } from "./_InputControllerGroup"
+import InputContollerGroup from "./_InputControllerGroup"
 import { Popup } from "./_Popup"
 import Quantity from "./_Quantity"
 import { Spoiler } from "./_Spoiler"
@@ -26,7 +26,9 @@ function initQuantity() {
 }
 
 function test() {
-	findGroups().forEach(group => {
+	console.log(InputContollerGroup.#bindEvents)
+
+	InputContollerGroup.findGroups().forEach(group => {
 		new InputContollerGroup(group)
 	})
 }

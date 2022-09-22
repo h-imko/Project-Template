@@ -5,20 +5,30 @@
 	<body>
 		{{>header}}
 		<main>
-			<h1>Hello World</h1>
+			<style>
+				h1 {
+					display: block;
+				}
+
+				[hidden] {
+					display: none !important;
+				}
+			</style>
+			<h1 hidden>Hello World</h1>
+			<h2>Hello World</h2>
 			<div class="custom-select">
 				<label class="checkbox-group">
 					<input type="checkbox" name="" id="" class="custom-checkbox" data-control-group="g2" data-control-mode="master">
 					<span> Работаю по ЭДО </span>
 				</label>
-				<select name="" id="" required data-control-group="g2"  data-control-mode="slave">
+				<select name="" id="" required data-control-group="g2" data-control-mode="slave">
 					<option value="" disabled selected> Выберите</option>
 					<option value="1">biba</option>
 					<option value="2">boba</option>
 					<option value="3">bibo</option>
 					<option value="4">bibi</option>
 				</select>
-				<select name="" id="" required data-control-group="g2"  data-control-type="display" data-control-mode="slave">
+				<select name="" id="" required data-control-group="g2" data-control-type="display" data-control-mode="slave">
 					<option value="" disabled selected> Выберите</option>
 					<option value="1">biba</option>
 					<option value="2">boba</option>
@@ -31,14 +41,14 @@
 					<input type="checkbox" name="" id="" class="custom-checkbox" data-control-group="g1" data-control-mode="master">
 					<span> Работаю по ЭДО </span>
 				</label>
-				<select name="" id="" required data-control-group="g1"  data-control-mode="slave">
+				<select name="" id="" required data-control-group="g1" data-control-mode="slave">
 					<option value="" disabled selected> Выберите</option>
 					<option value="1">biba</option>
 					<option value="2">boba</option>
 					<option value="3">bibo</option>
 					<option value="4">bibi</option>
 				</select>
-				<select name="" id=""  data-control-group="g1"  data-control-mode="slave">
+				<select name="" id="" data-control-group="g1" data-control-mode="slave">
 					<option value="" disabled selected> Выберите</option>
 					<option value="1">biba</option>
 					<option value="2">boba</option>
