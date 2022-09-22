@@ -1,6 +1,6 @@
 import { ifClickInside, toggleNoscrollBody } from "./_helpers"
 
-export class Popup {
+class Popup {
 	/**
 	 *
 	 * @param {Element} target
@@ -14,6 +14,7 @@ export class Popup {
 		this.togglers = this.controllers.filter(controller => controller.dataset.popupControl == "toggle")
 		this.closers = [...this.controllers.filter(controller => controller.dataset.popupControl == "close"), ...target.querySelectorAll(".popup__selfcloser")]
 		this.initControllers()
+		this.bindGlobalControls()
 	}
 
 	updateControllers() {
@@ -95,3 +96,5 @@ export class Popup {
 		})
 	}
 }
+
+export default Popup
