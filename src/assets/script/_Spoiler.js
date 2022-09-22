@@ -8,7 +8,6 @@ class Spoiler {
 		this.spoiler = target
 		this.toggler = target.querySelector('.spoiler__toggler')
 		this.content = target.querySelector('.spoiler__content')
-		this.slideToggle = this.makeSlideToggle(this.content)
 		this.activeClass = "is-active"
 		this.nestedSpoilers = target.querySelectorAll(".spoiler")
 		this.duration = +target.dataset?.spoilerDuration || 0
@@ -16,14 +15,11 @@ class Spoiler {
 		this.injectDuration()
 	}
 
-	makeSlideToggle(elem) {
-		return function () {
-			elem.style.setProperty("max-height", `${elem.scrollHeight}px`)
-			setTimeout(() => {
-				elem.style.removeProperty("max-height")
-			}, this.duration)
-		}
-
+	slideToggle() {
+		this.content.style.setProperty("max-height", `${this.content.scrollHeight}px`)
+		setTimeout(() => {
+			this.content.style.removeProperty("max-height")
+		}, this.duration)
 
 	}
 
@@ -32,7 +28,7 @@ class Spoiler {
 	}
 
 	initClick() {
-		this.toggler?.addEventListener('click', () => {
+		this.toggler.addEventListener('click', () => {
 			this.slideToggle()
 			this.toggler.classList.toggle(this.activeClass)
 			this.content.classList.toggle(this.activeClass)
@@ -44,4 +40,4 @@ class Spoiler {
 	}
 }
 
-export { Spoiler }
+export default Spoiler

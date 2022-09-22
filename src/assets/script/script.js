@@ -2,17 +2,17 @@ import Cleave from "cleave.js"
 import 'cleave.js/dist/addons/cleave-phone.ru'
 import "fslightbox"
 import InputContollerGroup from "./_InputControllerGroup"
-import { Popup } from "./_Popup"
+import Popup from "./_Popup"
 import Quantity from "./_Quantity"
-import { Spoiler } from "./_Spoiler"
+import Spoiler from "./_Spoiler"
 
 document.addEventListener('DOMContentLoaded', function () {
-	// initPopups()
+	initPopups()
 	// initTabs()
 	// initPhoneMask()
 	// initQuantity()
 	// initSpoilers()
-	test()
+	// initInputControllerGroups()
 })
 
 window.addEventListener("load", function () {
@@ -25,9 +25,7 @@ function initQuantity() {
 	})
 }
 
-function test() {
-	console.log(InputContollerGroup.#bindEvents)
-
+function initInputControllerGroups() {
 	InputContollerGroup.findGroups().forEach(group => {
 		new InputContollerGroup(group)
 	})
@@ -52,9 +50,7 @@ function headerHeightToCSS() {
 }
 
 function initPopups() {
-	document.querySelectorAll("[data-popup]").forEach(function (popup) {
-		new Popup(popup).bindGlobalControls()
-	})
+	window.popups = [...document.querySelectorAll("[data-popup]")].map(curr => new Popup(curr))
 }
 
 function initTabs() {
