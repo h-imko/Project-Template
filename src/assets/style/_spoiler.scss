@@ -1,38 +1,29 @@
-.spoiler {
-	$parent: &;
-	$toggler: #{$parent}__toggler;
-	$content: #{$parent}__content;
-	$initial: #{$parent}__initial;
-	$final: #{$parent}__final;
-	$flipper: #{$parent}__flipper;
-	--initial-height: 0px;
+$parent: ".spoiler";
+$toggler: #{$parent}__toggler;
+$content: #{$parent}__content;
+$initial: #{$parent}__initial;
+$final: #{$parent}__final;
+$flipper: #{$parent}__flipper;
 
-	&:not(&--hard) {
-		#{$content} {
-			@include transition-base;
-		}
+#{$content} {
+	overflow: hidden;
+
+	&:not(.is-active) {
+		max-height: var(--initial-height, 0);
 	}
+}
 
-	#{$content} {
-		overflow: hidden;
+#{$toggler} {
+	cursor: pointer;
+	user-select: none;
+}
 
-		&:not(.is-active) {
-			max-height: var(--initial-height);
-		}
-	}
-
-	#{$toggler} {
-		cursor: pointer;
-		user-select: none;
-	}
-
-	#{$flipper} {
-		@include transition-base;
-	}
-
+#{$parent},
+#{$toggler},
+#{$content} {
 	&.is-active {
 		#{$flipper} {
-			transform: scaleX(-1);
+			transform: scaleY(-1);
 		}
 
 		#{$initial} {

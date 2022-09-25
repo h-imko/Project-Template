@@ -1,17 +1,17 @@
 import Cleave from "cleave.js"
 import 'cleave.js/dist/addons/cleave-phone.ru'
 import "fslightbox"
-import InputContollerGroup from "./_InputControllerGroup"
+import InputContollerGroup from "./_InputControllerGroup.ts"
 import Popup from "./_Popup"
 import Quantity from "./_Quantity"
-import Spoiler from "./_Spoiler"
+import Spoiler from "./_Spoiler.ts"
 
 document.addEventListener('DOMContentLoaded', function () {
 	initPopups()
 	// initTabs()
 	// initPhoneMask()
 	// initQuantity()
-	// initSpoilers()
+	initSpoilers()
 	// initInputControllerGroups()
 })
 
