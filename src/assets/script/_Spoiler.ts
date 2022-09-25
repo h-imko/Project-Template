@@ -1,16 +1,15 @@
 class Spoiler {
-	spoiler: HTMLElement;
-	toggler: HTMLElement | null;
-	content: HTMLElement | null;
-	activeClass: string;
-	nestedSpoilers: NodeListOf<Element>;
-	duration: number;
+	spoiler: HTMLElement
+	toggler: HTMLElement | null
+	content: HTMLElement | null
+	activeClass: "is-active"
+	nestedSpoilers: NodeListOf<Element>
+	duration: number
 
 	constructor(target: HTMLElement) {
 		this.spoiler = target
 		this.toggler = target.querySelector('.spoiler__toggler')
 		this.content = target.querySelector('.spoiler__content')
-		this.activeClass = "is-active"
 		this.nestedSpoilers = target.querySelectorAll(".spoiler")
 		this.duration = +(target.dataset?.spoilerDuration || 0)
 

@@ -3,7 +3,7 @@ import 'cleave.js/dist/addons/cleave-phone.ru'
 import "fslightbox"
 import InputContollerGroup from "./_InputControllerGroup.ts"
 import Popup from "./_Popup.ts"
-import Quantity from "./_Quantity"
+import Quantity from "./_Quantity.ts"
 import Spoiler from "./_Spoiler.ts"
 
 document.addEventListener('DOMContentLoaded', function () {
