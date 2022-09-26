@@ -1,10 +1,10 @@
-import Cleave from "cleave.js"
-import 'cleave.js/dist/addons/cleave-phone.ru'
-import "fslightbox"
-import InputContollerGroup from "./_InputControllerGroup.ts"
-import Popup from "./_Popup.ts"
-import Quantity from "./_Quantity.ts"
-import Spoiler from "./_Spoiler.ts"
+let Cleave = require("cleave.js")
+require('cleave.js/dist/addons/cleave-phone.ru')
+require("fslightbox")
+let InputContollerGroup = require("./_InputControllerGroup.ts").default
+let Popup = require("./_Popup.ts").default
+let Quantity = require("./_Quantity.ts").default
+let Spoiler = require("./_Spoiler.ts").default
 
 document.addEventListener('DOMContentLoaded', function () {
 	// initPopups()
@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	// initQuantity()
 	// initSpoilers()
 	// initInputControllerGroups()
+
 })
 
 window.addEventListener("load", function () {
