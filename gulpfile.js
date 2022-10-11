@@ -1,5 +1,6 @@
 import browserSync from "browser-sync"
 import browserify from "browserify"
+import esmify from "esmify"
 import fs from "fs"
 import { globby, globbySync } from "globby"
 import gulp from "gulp"
@@ -91,13 +92,13 @@ function CSS() {
 }
 
 function JS() {
-	globbySync(["./src/assets/script/**/*.ts", "!./src/assets/script/**/_*.ts", "./src/assets/script/**/*.js", "!./src/assets/script/**/_*.js"]).forEach(function (file) {
-		browserify({
+	globbySync(["./src/assets/script/**/*.js", "!./src/assets/script/**/_*.js"]).forEach(function (file) {
+		browserify(file, {
 			debug: true,
-			entries: [file],
 			paths: ['node_modules']
 		})
-			.plugin(tsify, { target: 'es6' })
+			.plugin(tsify)
+			.plugin(esmify)
 			.bundle()
 			.on("error", function (error) {
 				printPaintedMessage(error.message, "Browserify")
@@ -111,9 +112,6 @@ function JS() {
 			}))
 			.pipe(argv.ram ? nothing() : replace("/src/", "/"))
 			.pipe(argv.min ? uglify() : nothing())
-			.pipe(rename(function (path) {
-				path.extname = ".js"
-			}))
 			.pipe(sourcemaps.write("./"))
 			.pipe(argv.ram ? gulpMem.dest("./build/src/assets/script/") : gulp.dest("./build/assets/script/"))
 			.pipe(browserSync.stream())
