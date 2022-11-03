@@ -1,0 +1,50 @@
+.spoiler {
+	display: grid;
+
+	&__inner {
+		display: flex;
+		flex-direction: column;
+	}
+
+	&__toggler {
+		cursor: pointer;
+		user-select: none;
+		pointer-events: all;
+	}
+
+	&__controller {
+		position: absolute;
+		width: 0;
+		height: 0;
+	}
+
+	&__content {
+		flex: 0;
+		overflow: hidden;
+		@include transition-base;
+	}
+
+	&__controller:disabled ~ &__inner > &__toggler {
+		pointer-events: none;
+	}
+
+	&__controller:checked ~ &__inner > &__content {
+		flex: 1;
+	}
+
+	&__controller:checked ~ &__inner &__initial {
+		display: none;
+	}
+
+	&__controller:checked ~ &__inner &__final {
+		display: block;
+	}
+
+	&__controller:not(:checked) ~ &__inner &__initial {
+		display: block;
+	}
+
+	&__controller:not(:checked) ~ &__inner &__final {
+		display: none;
+	}
+}
