@@ -223,7 +223,7 @@ gulp.task("default",
 				copyStatic
 			)
 		),
-		argv.watch ?
+		argv.fwatch ?
 			gulp.parallel(
 				watch,
 				browserSyncInit
