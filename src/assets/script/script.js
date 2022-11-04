@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	// initTabs()
 	// initPhoneMask()
 	// initQuantity()
-	// initSpoilers()
+	initSpoilers()
 	// initInputControllerGroups()
 })
 
