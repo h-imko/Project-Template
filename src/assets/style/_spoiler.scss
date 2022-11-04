@@ -1,47 +1,64 @@
-$parent: ".spoiler";
-$toggler: #{$parent}__toggler;
-$content: #{$parent}__content;
-$initial: #{$parent}__initial;
-$final: #{$parent}__final;
-$flipper: #{$parent}__flipper;
+.spoiler {
+	display: grid;
 
-#{$content} {
-	overflow: hidden;
-
-	&:not(.is-active) {
-		max-height: var(--initial-height, 0);
-	}
-}
-
-#{$toggler} {
-	cursor: pointer;
-	user-select: none;
-}
-
-#{$parent},
-#{$toggler},
-#{$content} {
-	&.is-active {
-		#{$flipper} {
-			transform: scaleY(-1);
-		}
-
-		#{$initial} {
-			display: none;
-		}
-
-		#{$final} {
-			display: block;
-		}
+	%transition {
+		@include transition-base;
 	}
 
-	&:not(.is-active) {
-		#{$initial} {
-			display: block;
-		}
+	&__inner {
+		display: flex;
+		flex-direction: column;
+	}
 
-		#{$final} {
-			display: none;
-		}
+	&__toggler {
+		cursor: pointer;
+		user-select: none;
+		pointer-events: all;
+	}
+
+	&__controller {
+		position: absolute;
+		width: 0;
+		height: 0;
+	}
+
+	&__content {
+		flex-basis: var(--initial-height, 0%);
+		flex-shrink: 1;
+		flex-grow: 0;
+		overflow: hidden;
+		@extend %transition;
+	}
+
+	&__flipper {
+		@extend %transition;
+	}
+
+	&__controller:disabled ~ &__inner > &__toggler {
+		pointer-events: none;
+	}
+
+	&__controller:checked ~ &__inner > &__content {
+		flex-grow: 1;
+	}
+
+	&__controller:checked ~ &__inner &__flipper {
+		transform: scaleY(-1);
+	}
+
+	&__controller:checked ~ &__inner &__initial {
+		display: none;
+	}
+
+	&__controller:checked ~ &__inner &__final {
+		display: block;
+	}
+
+	&__controller:not(:checked) ~ &__inner &__initial {
+		display: block;
+	}
+
+	&__controller:not(:checked) ~ &__inner &__final {
+		display: none;
 	}
 }
