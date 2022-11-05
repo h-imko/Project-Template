@@ -5,7 +5,16 @@
 	<body>
 		{{>header}}
 		<main>
-			<h1>Hello world</h1>
+			<form action="">
+				<h1>Hello world</h1>
+				<div class="quantity">
+					<div class="quantity__button quantity__button--subtract">-</div>
+					<input type="number" class="quantity__input" max="9" min="0">
+					<div class="quantity__button quantity__button--add">+</div>
+					<div class="quantity__button quantity__button--add" data-step="2">+2</div>
+				</div>
+				<button type="submit">submit</button>
+			</form>
 		</main>
 		{{>footer}}
 	</body>

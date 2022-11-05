@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	initPopups()
 	// initTabs()
 	// initPhoneMask()
-	// initQuantity()
+	initQuantity()
 	initSpoilers()
 	// initInputControllerGroups()
 })
