@@ -10,8 +10,8 @@ import imagemin, {
 	gifsicle, mozjpeg, svgo
 } from "gulp-imagemin"
 import GulpMem from "gulp-mem"
+import nunjucks from "nunjucks"
 import newer from "gulp-newer"
-import rename from "gulp-rename"
 import replace from "gulp-replace"
 import GulpSass from "gulp-sass"
 import sourcemaps from "gulp-sourcemaps"
@@ -28,7 +28,7 @@ import yargs from "yargs"
 import {
 	hideBin
 } from "yargs/helpers"
-env.biba = "boba"
+
 const argv = yargs(hideBin(process.argv)).argv,
 	sass = GulpSass(Sass),
 	gulpMem = new GulpMem()
@@ -120,19 +120,12 @@ function JS() {
 }
 
 function HTML() {
-	return gulp.src(["./src/*.html", "./src/*.hbs"])
+	return gulp.src(["./src/*.html", "./src/*.njk", "./src/assets/njks/component/**/*.njk"])
 		.pipe(
-			hb()
-				.partials('./src/assets/hbs/**/*.hbs').on("error", function (error) {
-					printPaintedMessage(`${error.fileName} ${error.message}`, "HBS")
-					browserSync.notify("HBS Error")
-					this.emit("end")
-				})
+			nunjucks.compile()
 		)
 		.pipe(argv.ram ? nothing() : replace("/src/", "/"))
-		.pipe(rename(function (path) {
-			path.extname = ".html"
-		}))
+
 		.pipe(argv.ram ? gulpMem.dest("./build") : gulp.dest("./build"))
 		.pipe(browserSync.stream())
 }
@@ -198,7 +191,7 @@ function cleanInitials(cb) {
 }
 
 function watch() {
-	gulp.watch(["./src/**/*.html", "./src/**/*.hbs"], HTML)
+	gulp.watch(["./src/**/*.html", "./src/**/*.njk"], HTML)
 	gulp.watch(["./src/assets/script/**/*"], JS)
 	gulp.watch(["./src/assets/style/**/*"], CSS)
 	gulp.watch("./src/assets/static/img-raw/icon/**/*.svg", {
@@ -235,3 +228,4 @@ gulp.task("default",
 gulp.task("imagemin", minimizeImgs)
 gulp.task("ttfToWoff", ttfToWoff)
 gulp.task("init", cleanInitials)
+gulp.task("test", HTML)

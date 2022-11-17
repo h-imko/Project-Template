@@ -1,13 +1,9 @@
-<!DOCTYPE html>
-<html lang="ru">
-	{{>head}}
+{% set title = "Ivan" %}
+{% import "./assets/njks/macro/btn.njk" as btn %}
+{% extends "./assets/njks/template/page.njk" %}
 
-	<body>
-		{{>header}}
-		<main>
-			<h1>Hello world</h1>
-		</main>
-		{{>footer}}
-	</body>
-
-</html>
+{% block content %}
+   <h1>Hello world!</h1>
+   {{ btn.btn("Hello world!", "a", modifiers = ["biba", "boba"]) }}
+   {# {% include "./assets/njks/section/biba.njk" %} #}
+{% endblock %}

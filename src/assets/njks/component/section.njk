@@ -1,0 +1,14 @@
+<section>
+   <div class="section__inner">
+      {% if content %}
+         <div class="section__content">
+            {{ content | safe }}
+         </div>
+      {% endif %}
+      {% if footer %}
+         <div class="section__footer">
+            {{ footer | safe }}
+         </div>
+      {% endif %}
+   </div>
+</section>

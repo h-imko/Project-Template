@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="ru">
+   {% include "../component/head.njk" %}
+   <body>
+      {% include "../component/header.njk" %}
+      <main>
+      {% include "../template/section.njk" %}
+         {% block content %}{% endblock %}
+      </main>
+      {% include "../component/footer.njk" %}
+   </body>
+</html>

@@ -1,0 +1,8 @@
+{% macro btn(text, tag = "div", icon = false, modifiers = []) %}
+   <{{ tag }} class="{% for modifier in modifiers %} button--{{ modifier }} {% endfor %}">
+      <span>{{ text }}</span>
+      {% if icon %}
+         <div class="icon icon--{{ icon }}"></div>
+      {% endif %}
+   </{{ tag }}>
+{% endmacro %}
