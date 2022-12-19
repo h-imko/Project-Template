@@ -1,5 +1,5 @@
-@mixin transition-base($property: all, $duration: .2s) {
-	transition: $property var(--transition-duration, #{$duration}) ease;
+@mixin transition-base($property: all, $duration: .3s) {
+	transition: $property var(--transition-duration,var(--transition-duration, #{$duration}) ) ease;
 }
 
 @mixin text-line-clip($lines) {

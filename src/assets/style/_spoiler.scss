@@ -1,65 +1,54 @@
-.spoiler {
+$parent: ".spoiler";
+$toggler: #{$parent}__toggler;
+$content: #{$parent}__content;
+$initial: #{$parent}__initial;
+$inner: #{$parent}__inner;
+$final: #{$parent}__final;
+$flipper: #{$parent}__flipper;
+
+#{$content} {
+	overflow: hidden;
 	display: grid;
+	grid-template-rows: minmax(0, 0);
+	min-height: var(--initial-height, 0);
+	transition: var(--transition, min-height var(--transition-duration, 0.3s) ease);
 
-	%transition {
-		@include transition-base;
+	&.is-active {
+		min-height: var(--scroll-height, 9999px);
+		grid-template-rows: minmax(var(--scroll-height, 9999px), min-content);
+		transition: var(--transition, min-height var(--transition-duration, 0.3s) ease, grid-template-rows 0s var(--transition-duration, 0.3s));
+	}
+}
+
+#{$toggler} {
+	cursor: pointer;
+	user-select: none;
+}
+
+#{$parent},
+#{$toggler},
+#{$content} {
+	&.is-active {
+		#{$flipper} {
+			transform: scaleY(-1);
+		}
+
+		#{$initial} {
+			display: none;
+		}
+
+		#{$final} {
+			display: block;
+		}
 	}
 
-	&__inner {
-		display: flex;
-		flex-direction: column;
-	}
+	&:not(.is-active) {
+		#{$initial} {
+			display: block;
+		}
 
-	&__toggler {
-		cursor: pointer;
-		user-select: none;
-		pointer-events: all;
-	}
-
-	&__controller {
-		position: absolute;
-		width: 0;
-		height: 0;
-		visibility: hidden;
-	}
-
-	&__content {
-		flex-basis: var(--initial-height, 0%);
-		flex-shrink: 1;
-		flex-grow: 0;
-		overflow: hidden;
-		@extend %transition;
-	}
-
-	&__flipper {
-		@extend %transition;
-	}
-
-	&__controller:disabled ~ &__inner > &__toggler {
-		pointer-events: none;
-	}
-
-	&__controller:checked ~ &__inner > &__content {
-		flex-grow: 1;
-	}
-
-	&__controller:checked ~ &__inner &__flipper {
-		transform: scaleY(-1);
-	}
-
-	&__controller:checked ~ &__inner &__initial {
-		display: none;
-	}
-
-	&__controller:checked ~ &__inner &__final {
-		display: block;
-	}
-
-	&__controller:not(:checked) ~ &__inner &__initial {
-		display: block;
-	}
-
-	&__controller:not(:checked) ~ &__inner &__final {
-		display: none;
+		#{$final} {
+			display: none;
+		}
 	}
 }
