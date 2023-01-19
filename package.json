@@ -29,12 +29,10 @@
 		"gulp-replace": "^1.1.4",
 		"gulp-sass": "^5.1.0",
 		"gulp-sourcemaps": "^3.0.0",
-		"gulp-uglify": "^3.0.2",
 		"imagemin-pngquant": "^9.0.2",
 		"npm-check-updates": "^16.6.2",
 		"sass": "^1.57.1",
-		"ttf2woff2": "^5.0.0",
-		"yargs": "^17.6.2"
+		"ttf2woff2": "^5.0.0"
 	},
 	"dependencies": {
 		"@splidejs/splide": "^4.1.4",
