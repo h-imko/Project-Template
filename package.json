@@ -47,9 +47,9 @@
 	},
 	"dependencies": {
 		"@splidejs/splide": "^4.1.4",
-		"@types/node": "^18.11.17",
 		"cleave.js": "^1.6.0",
 		"fslightbox": "^3.3.1",
+		"gulp-esbuild": "^0.11.0",
 		"tippy.js": "^6.3.7"
 	}
 }

@@ -20,6 +20,7 @@ import pngquant from "imagemin-pngquant"
 import path from "path"
 import Sass from "sass"
 import tsify from "tsify"
+import esbuild from "gulp-esbuild"
 import ttf2woff2 from "ttf2woff2"
 import buffer from "vinyl-buffer"
 import source from "vinyl-source-stream"
@@ -91,31 +92,25 @@ function CSS() {
 }
 
 function JS() {
-	globbySync(["./src/assets/script/**/*.js", "!./src/assets/script/**/_*.js"]).forEach(function (file) {
-		browserify(file, {
-			debug: true,
-			paths: ['node_modules']
+	return gulp.src(["./src/assets/script/**/*.js", "!./src/assets/script/**/_*.js"])
+		.pipe(sourcemaps.init())
+		.pipe(esbuild({
+			bundle: true,
+			minify: argv.min,
+			drop: argv.min ? ["console", "debugger"] : [],
+			treeShaking: true,
+			sourcemap: "linked"
+		}))
+		.on("error", function (error) {
+			printPaintedMessage(error.message, "JS")
+			browserSync.notify("JS Error")
+			this.emit("end")
 		})
-			.plugin(tsify)
-			.plugin(esmify)
-			.bundle()
-			.on("error", function (error) {
-				printPaintedMessage(error.message, "Browserify")
-				browserSync.notify("JS Error")
-				this.emit("end")
-			})
-			.pipe(source(`${path.basename(file)}`))
-			.pipe(buffer())
-			.pipe(sourcemaps.init({
-				loadMaps: true
-			}))
-			.pipe(argv.ram ? nothing() : replace("/src/", "/"))
-			.pipe(argv.min ? uglify() : nothing())
-			.pipe(sourcemaps.write("./"))
-			.pipe(argv.ram ? gulpMem.dest("./build/src/assets/script/") : gulp.dest("./build/assets/script/"))
-			.pipe(browserSync.stream())
-	})
-	return nothing()
+		.pipe(argv.ram ? nothing() : replace("/src/", "/"))
+		.pipe(argv.min ? uglify() : nothing())
+		.pipe(sourcemaps.write("./"))
+		.pipe(argv.ram ? gulpMem.dest("./build/src/assets/script/") : gulp.dest("./build/assets/script/"))
+		.pipe(browserSync.stream())
 }
 
 function HTML() {
