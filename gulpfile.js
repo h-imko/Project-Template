@@ -18,7 +18,6 @@ import sourcemaps from "gulp-sourcemaps"
 import uglify from "gulp-uglify"
 import pngquant from "imagemin-pngquant"
 import path from "path"
-import { env } from "process"
 import Sass from "sass"
 import tsify from "tsify"
 import ttf2woff2 from "ttf2woff2"
@@ -28,7 +27,7 @@ import yargs from "yargs"
 import {
 	hideBin
 } from "yargs/helpers"
-env.biba = "boba"
+
 const argv = yargs(hideBin(process.argv)).argv,
 	sass = GulpSass(Sass),
 	gulpMem = new GulpMem()
@@ -86,7 +85,7 @@ function CSS() {
 			flexbox: false,
 		}))
 		.pipe(argv.ram ? nothing() : replace("/src/", "/"))
-		.pipe(sourcemaps.write("."))
+		.pipe(sourcemaps.write("./"))
 		.pipe(argv.ram ? gulpMem.dest("./build/src/assets/style/") : gulp.dest("./build/assets/style/"))
 		.pipe(browserSync.stream())
 }
@@ -172,11 +171,11 @@ function minimizeImgs() {
 		.pipe(gulp.dest("./src/assets/static/img/"))
 }
 
-function cleanBuild(cb) {
+function cleanBuild() {
 	if (!argv.ram) {
 		fs.rmSync("./build", { recursive: true, force: true })
 	}
-	cb()
+	return nothing()
 }
 
 function ttfToWoff() {
@@ -190,11 +189,11 @@ function ttfToWoff() {
 	return nothing()
 }
 
-function cleanInitials(cb) {
+function cleanInitials() {
 	globbySync("./src/**/.placeholder").forEach(function (file) {
 		fs.unlinkSync(file)
 	})
-	cb()
+	return nothing()
 }
 
 function watch() {
