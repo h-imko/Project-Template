@@ -1,6 +1,4 @@
 import browserSync from "browser-sync"
-import browserify from "browserify"
-import esmify from "esmify"
 import fs from "fs"
 import { globby, globbySync } from "globby"
 import gulp from "gulp"
@@ -11,7 +9,6 @@ import imagemin, {
 } from "gulp-imagemin"
 import GulpMem from "gulp-mem"
 import newer from "gulp-newer"
-import rename from "gulp-rename"
 import replace from "gulp-replace"
 import GulpSass from "gulp-sass"
 import sourcemaps from "gulp-sourcemaps"
@@ -19,11 +16,8 @@ import uglify from "gulp-uglify"
 import pngquant from "imagemin-pngquant"
 import path from "path"
 import Sass from "sass"
-import tsify from "tsify"
 import esbuild from "gulp-esbuild"
 import ttf2woff2 from "ttf2woff2"
-import buffer from "vinyl-buffer"
-import source from "vinyl-source-stream"
 import yargs from "yargs"
 import {
 	hideBin
@@ -114,7 +108,7 @@ function JS() {
 }
 
 function HTML() {
-	return gulp.src(["./src/*.html", "./src/*.hbs"])
+	return gulp.src(["./src/*.html"])
 		.pipe(
 			hb()
 				.partials('./src/assets/hbs/**/*.hbs').on("error", function (error) {
@@ -124,9 +118,7 @@ function HTML() {
 				})
 		)
 		.pipe(argv.ram ? nothing() : replace("/src/", "/"))
-		.pipe(rename(function (path) {
-			path.extname = ".html"
-		}))
+
 		.pipe(argv.ram ? gulpMem.dest("./build") : gulp.dest("./build"))
 		.pipe(browserSync.stream())
 }
