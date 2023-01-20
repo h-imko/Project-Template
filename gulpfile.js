@@ -8,7 +8,6 @@ import imagemin, {
 } from "gulp-imagemin"
 import GulpMem from "gulp-mem"
 import newer from "gulp-newer"
-import replace from "gulp-replace"
 import GulpSass from "gulp-sass"
 import sourcemaps from "gulp-sourcemaps"
 import pngquant from "imagemin-pngquant"
@@ -16,7 +15,18 @@ import path from "path"
 import Sass from "sass"
 import esbuild from "gulp-esbuild"
 import ttf2woff2 from "ttf2woff2"
-import { Transform, Writable } from "stream"
+import { Transform } from "stream"
+
+function replace(chunk, encoding, callback) {
+	return new Transform({
+		writableObjectMode: true,
+		readableObjectMode: true,
+		transform(chunk, encoding, callback) {
+			chunk.contents = Buffer.from(chunk.contents.toString("utf8").replaceAll("/src/", "/"), "utf8")
+			callback(null, chunk)
+		}
+	})
+}
 
 const argv = process.argv.slice(2).reduce(function (acc, curr) {
 	return { ...acc, [curr.replace("--", "")]: true }
@@ -77,7 +87,7 @@ function CSS() {
 			cascade: false,
 			flexbox: false,
 		}))
-		.pipe(argv.ram ? nothing() : replace("/src/", "/"))
+		.pipe(argv.ram ? nothing() : replace())
 		.pipe(sourcemaps.write("./"))
 		.pipe(argv.ram ? gulpMem.dest("./build/src/assets/style/") : gulp.dest("./build/assets/style/"))
 		.pipe(browserSync.stream())
@@ -99,7 +109,7 @@ function JS() {
 				this.emit("end")
 			})
 		)
-		.pipe(argv.ram ? nothing() : replace("/src/", "/"))
+		.pipe(argv.ram ? nothing() : replace())
 		.pipe(sourcemaps.write("./"))
 		.pipe(argv.ram ? gulpMem.dest("./build/src/assets/script/") : gulp.dest("./build/assets/script/"))
 		.pipe(browserSync.stream())
@@ -115,7 +125,7 @@ function HTML() {
 					this.emit("end")
 				})
 		)
-		.pipe(argv.ram ? nothing() : replace("/src/", "/"))
+		.pipe(argv.ram ? nothing() : replace())
 		.pipe(argv.ram ? gulpMem.dest("./build") : gulp.dest("./build"))
 		.pipe(browserSync.stream())
 }

@@ -18,7 +18,6 @@
 	},
 	"devDependencies": {
 		"browser-sync": "^2.27.11",
-		"globby": "^13.1.3",
 		"gulp": "^4.0.2",
 		"gulp-autoprefixer": "^8.0.0",
 		"gulp-esbuild": "^0.11.0",
@@ -26,7 +25,6 @@
 		"gulp-imagemin": "^8.0.0",
 		"gulp-mem": "^0.1.3",
 		"gulp-newer": "^1.4.0",
-		"gulp-replace": "^1.1.4",
 		"gulp-sass": "^5.1.0",
 		"gulp-sourcemaps": "^3.0.0",
 		"imagemin-pngquant": "^9.0.2",
