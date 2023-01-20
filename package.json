@@ -12,9 +12,7 @@
 		"build_watch_min": "node ./node_modules/gulp/bin/gulp.js --fwatch --min",
 		"imagemin": "node ./node_modules/gulp/bin/gulp.js imagemin",
 		"ttfToWoff": "node ./node_modules/gulp/bin/gulp.js ttfToWoff",
-		"init": "npm i && node ./node_modules/gulp/bin/gulp.js init",
-		"check packages update": "node ./node_modules/npm-check-updates/build/src/bin/cli.js",
-		"update packages unsafe": "node ./node_modules/npm-check-updates/build/src/bin/cli.js -u && npm i"
+		"init": "npm i && node ./node_modules/gulp/bin/gulp.js init"
 	},
 	"devDependencies": {
 		"browser-sync": "^2.27.11",
@@ -27,7 +25,6 @@
 		"gulp-sass": "^5.1.0",
 		"gulp-sourcemaps": "^3.0.0",
 		"imagemin-pngquant": "^9.0.2",
-		"npm-check-updates": "^16.6.2",
 		"sass": "^1.57.1",
 		"ttf2woff2": "^5.0.0"
 	},
