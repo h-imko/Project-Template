@@ -1,6 +1,5 @@
 import browserSync from "browser-sync"
-import fs, { createWriteStream } from "fs"
-import { globby, globbySync } from "globby"
+import fs from "fs"
 import gulp from "gulp"
 import autoPrefixer from "gulp-autoprefixer"
 import hb from "gulp-hb"
@@ -143,7 +142,7 @@ function makeIconsSCSS() {
 				callback(null, css)
 			}
 		}))
-		.pipe(createWriteStream("./src/assets/style/_icons.scss"))
+		.pipe(fs.createWriteStream("./src/assets/style/_icons.scss"))
 }
 function minimizeImgs() {
 	return gulp.src("./src/assets/static/img-raw/**/*", {
@@ -167,14 +166,20 @@ function cleanBuild() {
 }
 
 function ttfToWoff() {
-	globbySync("./src/assets/static/font/**/*.ttf").forEach(function (file) {
-		let relativeDir = path.relative("./src/assets/static/font/", path.dirname(file))
-		let name = `${path.basename(file, path.extname(file))}.woff2`
-		let destFull = path.join("./src/assets/static/font/", relativeDir, name)
-		fs.writeFileSync(destFull, ttf2woff2(fs.readFileSync(file)))
-		fs.unlink(file, function () { })
-	})
-	return nothing()
+	return gulp.src("./src/assets/static/font/**/*.ttf")
+		.pipe(new Transform({
+			writableObjectMode: true,
+			readableObjectMode: false,
+			transform(chunk, encoding, callback) {
+				let relativeDir = path.relative("./src/assets/static/font/", path.dirname(chunk.path))
+				let name = `${path.basename(chunk.path, path.extname(chunk.path))}.woff2`
+				let destFull = path.join("./src/assets/static/font/", relativeDir, name)
+				fs.createWriteStream(destFull, {
+					autoClose: true
+				}).write(ttf2woff2(chunk.contents))
+				fs.unlink(chunk.path, callback)
+			}
+		}))
 }
 
 function cleanInitials() {
