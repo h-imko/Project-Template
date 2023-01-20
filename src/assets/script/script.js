@@ -7,7 +7,7 @@ import Quantity from "./_Quantity"
 import Spoiler from "./_Spoiler"
 
 document.addEventListener('DOMContentLoaded', function () {
-	initPopups()
+	// initPopups()
 	// initTabs()
 	// initPhoneMask()
 	// initQuantity()
