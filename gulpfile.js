@@ -135,7 +135,7 @@ function makeIconsSCSS() {
 		allowEmpty: true
 	})
 		.pipe(new Transform({
-			readableObjectMode: true,
+			readableObjectMode: false,
 			writableObjectMode: true,
 			transform(chunk, encoding, callback) {
 				let name = path.parse(path.relative("./src/assets/static/img-raw/icon/", chunk.path).replaceAll('\\', '__')).name
@@ -178,10 +178,17 @@ function ttfToWoff() {
 }
 
 function cleanInitials() {
-	globbySync("./src/**/.placeholder").forEach(function (file) {
-		fs.unlinkSync(file)
-	})
-	return nothing()
+	return gulp.src("./src/**/.placeholder", {
+		allowEmpty: true
+	}).pipe(
+		new Transform({
+			writableObjectMode: true,
+			readableObjectMode: false,
+			transform(chunk, encoding, callback) {
+				fs.unlink(chunk.path, callback)
+			}
+		})
+	)
 }
 
 function watch() {
