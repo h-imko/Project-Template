@@ -1,5 +1,5 @@
 import browserSync from "browser-sync"
-import fs from "fs"
+import fs, { createWriteStream } from "fs"
 import { globby, globbySync } from "globby"
 import gulp from "gulp"
 import autoPrefixer from "gulp-autoprefixer"
@@ -17,12 +17,13 @@ import path from "path"
 import Sass from "sass"
 import esbuild from "gulp-esbuild"
 import ttf2woff2 from "ttf2woff2"
+import { Transform, Writable } from "stream"
 
 const argv = process.argv.slice(2).reduce(function (acc, curr) {
-	return {...acc, [curr.replace("--", "")] : true}
+	return { ...acc, [curr.replace("--", "")]: true }
 }, {})
 
-const	sass = GulpSass(Sass),
+const sass = GulpSass(Sass),
 	gulpMem = new GulpMem()
 gulpMem.logFn = null
 gulpMem.serveBasePath = "./build"
@@ -86,19 +87,20 @@ function CSS() {
 function JS() {
 	return gulp.src(["./src/assets/script/**/*.js", "!./src/assets/script/**/_*.js"])
 		.pipe(sourcemaps.init())
-		.pipe(argv.ram ? nothing() : replace("/src/", "/"))
 		.pipe(esbuild({
 			bundle: true,
 			minify: argv.min,
 			drop: argv.min ? ["console", "debugger"] : [],
 			treeShaking: true,
 			sourcemap: argv.min ? false : "linked"
-		}))
-		.on("error", function (error) {
-			printPaintedMessage(error.message, "JS")
-			browserSync.notify("JS Error")
-			this.emit("end")
 		})
+			.on("error", function (error) {
+				printPaintedMessage(error.message, "JS")
+				browserSync.notify("JS Error")
+				this.emit("end")
+			})
+		)
+		.pipe(argv.ram ? nothing() : replace("/src/", "/"))
 		.pipe(sourcemaps.write("./"))
 		.pipe(argv.ram ? gulpMem.dest("./build/src/assets/script/") : gulp.dest("./build/assets/script/"))
 		.pipe(browserSync.stream())
@@ -115,7 +117,6 @@ function HTML() {
 				})
 		)
 		.pipe(argv.ram ? nothing() : replace("/src/", "/"))
-
 		.pipe(argv.ram ? gulpMem.dest("./build") : gulp.dest("./build"))
 		.pipe(browserSync.stream())
 }
@@ -130,17 +131,20 @@ function copyStatic() {
 }
 
 function makeIconsSCSS() {
-	globby("./src/assets/static/img-raw/icon/**/*.svg", {}, function (er, files) {
-		fs.writeFileSync("./src/assets/style/_icons.scss", "")
-		fs.appendFileSync("./src/assets/style/_icons.scss", files.reduce(function (prev, curr) {
-			let name = path.parse(path.relative("./src/assets/static/img-raw/icon/", curr).replaceAll('\\', '__')).name
-			let css = `.icon--${name},%icon--${name}{mask-image: url(${curr.replace(".", "").replace("/img-raw/", "/img/")});}`
-			return prev.concat(css)
-		}, ""))
+	return gulp.src("./src/assets/static/img-raw/icon/**/*.svg", {
+		allowEmpty: true
 	})
-	return nothing()
+		.pipe(new Transform({
+			readableObjectMode: true,
+			writableObjectMode: true,
+			transform(chunk, encoding, callback) {
+				let name = path.parse(path.relative("./src/assets/static/img-raw/icon/", chunk.path).replaceAll('\\', '__')).name
+				let css = `.icon--${name},%icon--${name}{mask-image: url(${chunk.path.replace(".", "").replace("/img-raw/", "/img/")});}`
+				callback(null, css)
+			}
+		}))
+		.pipe(createWriteStream("./src/assets/style/_icons.scss"))
 }
-
 function minimizeImgs() {
 	return gulp.src("./src/assets/static/img-raw/**/*", {
 		allowEmpty: true
