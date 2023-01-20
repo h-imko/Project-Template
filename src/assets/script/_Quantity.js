@@ -5,78 +5,53 @@ class Quantity {
 	 */
 	constructor(target) {
 		this.quantity = target
-		this.input = target.querySelector('input[type="number"]')
-		this.contols = {
-			all: [...target.querySelectorAll(".quantity__button")],
-			add: [],
-			subtract: [],
-			reset: [],
+		this.input = target.querySelector('input[type="number"].quantity__input')
+		this.controls = {
+			add: [...target.querySelectorAll(".quantity__button.quantity__button--add")],
+			subtract: [...target.querySelectorAll(".quantity__button.quantity__button--subtract")]
 		}
-		this.contols.add.push(...this.contols.all.filter((current) => {
-			return +current.dataset?.delta > 0
-		}))
-		this.contols.subtract.push(...this.contols.all.filter((current) => {
-			return +current.dataset?.delta < 0
-		}))
-		this.contols.reset.push(...this.contols.all.filter((current) => {
-			return current.dataset?.delta == "reset"
-		}))
-		this.max = {
-			value: +this.input.max,
-			exists: this.input.max.length ? true : false
-		}
-		this.min = {
-			value: +this.input.min,
-			exists: this.input.min.length ? true : false
-		}
-		this.initialValue = +this.input.value
+		this.max = Number(this.input.getAttribute("max")) ?? Number.MAX_SAFE_INTEGER
+		this.min = Number(this.input.getAttribute("min")) ?? Number.MIN_SAFE_INTEGER
 
-		this.setInitial()
 		this.bindControls()
 		this.bindInputEvents()
 	}
 
-	setInitial() {
-		this.input.value = this.initialValue
+	bindControls() {
+		this.controls.add.forEach(button => {
+			button.addEventListener("click", () => {
+				this.input.stepUp(button.dataset.step || undefined)
+			})
+		})
+
+		this.controls.subtract.forEach(button => {
+			button.addEventListener("click", () => {
+				this.input.stepDown(button.dataset.step || undefined)
+			})
+		})
 	}
 
-	processLimit() {
-		console.log(this.min.exists, this.input.value, this.min.value)
-		if (this.max.exists && (this.input.value >= this.max.value)) {
-			this.input.value = this.max.value
-			this.contols.add.forEach(control => {
-				control.toggleAttribute("disabled", true)
-			})
-		} else if (this.min.exists && (this.input.value <= this.min.value)) {
-			this.input.value = this.min.value
-			this.contols.subtract.forEach(control => {
-				control.toggleAttribute("disabled", true)
-			})
+	bringToLimit() {
+		let curr = Number(this.input.value)
+
+		if (curr > this.max) {
+			this.input.value = this.max
+			return true
+		} else if (curr < this.min) {
+			this.input.value = this.min
+			return true
 		} else {
-			this.contols.subtract.forEach(control => {
-				control.toggleAttribute("disabled", false)
-			})
-			return
+			return false
 		}
 	}
 
 	bindInputEvents() {
 		this.input.addEventListener("change", () => {
-			this.processLimit()
-		})
-	}
-
-	bindControls() {
-		this.contols.all.forEach(control => {
-			control.addEventListener("click", () => {
-				if (this.contols.reset.includes(control)) {
-					this.setInitial()
-				} else {
-					this.input.value = +this.input.value + +control.dataset?.delta
-				}
+			if (this.bringToLimit()) {
 				this.input.dispatchEvent(new Event("change"))
-			})
+			}
 		})
 	}
 }
+
 export default Quantity
