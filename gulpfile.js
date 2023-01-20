@@ -7,7 +7,6 @@ import imagemin, {
 	gifsicle, mozjpeg, svgo
 } from "gulp-imagemin"
 import GulpMem from "gulp-mem"
-import newer from "gulp-newer"
 import GulpSass from "gulp-sass"
 import sourcemaps from "gulp-sourcemaps"
 import pngquant from "imagemin-pngquant"
@@ -15,15 +14,34 @@ import path from "path"
 import Sass from "sass"
 import esbuild from "gulp-esbuild"
 import ttf2woff2 from "ttf2woff2"
-import { Transform } from "stream"
+import stream from "stream"
 
-function replace(chunk, encoding, callback) {
-	return new Transform({
+function replace(searchValue, repaceValue) {
+	return new stream.Transform({
 		writableObjectMode: true,
 		readableObjectMode: true,
 		transform(chunk, encoding, callback) {
-			chunk.contents = Buffer.from(chunk.contents.toString("utf8").replaceAll("/src/", "/"), "utf8")
+			chunk.contents = Buffer.from(chunk.contents.toString("utf8").replaceAll(searchValue, repaceValue), "utf8")
 			callback(null, chunk)
+		}
+	})
+}
+
+function newer(relatedTo) {
+	return new stream.Transform({
+		readableObjectMode: true,
+		writableObjectMode: true,
+		transform(chunk, encoding, callback) {
+			let relatedToPath = path.join(relatedTo || path.dirname(chunk.path), path.basename(chunk.path))
+			if (fs.existsSync(relatedToPath)) {
+				if (fs.statSync(chunk.path).mtime < fs.statSync(relatedToPath).mtime) {
+					callback(null, null)
+				} else {
+					callback(null, chunk)
+				}
+			} else {
+				callback(null, chunk)
+			}
 		}
 	})
 }
@@ -87,7 +105,7 @@ function CSS() {
 			cascade: false,
 			flexbox: false,
 		}))
-		.pipe(argv.ram ? nothing() : replace())
+		.pipe(argv.ram ? nothing() : replace("/src/", "/"))
 		.pipe(sourcemaps.write("./"))
 		.pipe(argv.ram ? gulpMem.dest("./build/src/assets/style/") : gulp.dest("./build/assets/style/"))
 		.pipe(browserSync.stream())
@@ -109,7 +127,7 @@ function JS() {
 				this.emit("end")
 			})
 		)
-		.pipe(argv.ram ? nothing() : replace())
+		.pipe(argv.ram ? nothing() : replace("/src/", "/"))
 		.pipe(sourcemaps.write("./"))
 		.pipe(argv.ram ? gulpMem.dest("./build/src/assets/script/") : gulp.dest("./build/assets/script/"))
 		.pipe(browserSync.stream())
@@ -125,7 +143,7 @@ function HTML() {
 					this.emit("end")
 				})
 		)
-		.pipe(argv.ram ? nothing() : replace())
+		.pipe(argv.ram ? nothing() : replace("/src/", "/"))
 		.pipe(argv.ram ? gulpMem.dest("./build") : gulp.dest("./build"))
 		.pipe(browserSync.stream())
 }
@@ -143,7 +161,7 @@ function makeIconsSCSS() {
 	return gulp.src("./src/assets/static/img-raw/icon/**/*.svg", {
 		allowEmpty: true
 	})
-		.pipe(new Transform({
+		.pipe(new stream.Transform({
 			readableObjectMode: false,
 			writableObjectMode: true,
 			transform(chunk, encoding, callback) {
@@ -154,11 +172,12 @@ function makeIconsSCSS() {
 		}))
 		.pipe(fs.createWriteStream("./src/assets/style/_icons.scss"))
 }
+
 function minimizeImgs() {
 	return gulp.src("./src/assets/static/img-raw/**/*", {
 		allowEmpty: true
 	})
-		.pipe(newer("./src/assets/static/img"))
+		.pipe(newer("./src/assets/static/img/"))
 		.pipe(imagemin([
 			pngquant(),
 			mozjpeg(),
@@ -177,7 +196,7 @@ function cleanBuild() {
 
 function ttfToWoff() {
 	return gulp.src("./src/assets/static/font/**/*.ttf")
-		.pipe(new Transform({
+		.pipe(new stream.Transform({
 			writableObjectMode: true,
 			readableObjectMode: false,
 			transform(chunk, encoding, callback) {
@@ -196,7 +215,7 @@ function cleanInitials() {
 	return gulp.src("./src/**/.placeholder", {
 		allowEmpty: true
 	}).pipe(
-		new Transform({
+		new stream.Transform({
 			writableObjectMode: true,
 			readableObjectMode: false,
 			transform(chunk, encoding, callback) {
