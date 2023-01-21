@@ -7,7 +7,6 @@ import imagemin, {
 	gifsicle, mozjpeg, svgo
 } from "gulp-imagemin"
 import GulpMem from "gulp-mem"
-import GulpSass from "gulp-sass"
 import sourcemaps from "gulp-sourcemaps"
 import pngquant from "imagemin-pngquant"
 import path from "path"
@@ -46,31 +45,36 @@ function newer(relatedTo) {
 	})
 }
 
-const argv = process.argv.slice(2).reduce(function (acc, curr) {
-	return { ...acc, [curr.replace("--", "")]: true }
-}, {})
+const gulpMem = new GulpMem(),
+	argv = process.argv.slice(2).reduce(function (acc, curr) {
+		return { ...acc, [curr.replace("--", "")]: true }
+	}, {})
 
-const sass = GulpSass(Sass),
-	gulpMem = new GulpMem()
 gulpMem.logFn = null
 gulpMem.serveBasePath = "./build"
 
-function fsass() {
+function sass() {
 	return new stream.Transform({
 		writableObjectMode: true,
 		readableObjectMode: true,
 		transform(chunk, encoding, callback) {
-			// console.log(chunk.sourceMap)
-			let css = Sass.compile(chunk.path, {
-				sourceMap: true,
-				sourceMapIncludeSources: true
-			})
-			chunk.contents = Buffer.from(css.css, "utf8")
-			// console.log(Object.assign(chunk.sourceMap, css.sourceMap))
+			try {
+				let compiled = Sass.compile(chunk.path, {
+					sourceMap: true,
+					sourceMapIncludeSources: true,
+					style: argv.min ? "compressed" : "expanded",
+					loadPaths: ["node_modules"]
+				})
+				chunk.contents = Buffer.from(compiled.css, "utf8")
+				chunk.path = chunk.path.replace(".scss", ".css")
 
-			chunk.sourceMap = Object.assign(chunk.sourceMap, css.sourceMap)
-			chunk.path = chunk.path.replace(".scss", ".css")
-			callback(null, chunk)
+				Object.assign(chunk.sourceMap, compiled.sourceMap)
+				chunk.sourceMap.file = path.basename(chunk.path)
+				callback(null, chunk)
+			}
+			catch (error) {
+				callback(error, chunk)
+			}
 		}
 	})
 }
@@ -111,9 +115,12 @@ function printPaintedMessage(message, module) {
 
 function CSS() {
 	return gulp.src(["./src/assets/style/**/*.scss", "!./src/assets/style/**/_*.scss"])
-	.pipe(sourcemaps.init())
-		.pipe(fsass())
-		// .pipe(sourcemaps.init({loadMaps:true}))
+		.pipe(sourcemaps.init())
+		.pipe(sass().on("error", function (error) {
+			printPaintedMessage(error.message, "Sass")
+			browserSync.notify("SASS Error")
+			this.emit("end")
+		}))
 		.pipe(autoPrefixer({
 			cascade: false,
 			flexbox: false,
