@@ -55,6 +55,26 @@ const sass = GulpSass(Sass),
 gulpMem.logFn = null
 gulpMem.serveBasePath = "./build"
 
+function fsass() {
+	return new stream.Transform({
+		writableObjectMode: true,
+		readableObjectMode: true,
+		transform(chunk, encoding, callback) {
+			// console.log(chunk.sourceMap)
+			let css = Sass.compile(chunk.path, {
+				sourceMap: true,
+				sourceMapIncludeSources: true
+			})
+			chunk.contents = Buffer.from(css.css, "utf8")
+			// console.log(Object.assign(chunk.sourceMap, css.sourceMap))
+
+			chunk.sourceMap = Object.assign(chunk.sourceMap, css.sourceMap)
+			chunk.path = chunk.path.replace(".scss", ".css")
+			callback(null, chunk)
+		}
+	})
+}
+
 function browserSyncInit() {
 	browserSync.init({
 		server: {
@@ -91,16 +111,9 @@ function printPaintedMessage(message, module) {
 
 function CSS() {
 	return gulp.src(["./src/assets/style/**/*.scss", "!./src/assets/style/**/_*.scss"])
-		.pipe(sourcemaps.init())
-		.pipe(sass.sync({
-			outputStyle: argv.min ? "compressed" : null,
-			includePaths: ["node_modules"],
-		})
-			.on("error", function (error) {
-				printPaintedMessage(error.message, "Sass")
-				browserSync.notify("SASS Error")
-				this.emit("end")
-			}))
+	.pipe(sourcemaps.init())
+		.pipe(fsass())
+		// .pipe(sourcemaps.init({loadMaps:true}))
 		.pipe(autoPrefixer({
 			cascade: false,
 			flexbox: false,
