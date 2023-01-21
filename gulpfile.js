@@ -116,11 +116,12 @@ function printPaintedMessage(message, module) {
 function CSS() {
 	return gulp.src(["./src/assets/style/**/*.scss", "!./src/assets/style/**/_*.scss"])
 		.pipe(sourcemaps.init())
-		.pipe(sass().on("error", function (error) {
-			printPaintedMessage(error.message, "Sass")
-			browserSync.notify("SASS Error")
-			this.emit("end")
-		}))
+		.pipe(sass()
+			.on("error", function (error) {
+				printPaintedMessage(error.message, "Sass")
+				browserSync.notify("SASS Error")
+				this.emit("end")
+			}))
 		.pipe(autoPrefixer({
 			cascade: false,
 			flexbox: false,
