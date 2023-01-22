@@ -207,7 +207,7 @@ function makeIconsSCSS() {
 		}))
 		.pipe(fs.createWriteStream("./src/assets/style/_icons.scss"))
 }
-gulp.task("test", makeIconsSCSS)
+
 function minimizeImgs() {
 	return gulp.src("./src/assets/static/img-raw/**/*", {
 		allowEmpty: true
