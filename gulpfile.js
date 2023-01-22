@@ -16,8 +16,25 @@ import ttf2woff2 from "ttf2woff2"
 import stream from "stream"
 import { cwd } from "process"
 
+const gulpMem = new GulpMem(),
+	argv = process.argv.slice(2).reduce(function (acc, curr) {
+		return { ...acc, [curr.replace("--", "")]: true }
+	}, {}), currentGulp = argv.ram ? gulpMem : gulp
+
+gulpMem.logFn = null
+gulpMem.serveBasePath = "./build"
+
 const tree = {
-	build: null,
+	build: {
+		assets: {
+			script: null,
+			static: {
+				font: null,
+				img: null,
+			},
+			style: null,
+		}
+	},
 	src: {
 		assets: {
 			hbs: null,
@@ -32,10 +49,9 @@ const tree = {
 	}
 }
 
-function findPath(key, allOf, prefix, exclude) {
-	const foundPath = []
-
-	function keyExists(obj = tree) {
+function getGlob(key, build = false, allOf = "", prefix = "", exclude = false) {
+	let foundPath = []
+	function keyExists(obj = build ? tree.build : tree.src) {
 		if (!obj || (typeof obj !== "object" && !Array.isArray(obj))) {
 			return false
 		} else if (obj.hasOwnProperty(key)) {
@@ -62,27 +78,9 @@ function findPath(key, allOf, prefix, exclude) {
 		}
 		return false
 	}
-
 	keyExists()
-
-	return (exclude ? "!" : "") + "./" + pathTransform.toPosix(path.join(...foundPath, key, allOf ? `/**/${prefix ? prefix : ""}*${allOf}` : ""))
-}
-
-function dir(key) {
-	let pathAccumulator = []
-	function find(key, self, path) {
-		if (key == self[0]) {
-			path.push(self[0])
-			return path
-		} else if (self[1]) {
-			path.push(self[0])
-			Object.entries(self[1]).forEach(ent => {
-				find(key, ent, path)
-			})
-		}
-	}
-	find(key, ["", structure], pathAccumulator)
-	return pathTransform.toPosix(path.join("./", ...pathAccumulator))
+	foundPath = pathTransform.toPosix(path.join(...foundPath, key))
+	return `${exclude ? "!" : ""}./${build ? "build/" : "src/"}${foundPath}/${allOf ? `**/${prefix}*.${allOf}` : ""}`
 }
 
 gulp.task("test", gulp.series(nothing))
@@ -123,6 +121,10 @@ function replace(searchValue, repaceValue) {
 	})
 }
 
+function repaceSrc() {
+	return replace("/src/", "/")
+}
+
 function newer(relatedTo) {
 	return new stream.Transform({
 		readableObjectMode: true,
@@ -135,13 +137,6 @@ function newer(relatedTo) {
 	})
 }
 
-const gulpMem = new GulpMem(),
-	argv = process.argv.slice(2).reduce(function (acc, curr) {
-		return { ...acc, [curr.replace("--", "")]: true }
-	}, {})
-
-gulpMem.logFn = null
-gulpMem.serveBasePath = "./build"
 
 function sass() {
 	return new stream.Transform({
@@ -209,9 +204,9 @@ function CSS() {
 			cascade: false,
 			flexbox: false,
 		}))
-		.pipe(argv.ram ? nothing() : replace("/src/", "/"))
+		.pipe(repaceSrc())
 		.pipe(sourcemaps.write("./"))
-		.pipe(argv.ram ? gulpMem.dest("./build/src/assets/style/") : gulp.dest("./build/assets/style/"))
+		.pipe(currentGulp.dest("./build/assets/style/"))
 		.pipe(browserSync.stream())
 }
 
@@ -231,9 +226,9 @@ function JS() {
 				this.emit("end")
 			})
 		)
-		.pipe(argv.ram ? nothing() : replace("/src/", "/"))
+		.pipe(repaceSrc())
 		.pipe(sourcemaps.write("./"))
-		.pipe(argv.ram ? gulpMem.dest("./build/src/assets/script/") : gulp.dest("./build/assets/script/"))
+		.pipe(currentGulp.dest("./build/assets/script/"))
 		.pipe(browserSync.stream())
 }
 
@@ -246,8 +241,8 @@ function HTML() {
 				this.emit("end")
 			})
 		)
-		.pipe(argv.ram ? nothing() : replace("/src/", "/"))
-		.pipe(argv.ram ? gulpMem.dest("./build") : gulp.dest("./build"))
+		.pipe(repaceSrc())
+		.pipe(currentGulp.dest("./build"))
 		.pipe(browserSync.stream())
 }
 
@@ -256,7 +251,7 @@ function copyStatic() {
 		allowEmpty: true,
 		since: gulp.lastRun(copyStatic)
 	})
-		.pipe(argv.ram ? gulpMem.dest("./build/src/assets/static/") : gulp.dest("./build/assets/static/"))
+		.pipe(currentGulp.dest("./build/assets/static/"))
 		.pipe(browserSync.stream())
 }
 
