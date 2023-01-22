@@ -112,8 +112,6 @@ function sass() {
 		writableObjectMode: true,
 		readableObjectMode: true,
 		transform(chunk, encoding, callback) {
-			console.log(encoding)
-
 			try {
 				let compiled = Sass.compile(chunk.path, {
 					sourceMap: true,
