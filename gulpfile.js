@@ -16,6 +16,41 @@ import ttf2woff2 from "ttf2woff2"
 import stream from "stream"
 import { cwd } from "process"
 
+const structure = {
+	build: null,
+	src: {
+		assets: {
+			hbs: null,
+			script: null,
+			static: {
+				font: null,
+				img: null,
+				"img-raw": null,
+			},
+			style: null,
+		}
+	}
+}
+
+function dir(key) {
+	let pathAccumulator = []
+	function find(key, self, path) {
+		if (key == self[0]) {
+			path.push(self[0])
+			return path
+		} else if (self[1]) {
+			path.push(self[0])
+			Object.entries(self[1]).forEach(ent => {
+				find(key, ent, path)
+			})
+		}
+	}
+	find(key, ["", structure], pathAccumulator)
+	return path.join(...pathAccumulator)
+}
+
+gulp.task("test", gulp.series(nothing))
+
 const pathTransform = {
 	toPosix: (pathString) => `${pathString}`.split(path.sep).join(path.posix.sep)
 }
