@@ -31,16 +31,10 @@ function newer(relatedTo) {
 		readableObjectMode: true,
 		writableObjectMode: true,
 		transform(chunk, encoding, callback) {
-			let relatedToPath = path.join(relatedTo || path.dirname(chunk.path), path.basename(chunk.path))
-			if (fs.existsSync(relatedToPath)) {
-				if (fs.statSync(chunk.path).mtime < fs.statSync(relatedToPath).mtime) {
-					callback(null, null)
-				} else {
-					callback(null, chunk)
-				}
-			} else {
-				callback(null, chunk)
-			}
+			let related = path.join(relatedTo || path.dirname(chunk.path), path.basename(chunk.path))
+			fs.stat(related, function (relatedError, relatedStat) {
+				callback(null, (relatedError || (relatedStat.mtime < chunk.stat.mtime)) ? chunk : null)
+			})
 		}
 	})
 }
@@ -156,13 +150,12 @@ function JS() {
 
 function HTML() {
 	return gulp.src(["./src/*.html"])
-		.pipe(
-			hb()
-				.partials('./src/assets/hbs/**/*.hbs').on("error", function (error) {
-					printPaintedMessage(`${error.fileName} ${error.message}`, "HBS")
-					browserSync.notify("HBS Error")
-					this.emit("end")
-				})
+		.pipe(hb()
+			.partials('./src/assets/hbs/**/*.hbs').on("error", function (error) {
+				printPaintedMessage(`${error.fileName} ${error.message}`, "HBS")
+				browserSync.notify("HBS Error")
+				this.emit("end")
+			})
 		)
 		.pipe(argv.ram ? nothing() : replace("/src/", "/"))
 		.pipe(argv.ram ? gulpMem.dest("./build") : gulp.dest("./build"))
