@@ -16,7 +16,7 @@ import ttf2woff2 from "ttf2woff2"
 import stream from "stream"
 import { cwd } from "process"
 
-const structure = {
+const tree = {
 	build: null,
 	src: {
 		assets: {
@@ -30,6 +30,42 @@ const structure = {
 			style: null,
 		}
 	}
+}
+
+function findPath(key, allOf, prefix, exclude) {
+	const foundPath = []
+
+	function keyExists(obj = tree) {
+		if (!obj || (typeof obj !== "object" && !Array.isArray(obj))) {
+			return false
+		} else if (obj.hasOwnProperty(key)) {
+			return true
+		} else if (Array.isArray(obj)) {
+			let parentKey = foundPath.length ? foundPath.pop() : ""
+			for (let i = 0; i < obj.length; i++) {
+				foundPath.push(`${parentKey}[${i}]`)
+				const result = keyExists(obj[i], key)
+				if (result) {
+					return result
+				}
+				foundPath.pop()
+			}
+		} else {
+			for (const k in obj) {
+				foundPath.push(k)
+				const result = keyExists(obj[k], key)
+				if (result) {
+					return result
+				}
+				foundPath.pop()
+			}
+		}
+		return false
+	}
+
+	keyExists()
+
+	return (exclude ? "!" : "") + "./" + pathTransform.toPosix(path.join(...foundPath, key, allOf ? `/**/${prefix ? prefix : ""}*${allOf}` : ""))
 }
 
 function dir(key) {
@@ -46,7 +82,7 @@ function dir(key) {
 		}
 	}
 	find(key, ["", structure], pathAccumulator)
-	return path.join(...pathAccumulator)
+	return pathTransform.toPosix(path.join("./", ...pathAccumulator))
 }
 
 gulp.task("test", gulp.series(nothing))
