@@ -31,8 +31,7 @@ function newer(relatedTo) {
 		readableObjectMode: true,
 		writableObjectMode: true,
 		transform(chunk, encoding, callback) {
-			let related = path.join(relatedTo || path.dirname(chunk.path), path.basename(chunk.path))
-			fs.stat(related, function (relatedError, relatedStat) {
+			fs.stat(path.join(relatedTo, path.relative(chunk.base, chunk.path)), function (relatedError, relatedStat) {
 				callback(null, (relatedError || (relatedStat.mtime < chunk.stat.mtime)) ? chunk : null)
 			})
 		}
@@ -176,7 +175,7 @@ function makeIconsSCSS() {
 		allowEmpty: true
 	})
 		.pipe(new stream.Transform({
-			readableObjectMode: false,
+			readableObjectMode: true,
 			writableObjectMode: true,
 			transform(chunk, encoding, callback) {
 				let name = path.parse(path.relative("./src/assets/static/img-raw/icon/", chunk.path).replaceAll('\\', '__')).name
@@ -212,7 +211,7 @@ function ttfToWoff() {
 	return gulp.src("./src/assets/static/font/**/*.ttf")
 		.pipe(new stream.Transform({
 			writableObjectMode: true,
-			readableObjectMode: false,
+			readableObjectMode: true,
 			transform(chunk, encoding, callback) {
 				let relativeDir = path.relative("./src/assets/static/font/", path.dirname(chunk.path))
 				let name = `${path.basename(chunk.path, path.extname(chunk.path))}.woff2`
@@ -231,7 +230,7 @@ function cleanInitials() {
 	}).pipe(
 		new stream.Transform({
 			writableObjectMode: true,
-			readableObjectMode: false,
+			readableObjectMode: true,
 			transform(chunk, encoding, callback) {
 				fs.unlink(chunk.path, callback)
 			}
