@@ -14,6 +14,11 @@ import Sass from "sass"
 import esbuild from "gulp-esbuild"
 import ttf2woff2 from "ttf2woff2"
 import stream from "stream"
+import { cwd } from "process"
+
+const pathTransform = {
+	toPosix: (pathString) => `${pathString}`.split(path.sep).join(path.posix.sep)
+}
 
 function nothing(callback = () => { }) {
 	callback()
@@ -188,20 +193,21 @@ function copyStatic() {
 
 function makeIconsSCSS() {
 	return gulp.src("./src/assets/static/img-raw/icon/**/*.svg", {
-		allowEmpty: true
+		allowEmpty: true,
+		read: false
 	})
 		.pipe(new stream.Transform({
 			readableObjectMode: true,
 			writableObjectMode: true,
 			transform(chunk, encoding, callback) {
-				let name = path.parse(path.relative("./src/assets/static/img-raw/icon/", chunk.path).replaceAll('\\', '__')).name
-				let css = `.icon--${name},%icon--${name}{mask-image: url(${chunk.path.replace(".", "").replace("/img-raw/", "/img/")});}`
+				let name = path.relative(chunk.base, chunk.path).replaceAll(path.sep, '__')
+				let css = `.icon--${name},%icon--${name}{mask-image: url(/${pathTransform.toPosix(path.relative(cwd(), chunk.path)).replace("/img-raw/", "/img/")});}`
 				callback(null, css)
 			}
 		}))
 		.pipe(fs.createWriteStream("./src/assets/style/_icons.scss"))
 }
-
+gulp.task("test", makeIconsSCSS)
 function minimizeImgs() {
 	return gulp.src("./src/assets/static/img-raw/**/*", {
 		allowEmpty: true
@@ -223,9 +229,6 @@ function cleanBuild() {
 	}).pipe(clean())
 }
 
-
-gulp.task("test", cleanBuild)
-
 function ttfToWoff() {
 	return gulp.src("./src/assets/static/font/**/*.ttf")
 		.pipe(new stream.Transform({
@@ -245,7 +248,8 @@ function ttfToWoff() {
 
 function cleanInitials() {
 	return gulp.src("./src/**/.placeholder", {
-		allowEmpty: true
+		allowEmpty: true,
+		read: false
 	}).pipe(clean())
 }
 
@@ -263,25 +267,18 @@ function watch() {
 gulp.task("default",
 	gulp.series(
 		gulp.parallel(
-			cleanBuild,
+			argv.ram ? nothing : cleanBuild,
+			minimizeImgs,
 			makeIconsSCSS
-		),
-		gulp.parallel(
+		), gulp.parallel(
+			copyStatic,
 			CSS,
 			JS,
-			HTML,
-			gulp.series(
-				minimizeImgs,
-				copyStatic
-			)
-		),
-		argv.fwatch ?
-			gulp.parallel(
-				watch,
-				browserSyncInit
-			)
-			:
-			nothing
+			HTML
+		), argv.fwatch ? gulp.parallel(
+			watch,
+			browserSyncInit
+		) : nothing
 	)
 )
 gulp.task("imagemin", minimizeImgs)
