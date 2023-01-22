@@ -15,12 +15,33 @@ import esbuild from "gulp-esbuild"
 import ttf2woff2 from "ttf2woff2"
 import stream from "stream"
 
+function nothing(callback = () => { }) {
+	callback()
+	return new stream.PassThrough({
+		readableObjectMode: true,
+		writableObjectMode: true
+	})
+}
+
+function clean() {
+	return new stream.Transform({
+		readableObjectMode: true,
+		writableObjectMode: true,
+		transform(chunk, encoding, callback) {
+			fs.rm(chunk.path, {
+				recursive: true,
+				force: true
+			}, callback)
+		}
+	})
+}
+
 function replace(searchValue, repaceValue) {
 	return new stream.Transform({
 		writableObjectMode: true,
 		readableObjectMode: true,
 		transform(chunk, encoding, callback) {
-			chunk.contents = Buffer.from(chunk.contents.toString("utf8").replaceAll(searchValue, repaceValue), "utf8")
+			chunk.contents = Buffer.from(chunk.contents.toString(encoding).replaceAll(searchValue, repaceValue), encoding)
 			callback(null, chunk)
 		}
 	})
@@ -51,6 +72,8 @@ function sass() {
 		writableObjectMode: true,
 		readableObjectMode: true,
 		transform(chunk, encoding, callback) {
+			console.log(encoding)
+
 			try {
 				let compiled = Sass.compile(chunk.path, {
 					sourceMap: true,
@@ -58,9 +81,8 @@ function sass() {
 					style: argv.min ? "compressed" : "expanded",
 					loadPaths: ["node_modules"]
 				})
-				chunk.contents = Buffer.from(compiled.css, "utf8")
+				chunk.contents = Buffer.from(compiled.css, encoding)
 				chunk.path = chunk.path.replace(".scss", ".css")
-
 				Object.assign(chunk.sourceMap, compiled.sourceMap)
 				chunk.sourceMap.file = path.basename(chunk.path)
 				callback(null, chunk)
@@ -82,12 +104,6 @@ function browserSyncInit() {
 	})
 }
 
-function nothing() {
-	return gulp.src("neverUsedName", {
-		allowEmpty: true,
-		read: false
-	})
-}
 
 function printPaintedMessage(message, module) {
 	let errs = [...message.matchAll(new RegExp(/(?:[A-Za-z]+:*\\[а-яА-Яa-zA-Z-_.\\/]+)|('[а-яА-Яa-zA-Z-_.\\/]+')/gm))]
@@ -201,11 +217,14 @@ function minimizeImgs() {
 }
 
 function cleanBuild() {
-	if (!argv.ram) {
-		fs.rmSync("./build", { recursive: true, force: true })
-	}
-	return nothing()
+	return gulp.src("./build/", {
+		read: false,
+		allowEmpty: true
+	}).pipe(clean())
 }
+
+
+gulp.task("test", cleanBuild)
 
 function ttfToWoff() {
 	return gulp.src("./src/assets/static/font/**/*.ttf")
@@ -227,15 +246,7 @@ function ttfToWoff() {
 function cleanInitials() {
 	return gulp.src("./src/**/.placeholder", {
 		allowEmpty: true
-	}).pipe(
-		new stream.Transform({
-			writableObjectMode: true,
-			readableObjectMode: true,
-			transform(chunk, encoding, callback) {
-				fs.unlink(chunk.path, callback)
-			}
-		})
-	)
+	}).pipe(clean())
 }
 
 function watch() {
@@ -273,7 +284,6 @@ gulp.task("default",
 			nothing
 	)
 )
-
 gulp.task("imagemin", minimizeImgs)
 gulp.task("ttfToWoff", ttfToWoff)
 gulp.task("init", cleanInitials)
