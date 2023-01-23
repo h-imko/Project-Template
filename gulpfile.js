@@ -141,11 +141,11 @@ function sass() {
 		readableObjectMode: true,
 		transform(chunk, encoding, callback) {
 			try {
-				let compiled = Sass.compile(chunk.path, {
+				let compiled = Sass.compileString(chunk.contents.toString(encoding), {
 					sourceMap: true,
 					sourceMapIncludeSources: true,
 					style: argv.min ? "compressed" : "expanded",
-					loadPaths: ["node_modules"]
+					loadPaths: ["node_modules", chunk.base]
 				})
 				chunk.contents = Buffer.from(compiled.css, encoding)
 				chunk.path = pathTransform.ext(chunk.path, ".css")
@@ -154,6 +154,8 @@ function sass() {
 				callback(null, chunk)
 			}
 			catch (error) {
+				console.log(error)
+
 				callback(error, chunk)
 			}
 		}
