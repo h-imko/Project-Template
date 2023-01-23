@@ -154,8 +154,6 @@ function sass() {
 				callback(null, chunk)
 			}
 			catch (error) {
-				console.log(error)
-
 				callback(error, chunk)
 			}
 		}
