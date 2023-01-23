@@ -14,7 +14,6 @@ import Sass from "sass"
 import esbuild from "gulp-esbuild"
 import ttf2woff2 from "ttf2woff2"
 import stream from "stream"
-import { cwd } from "process"
 
 const gulpMem = new GulpMem(),
 	argv = process.argv.slice(2).reduce(function (acc, curr) {
@@ -83,10 +82,9 @@ function getGlob(key, build = false, allOf = "", prefix = "", exclude = false) {
 	return `${exclude ? "!" : ""}./${build ? "build/" : "src/"}${foundPath}/${allOf ? `**/${prefix}*.${allOf}` : ""}`
 }
 
-gulp.task("test", gulp.series(nothing))
-
 const pathTransform = {
-	toPosix: (pathString) => `${pathString}`.split(path.sep).join(path.posix.sep)
+	toPosix: (pathString) => `${pathString}`.split(path.sep).join(path.posix.sep),
+	ext: (file, newExt) => path.join(path.dirname(file), path.basename(file, path.extname(file)) + newExt)
 }
 
 function nothing(callback = () => { }) {
@@ -137,7 +135,6 @@ function newer(relatedTo) {
 	})
 }
 
-
 function sass() {
 	return new stream.Transform({
 		writableObjectMode: true,
@@ -151,7 +148,7 @@ function sass() {
 					loadPaths: ["node_modules"]
 				})
 				chunk.contents = Buffer.from(compiled.css, encoding)
-				chunk.path = chunk.path.replace(".scss", ".css")
+				chunk.path = pathTransform.ext(chunk.path, ".css")
 				Object.assign(chunk.sourceMap, compiled.sourceMap)
 				chunk.sourceMap.file = path.basename(chunk.path)
 				callback(null, chunk)
@@ -172,7 +169,6 @@ function browserSyncInit() {
 		port: 3000,
 	})
 }
-
 
 function printPaintedMessage(message, module) {
 	let errs = [...message.matchAll(new RegExp(/(?:[A-Za-z]+:*\\[а-яА-Яa-zA-Z-_.\\/]+)|('[а-яА-Яa-zA-Z-_.\\/]+')/gm))]
@@ -264,8 +260,10 @@ function makeIconsSCSS() {
 			readableObjectMode: true,
 			writableObjectMode: true,
 			transform(chunk, encoding, callback) {
-				let name = path.relative(chunk.base, chunk.path).replaceAll(path.sep, '__')
-				let css = `.icon--${name},%icon--${name}{mask-image: url(/${pathTransform.toPosix(path.relative(cwd(), chunk.path)).replace("/img-raw/", "/img/")});}`
+				let relative = pathTransform.toPosix(path.relative(chunk.base, chunk.path))
+				let name = relative.replaceAll(path.sep, '__')
+				let target = relative.replace("/img-raw/", "/img/")
+				let css = `.icon--${name},%icon--${name}{mask-image: url(/${target});}`
 				callback(null, css)
 			}
 		}))
@@ -290,7 +288,8 @@ function cleanBuild() {
 	return gulp.src("./build/", {
 		read: false,
 		allowEmpty: true
-	}).pipe(clean())
+	})
+		.pipe(clean())
 }
 
 function ttfToWoff() {
@@ -299,13 +298,10 @@ function ttfToWoff() {
 			writableObjectMode: true,
 			readableObjectMode: true,
 			transform(chunk, encoding, callback) {
-				let relativeDir = path.relative("./src/assets/static/font/", path.dirname(chunk.path))
-				let name = `${path.basename(chunk.path, path.extname(chunk.path))}.woff2`
-				let destFull = path.join("./src/assets/static/font/", relativeDir, name)
-				fs.createWriteStream(destFull, {
+				fs.createWriteStream(pathTransform.ext(chunk.path, ".woff2"), {
 					autoClose: true
 				}).write(ttf2woff2(chunk.contents))
-				fs.unlink(chunk.path, callback)
+				fs.rm(chunk.path, callback)
 			}
 		}))
 }
@@ -314,7 +310,8 @@ function cleanInitials() {
 	return gulp.src("./src/**/.placeholder", {
 		allowEmpty: true,
 		read: false
-	}).pipe(clean())
+	})
+		.pipe(clean())
 }
 
 function watch() {
