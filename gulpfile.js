@@ -339,4 +339,4 @@ export default Gulp.series(
 	) : nothing
 )
 
-export { imagemin as minimizeImgs, ttfToWoff, cleanInitials }
+export { imagemin, ttfToWoff, cleanInitials }
