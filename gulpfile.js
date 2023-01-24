@@ -274,9 +274,9 @@ function imagemin() {
 	})
 		.pipe(newer("./src/assets/static/img/"))
 		.pipe(Imagemin([
-			Imagemin.svgo,
-			Imagemin.mozjpeg,
-			Imagemin.gifsicle,
+			Imagemin.svgo(),
+			Imagemin.mozjpeg(),
+			Imagemin.gifsicle(),
 			Pngquant(),
 		]))
 		.pipe(Gulp.dest("./src/assets/static/img/"))
