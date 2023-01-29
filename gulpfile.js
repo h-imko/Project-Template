@@ -3,7 +3,9 @@ import Fs from "fs"
 import Gulp from "gulp"
 import AutoPrefixer from "gulp-autoprefixer"
 import Hb from "gulp-hb"
-import Imagemin from "gulp-imagemin"
+import Imagemin, {
+	svgo, mozjpeg
+} from "gulp-imagemin"
 import GulpMem from "gulp-mem"
 import Sourcemaps from "gulp-sourcemaps"
 import Pngquant from "imagemin-pngquant"
@@ -274,9 +276,8 @@ function imagemin() {
 	})
 		.pipe(newer("./src/assets/static/img/"))
 		.pipe(Imagemin([
-			Imagemin.svgo(),
-			Imagemin.mozjpeg(),
-			Imagemin.gifsicle(),
+			svgo(),
+			mozjpeg(),
 			Pngquant(),
 		]))
 		.pipe(Gulp.dest("./src/assets/static/img/"))
