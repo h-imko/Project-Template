@@ -5,6 +5,7 @@ import InputContollerGroup from "./_InputControllerGroup"
 import Popup from "./_Popup"
 import Quantity from "./_Quantity"
 import Spoiler from "./_Spoiler"
+import Slider from "./_Slider"
 
 document.addEventListener('DOMContentLoaded', function () {
 	// initPopups()
@@ -13,11 +14,21 @@ document.addEventListener('DOMContentLoaded', function () {
 	// initQuantity()
 	// initSpoilers()
 	// initInputControllerGroups()
+	initSliders()
 })
 
 window.addEventListener("load", function () {
 	// headerHeightToCSS()
 })
+
+function initSliders() {
+	document.querySelectorAll(".slider").forEach(slider => {
+		window.biba = new Slider(slider, {
+			perPage:  2,
+			startFrom: 0
+		})
+	})
+}
 
 function initQuantity() {
 	document.querySelectorAll(".quantity").forEach(item => {

@@ -49,5 +49,8 @@ function ifClickInside(event, targets) {
 	}, false)
 }
 
+function clampNumber(min, number, max) {
+	return Math.max(min, Math.min(number, max))
+}
 
-export { toggleNoscrollBody, ifClickInside }
+export { toggleNoscrollBody, ifClickInside, clampNumber }
