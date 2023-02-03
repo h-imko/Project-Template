@@ -16,43 +16,58 @@ class Slider {
 		this.slides = [...this.list.querySelectorAll(".slider__slide")]
 		this.length = this.slides.length - 1
 		this.lock = false
-
-		element.style.setProperty("--perPage", options.perPage ?? 1)
 		this.currentSlide = options.startFrom ?? 0
-
-		this.set()
-		this.calcWidth()
-		this.printPagination()
-	}
-
-	printPagination() {
-		let observer = new IntersectionObserver((entries, observer) => {
+		this.slidesObserver = new IntersectionObserver((entries) => {
 			entries.forEach((entry) => {
 				if (entry.isIntersecting) {
-					console.log("inter")
-console.log(entry.target)
-
-					entry.target.dispatchEvent(new Event("biba"))
+					entry.target.dispatchEvent(new CustomEvent("slideIn"))
 				} else {
-					console.log("outer")
-
-					entry.target.dispatchEvent(new Event("boba"))
+					entry.target.dispatchEvent(new CustomEvent("slideOut"))
 				}
 			})
 		}, {
 			root: this.track,
-			rootMargin: "-10px"
+			threshold: 0.5
 		})
 
+		element.style.setProperty("--perPage", options.perPage ?? 1)
+
+		this.observeSlides()
+		this.printPagination()
+		this.bindSlideEvents()
+		this.calcWidth()
+		this.set()
+	}
+
+	observeSlides() {
 		this.slides.forEach(slide => {
+			this.slidesObserver.observe(slide)
+		})
+	}
+
+	bindSlideEvents() {
+		this.slides.forEach(slide => {
+			slide.addEventListener("slideIn", () => {
+				slide.classList.add("slider__slide--visible")
+			})
+			slide.addEventListener("slideOut", () => {
+				slide.classList.remove("slider__slide--visible")
+			})
+		})
+	}
+
+	printPagination() {
+		this.slides.forEach((slide, index) => {
 			let page = document.createElement("li")
 			page.classList.add("slider__pagination__page")
-			observer.observe(slide)
-			slide.addEventListener("biba", () => {
-				page.classList.add("active")
+			slide.addEventListener("slideIn", () => {
+				page.classList.add("slider__pagination__page--visible")
 			})
-			slide.addEventListener("boba", () => {
-				page.classList.remove("active")
+			slide.addEventListener("slideOut", () => {
+				page.classList.remove("slider__pagination__page--visible")
+			})
+			page.addEventListener("click", () => {
+				this.slide(index)
 			})
 			this.pagination.append(page)
 		})
@@ -73,10 +88,6 @@ console.log(entry.target)
 
 	calcWidth() {
 		this.slider.style.setProperty("--slider-width", `${this.track.clientWidth}px`)
-	}
-
-	scroll(deltaX) {
-		this.slider.scrollBy(deltaX, 0)
 	}
 
 	set() {

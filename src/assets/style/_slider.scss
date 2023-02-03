@@ -1,10 +1,9 @@
 .slider {
-	background: #00000020;
 	--offset: calc(50vw - var(--slider-width) / 2);
+	overflow-y: clip;
+	--gap: 10px;
 
-	&__track {
-// overflow-y: clip;
-	}
+	&__track {}
 
 	&__list {
 		display: flex;
@@ -15,25 +14,37 @@
 		padding: 0 var(--offset);
 		margin-bottom: -100px;
 		padding-bottom: 100px;
+		gap: var(--gap);
 	}
 
 	&__slide {
 		border: 1px dashed grey;
 		scroll-snap-align: start;
-		min-width: calc(100% / var(--perPage, 1));
-		width: calc(100% / var(--perPage, 1));
+		flex: 1 0 calc((100% - var(--gap) * (var(--perPage) - 1)) / var(--perPage));
 	}
 
 	&__pagination {
 		display: flex;
+		gap: 10px;
+		justify-content: center;
 
 		&__page {
 			display: flex;
 			width: 16px;
 			height: 16px;
 			border-radius: 50%;
-			background: #000;
-			&.active{
+			background: #00000080;
+			cursor: pointer;
+
+			&:hover {
+				background: #000000f0;
+			}
+
+			&--visible {
+				&:not(&--visible ~ &--visible) {}
+			}
+
+			&--visible:not(&--visible ~ &--visible) {
 				background: red;
 			}
 		}
