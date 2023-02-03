@@ -9,6 +9,7 @@ class Slider {
  * }} options
  */
 	constructor(element, options = {}) {
+		this.slider = element
 		this.track = element.querySelector(".slider__track")
 		this.list = this.track.querySelector(".slider__list")
 		this.slides = [...this.list.querySelectorAll(".slider__slide")]
@@ -19,12 +20,7 @@ class Slider {
 		this.currentSlide = options.startFrom ?? 0
 
 		this.set()
-		// this.initWheel()
-
-		// this.list.addEventListener("touchmove", (event)=>{
-		// 	console.log(event.changedTouches[0])
-
-		// })
+		this.calcWidth()
 	}
 
 	/**
@@ -33,15 +29,19 @@ class Slider {
 	 * @param {boolean} smooth
 	 */
 	slide(targetIndex, smooth = true) {
-		// requestAnimationFrame(() => {
-			// requestAnimationFrame(() => {
-				this.currentSlide = clampNumber(0, targetIndex, this.length)
-				this.slides[this.currentSlide].scrollIntoView({
-					inline: "start",
-					behavior: smooth ? "smooth" : "auto"
-				})
-			// })
-		// })
+		this.currentSlide = clampNumber(0, targetIndex, this.length)
+		this.slides[this.currentSlide].scrollIntoView({
+			inline: "start",
+			behavior: smooth ? "smooth" : "auto"
+		})
+	}
+
+	calcWidth() {
+		this.slider.style.setProperty("--slider-width", `${this.track.clientWidth}px`)
+	}
+
+	scroll(deltaX) {
+		this.slider.scrollBy(deltaX, 0)
 	}
 
 	set() {
