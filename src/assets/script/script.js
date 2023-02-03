@@ -25,7 +25,8 @@ function initSliders() {
 	document.querySelectorAll(".slider").forEach(slider => {
 		window.biba = new Slider(slider, {
 			perPage:  2,
-			startFrom: 2
+			startFrom: 2,
+			gap: "10px",
 		})
 	})
 }

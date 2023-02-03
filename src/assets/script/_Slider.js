@@ -17,6 +17,7 @@ class Slider {
 		this.length = this.slides.length - 1
 		this.lock = false
 		this.currentSlide = options.startFrom ?? 0
+		this.options = options
 		this.slidesObserver = new IntersectionObserver((entries) => {
 			entries.forEach((entry) => {
 				if (entry.isIntersecting) {
@@ -29,14 +30,36 @@ class Slider {
 			root: this.track,
 			threshold: 0.5
 		})
+		this.resizeObserver = new ResizeObserver((entries) => {
+			for (const entry of entries) {
+				entry.target.dispatchEvent(new CustomEvent("resized"))
+			}
+		})
 
-		element.style.setProperty("--perPage", options.perPage ?? 1)
-
+		this.injectCSS()
 		this.observeSlides()
+		this.observeSlideResize()
 		this.printPagination()
-		this.bindSlideEvents()
+		this.bindSlidesEvents()
+		this.bindSliderEvents()
 		this.calcWidth()
 		this.set()
+	}
+
+	injectCSS() {
+		Object.entries(this.options).forEach(([key, value]) => {
+			this.slider.style.setProperty(`--${key}`, value)
+		})
+	}
+
+	bindSliderEvents() {
+		this.slider.addEventListener("resized", () => {
+			this.calcWidth()
+		})
+	}
+
+	observeSlideResize() {
+		this.resizeObserver.observe(this.slider)
 	}
 
 	observeSlides() {
@@ -45,7 +68,7 @@ class Slider {
 		})
 	}
 
-	bindSlideEvents() {
+	bindSlidesEvents() {
 		this.slides.forEach(slide => {
 			slide.addEventListener("slideIn", () => {
 				slide.classList.add("slider__slide--visible")
@@ -88,6 +111,7 @@ class Slider {
 
 	calcWidth() {
 		this.slider.style.setProperty("--slider-width", `${this.track.clientWidth}px`)
+
 	}
 
 	set() {

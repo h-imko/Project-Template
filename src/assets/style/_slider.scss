@@ -1,7 +1,6 @@
 .slider {
 	--offset: calc(50vw - var(--slider-width) / 2);
 	overflow-y: clip;
-	--gap: 10px;
 
 	&__track {}
 
@@ -20,7 +19,7 @@
 	&__slide {
 		border: 1px dashed grey;
 		scroll-snap-align: start;
-		flex: 1 0 calc((100% - var(--gap) * (var(--perPage) - 1)) / var(--perPage));
+		flex: 1 0 calc((100% - var(--gap) * (var(--perPage, 1) - 1)) / var(--perPage, 1));
 	}
 
 	&__pagination {
