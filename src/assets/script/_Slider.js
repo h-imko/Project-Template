@@ -10,6 +10,7 @@ class Slider {
  */
 	constructor(element, options = {}) {
 		this.slider = element
+		this.pagination = element.querySelector(".slider__pagination")
 		this.track = element.querySelector(".slider__track")
 		this.list = this.track.querySelector(".slider__list")
 		this.slides = [...this.list.querySelectorAll(".slider__slide")]
@@ -21,6 +22,40 @@ class Slider {
 
 		this.set()
 		this.calcWidth()
+		this.printPagination()
+	}
+
+	printPagination() {
+		let observer = new IntersectionObserver((entries, observer) => {
+			entries.forEach((entry) => {
+				if (entry.isIntersecting) {
+					console.log("inter")
+console.log(entry.target)
+
+					entry.target.dispatchEvent(new Event("biba"))
+				} else {
+					console.log("outer")
+
+					entry.target.dispatchEvent(new Event("boba"))
+				}
+			})
+		}, {
+			root: this.track,
+			rootMargin: "-10px"
+		})
+
+		this.slides.forEach(slide => {
+			let page = document.createElement("li")
+			page.classList.add("slider__pagination__page")
+			observer.observe(slide)
+			slide.addEventListener("biba", () => {
+				page.classList.add("active")
+			})
+			slide.addEventListener("boba", () => {
+				page.classList.remove("active")
+			})
+			this.pagination.append(page)
+		})
 	}
 
 	/**
