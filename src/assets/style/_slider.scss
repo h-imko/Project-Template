@@ -19,7 +19,8 @@
 	&__slide {
 		border: 1px dashed grey;
 		scroll-snap-align: start;
-		flex: 1 0 calc((100% - var(--gap) * (var(--perPage, 1) - 1)) / var(--perPage, 1));
+		min-width: 0;
+		flex: 0 0 calc((100% - var(--gap) * (var(--perPage, 1) - 1)) / var(--perPage, 1));
 	}
 
 	&__pagination {

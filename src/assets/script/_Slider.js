@@ -5,10 +5,17 @@ class Slider {
  * @param {HTMLElement} element
  * @param {{
  * perPage: number,
- * startFrom: number
+ * startFrom: number,
+ * gap: number|string
  * }} options
  */
-	constructor(element, options = {}) {
+	constructor(element, { startFrom = 0, gap = 0, perPage = 1 } = {}) {
+		this.options = {
+			startFrom: startFrom,
+			gap: gap,
+			perPage: perPage
+		}
+
 		this.slider = element
 		this.pagination = element.querySelector(".slider__pagination")
 		this.track = element.querySelector(".slider__track")
@@ -16,8 +23,7 @@ class Slider {
 		this.slides = [...this.list.querySelectorAll(".slider__slide")]
 		this.length = this.slides.length - 1
 		this.lock = false
-		this.currentSlide = options.startFrom ?? 0
-		this.options = options
+
 		this.slidesObserver = new IntersectionObserver((entries) => {
 			entries.forEach((entry) => {
 				if (entry.isIntersecting) {
@@ -102,8 +108,8 @@ class Slider {
 	 * @param {boolean} smooth
 	 */
 	slide(targetIndex, smooth = true) {
-		this.currentSlide = clampNumber(0, targetIndex, this.length)
-		this.slides[this.currentSlide].scrollIntoView({
+		targetIndex = clampNumber(0, targetIndex ?? 0, this.length)
+		this.slides[targetIndex].scrollIntoView({
 			inline: "start",
 			behavior: smooth ? "smooth" : "auto"
 		})
@@ -115,13 +121,7 @@ class Slider {
 	}
 
 	set() {
-		this.slide(this.currentSlide, false)
-	}
-
-	initWheel() {
-		this.list.addEventListener("wheel", (event) => {
-			this.slide(this.currentSlide + Math.sign(event.deltaX))
-		})
+		this.slide(this.options.startFrom, false)
 	}
 }
 
