@@ -7,13 +7,18 @@
 	&__list {
 		display: flex;
 		overflow: auto;
-		scroll-snap-type: x mandatory;
 		margin: 0 calc(var(--offset) * -1);
 		scroll-padding: 0 var(--offset);
 		padding: 0 var(--offset);
 		margin-bottom: -100px;
 		padding-bottom: 100px;
 		gap: var(--gap);
+		// scroll-snap-type: x mandatory;
+		// scroll-behavior: smooth;
+	}
+
+	&__list:not(&__list--dragging) {
+		scroll-snap-type: x mandatory;
 	}
 
 	&__slide {
@@ -21,6 +26,7 @@
 		scroll-snap-align: start;
 		min-width: 0;
 		flex: 0 0 calc((100% - var(--gap) * (var(--perPage, 1) - 1)) / var(--perPage, 1));
+		user-select: none;
 	}
 
 	&__pagination {

@@ -44,12 +44,13 @@ class Slider {
 
 		this.injectCSS()
 		this.observeSlides()
-		this.observeSlideResize()
+		this.observeSliderResize()
 		this.printPagination()
 		this.bindSlidesEvents()
 		this.bindSliderEvents()
 		this.calcWidth()
 		this.set()
+		this.bindListEvents()
 	}
 
 	injectCSS() {
@@ -58,13 +59,48 @@ class Slider {
 		})
 	}
 
+	get currentSlide() {
+		return this.slides.findIndex((slide) => slide.classList.contains("slider__slide--visible"))
+	}
+
+	bindListEvents() {
+		/**
+		 *
+		 * @param {MouseEvent} event
+		 */
+		const drag = (event) => {
+			this.list.scrollBy({
+				left: -event.movementX,
+				behavior: "auto"
+			})
+		}
+
+		const dragStart = (event) => {
+			this.list.classList.add("slider__list--dragging")
+			this.list.addEventListener("mousemove", drag)
+		}
+
+		const dragEnd = (event) => {
+			this.list.removeEventListener("mousemove", drag)
+			this.slide(this.currentSlide)
+			setTimeout(() => {
+				this.list.classList.remove("slider__list--dragging")
+			}, 200)
+		}
+
+		this.list.addEventListener("mousedown", dragStart)
+		this.list.addEventListener("mouseup", dragEnd)
+		this.list.addEventListener("mouseout", dragEnd)
+
+	}
+
 	bindSliderEvents() {
 		this.slider.addEventListener("resized", () => {
 			this.calcWidth()
 		})
 	}
 
-	observeSlideResize() {
+	observeSliderResize() {
 		this.resizeObserver.observe(this.slider)
 	}
 
