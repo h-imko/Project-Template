@@ -49,5 +49,32 @@ function ifClickInside(event, targets) {
 	}, false)
 }
 
+/**
+ *
+ * @param {Splide} splide
+ * @param {HTMLElement} arrows
+ */
+function bindSplideArrows(splide, arrows) {
+	let arrow_prev = arrows.querySelector(".splide__arrow--prev")
+	let arrow_next = arrows.querySelector(".splide__arrow--next")
+
+	function setArrowsState(current_index = 0) {
+		arrow_prev.toggleAttribute("disabled", current_index == 0)
+		arrow_next.toggleAttribute("disabled", current_index == splide.Components.Slides.getLength() - splide.options.perPage)
+	}
+
+	arrow_prev.addEventListener("click", function () {
+		splide.go('<')
+	})
+
+	arrow_next.addEventListener("click", function () {
+		splide.go('>')
+	})
+
+	splide.on("moved", setArrowsState)
+	splide.on("mounted", setArrowsState)
+
+	setArrowsState()
+}
 
 export { toggleNoscrollBody, ifClickInside }
