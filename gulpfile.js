@@ -260,10 +260,10 @@ function makeIconsSCSS() {
 			readableObjectMode: true,
 			writableObjectMode: true,
 			transform(chunk, encoding, callback) {
-				let relative = pathTransform.toPosix(Path.relative(chunk.base, chunk.path))
-				let name = relative.replaceAll(Path.sep, '__')
-				let target = relative.replace("/img-raw/", "/img/")
-				let css = `.icon--${name},%icon--${name}{mask-image: url(/${target});}`
+				let name = Path.relative(chunk.base, chunk.path).replaceAll(Path.sep, '__').replace(/\.[^/.]+$/, "")
+				let path = pathTransform.toPosix(Path.relative(cwd(), chunk.path)).replace("/img-raw/", "/img/")
+
+				let css = `.icon--${name},%icon--${name}{mask-image: url(/${path});}`
 				callback(null, css)
 			}
 		}))
