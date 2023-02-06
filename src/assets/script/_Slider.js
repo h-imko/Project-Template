@@ -51,6 +51,8 @@ class Slider {
 		this.calcWidth()
 		this.set()
 		this.bindListEvents()
+
+		this.list.addEventListener("scroll", console.log)
 	}
 
 	injectCSS() {
@@ -69,6 +71,9 @@ class Slider {
 		 * @param {MouseEvent} event
 		 */
 		const drag = (event) => {
+			// this.list.dispatchEvent(new WheelEvent("wheel", { cancelable: false, bubbles: true, deltaX: 100 }))
+
+			// this.slide(this.currentSlide + Math.sign(event.movementX))
 			this.list.scrollBy({
 				left: -event.movementX,
 				behavior: "auto"
@@ -76,21 +81,23 @@ class Slider {
 		}
 
 		const dragStart = (event) => {
-			this.list.classList.add("slider__list--dragging")
+			// console.log("dragStart")
+			// this.list.classList.add("slider__list--dragging")
 			this.list.addEventListener("mousemove", drag)
 		}
 
 		const dragEnd = (event) => {
+			// console.log("dragEnd")
 			this.list.removeEventListener("mousemove", drag)
-			this.slide(this.currentSlide)
-			setTimeout(() => {
-				this.list.classList.remove("slider__list--dragging")
-			}, 200)
+			// this.slide(this.currentSlide)
+			// setTimeout(() => {
+			// 	this.list.classList.remove("slider__list--dragging")
+			// }, 200)
 		}
 
 		this.list.addEventListener("mousedown", dragStart)
 		this.list.addEventListener("mouseup", dragEnd)
-		this.list.addEventListener("mouseout", dragEnd)
+		// this.list.addEventListener("mouseout", dragEnd)
 
 	}
 
