@@ -5,6 +5,7 @@ import InputContollerGroup from "./_InputControllerGroup"
 import Popup from "./_Popup"
 import Quantity from "./_Quantity"
 import Spoiler from "./_Spoiler"
+import Animate from "./_Animate"
 
 document.addEventListener('DOMContentLoaded', function () {
 	// initPopups()
@@ -13,6 +14,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	// initQuantity()
 	// initSpoilers()
 	// initInputControllerGroups()
+	new Animate()
 })
 
 window.addEventListener("load", function () {
