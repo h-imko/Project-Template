@@ -8,23 +8,15 @@ class Animate {
 
 		group.querySelectorAll("[data-animate]").forEach(item => {
 			let priority = item.dataset.animatePriority ?? null
-			this.list[priority] = this.list[priority] || []
-			this.list[priority].push({ target: item, animations: item.getAnimations() })
+			this.list[priority] = this.list[priority] || {}
+			this.list[priority].items = this.list[priority].items || []
+			this.list[priority].target = this.list[priority].target || new EventTarget()
+			this.list[priority].items.push({ target: item, animations: item.getAnimations() })
 		})
 
 		this.bindEnds()
 		this.bindQueue()
 
-		for (const key in this.list) {
-			this.list[key].forEach(item => {
-				item.target.addEventListener("click", () => {
-					this.stopOne(item)
-					this.startOne(item)
-				})
-			})
-		}
-
-		window.biba = this
 		this.start()
 	}
 
@@ -33,7 +25,9 @@ class Animate {
 	}
 
 	get items() {
-		return Object.values(this.list).flat()
+		return Object.values(this.list).reduce((acc, item) => {
+			return [...acc, item.items]
+		}, []).flat()
 	}
 
 	bindQueue() {
@@ -44,11 +38,17 @@ class Animate {
 				})
 			})
 		})
+
+		this.groups.forEach((group, index, groups) => {
+			group.target.addEventListener("animationgroupend", () => {
+				this.startGroup(groups[index + 1])
+			})
+		})
 	}
 
 	bindEnds() {
 		function isGroupDone(group) {
-			return group.reduce((acc, item) => {
+			return group.items.reduce((acc, item) => {
 				return acc && item.animations.reduce((acc, animation) => {
 					return acc && animation.playState == "finished"
 				}, true)
@@ -64,10 +64,10 @@ class Animate {
 		})
 
 		this.groups.forEach(group => {
-			group.forEach(item => {
+			group.items.forEach(item => {
 				item.target.addEventListener("animationsend", () => {
 					if (isGroupDone(group)) {
-						group.forEach(item => { item.target.dispatchEvent(new Event("animationgroupend")) })
+						group.target.dispatchEvent(new Event("animationgroupend"))
 					}
 				})
 			})
@@ -84,7 +84,7 @@ class Animate {
 	}
 
 	startGroup(group) {
-		group?.forEach(item => {
+		group?.items.forEach(item => {
 			this.restartOne(item)
 		})
 	}
