@@ -1,30 +1,26 @@
-class Animate {
+class item {
+	/**
+	 *
+	 * @param {HTMLElement} group
+	 */
 	constructor(group) {
 		this.list = {}
-		this.animates = [...group.querySelectorAll("[data-animate]")]
+		this.items = [...group.querySelectorAll("[data-animate]")]
 		this.ignorePriority = false
 
-		this.animates.forEach(animate => {
-			let priority = animate.dataset.animatePriority ?? null
-			this.list[priority] ? this.list[priority].push(animate) : this.list[priority] = [animate]
-			//
-			let animations = animate.getAnimations()
-			console.log(animations)
-			animate.addEventListener("animationend", console.log)
-			animate.addEventListener("click", () => {
-				animations.forEach((animation, index) => {
-					animation.addEventListener("finish", () => {
-						animations[index + 1]?.play()
-						console.log("finish")
-
-					})
-				})
-				animations[0].play()
-			})
+		this.items.forEach(item => {
+			let priority = item.dataset.animatePriority ?? null
+			this.list[priority] ? this.list[priority].push(item) : this.list[priority] = [item]
 		})
 
-		console.log(this.list)
+		this.bindEnds()
 
+		this.items.forEach(item => {
+			item.addEventListener("click", () => {
+				this.runOne(item)
+			})
+		})
+		this.runGroup(this.groups[0])
 	}
 
 	get groups() {
@@ -32,62 +28,66 @@ class Animate {
 	}
 
 	bindQueue() {
-		function isGroupDone(doneList) {
-			return doneList.reduce((acc, curr) => {
-				return acc || curr
-			}, false)
-		}
 
-		this.groups.forEach((group, index, groups) => {
-			let doneList = new Array(group.length).fill(false)
+	}
 
-			group.forEach(animate => {
-				animate.addEventListener("animationend", () => {
-					doneList[index] = true
-					if (isGroupDone(doneList)) {
-						this.runGroup(groups[index + 1])
+	bindEnds() {
+		function isGroupDone() { }
+
+		this.items.forEach(item => {
+			let animations = item.getAnimations()
+			animations.forEach((animation, index) => {
+				animation.addEventListener("finish", () => {
+					animations[index + 1] ? animations[index + 1].play() : item.dispatchEvent(new Event("animationsend"))
+				})
+			})
+		})
+
+		this.groups.forEach((group, i, groups) => {
+			group.forEach((item, j) => {
+				item.addEventListener("animationsend", () => {
+					console.log(isGroupDone(group))
+
+					if (false) {
+						console.log("done")
+
+						group.forEach(item => {
+							item.dispatchEvent(new Event("animationsgroupend"))
+						})
 					}
 				})
 			})
 		})
 	}
 
-	bindEndState() {
-		this.animates.forEach(animate => {
-			animate.addEventListener("animationend", () => {
-				this.stopOne(animate)
-			})
-		})
-	}
-
-	runOne(animate) {
-		animate.style.setProperty("--play", "running")
+	runOne(item) {
+		item.getAnimations()[0].play()
 	}
 
 	runGroup(group) {
-		group?.forEach(animate => {
-			this.runOne(animate)
+		group?.forEach(item => {
+			this.runOne(item)
 		})
 	}
 
 	runAll() {
-		this.animates.forEach(animate => {
-			this.runOne(animate)
+		this.items.forEach(item => {
+			this.runOne(item)
 		})
 	}
 
-	stopOne(animate) {
-		animate.style.setProperty("--play", "paused")
+	stopOne(item) {
+		item.style.setProperty("--play", "paused")
 	}
 
-	resetOne(animate) {
-		let iterations = getComputedStyle(animate).getPropertyValue("--iterations")
-		animate.style.setProperty("--iterations", iterations + 1)
+	resetOne(item) {
+		let iterations = getComputedStyle(item).getPropertyValue("--iterations")
+		item.style.setProperty("--iterations", iterations + 1)
 	}
 
 	resetAll() {
-		this.animates.forEach(animate => {
-			this.resetOne(animate)
+		this.items.forEach(item => {
+			this.resetOne(item)
 		})
 	}
 
@@ -106,4 +106,4 @@ class Animate {
 	}
 }
 
-export default Animate
+export default item

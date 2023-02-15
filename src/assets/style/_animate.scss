@@ -8,6 +8,12 @@
 	animation-play-state: paused;
 	animation-direction: normal;
 	position: relative;
+	display: inline-flex;
+	&:nth-child(even){
+
+	animation-duration: 2s, 2s;
+	}
+
 
 	@keyframes biba {
 		0% {
@@ -18,18 +24,22 @@
 			opacity: 0;
 		}
 
-		to {
+		100% {
 			opacity: 1;
 		}
 	}
 
 	@keyframes boba {
-		from {
-			transform: rotate(0deg);
+		0% {
+			transform: scaleX(1);
 		}
 
-		to {
-			transform: rotate(360deg);
+		50% {
+			transform: scaleX(2);
+		}
+
+		100% {
+			transform: scaleX(1);
 		}
 	}
 }
