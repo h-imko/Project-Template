@@ -14,7 +14,8 @@ document.addEventListener('DOMContentLoaded', function () {
 	// initQuantity()
 	// initSpoilers()
 	// initInputControllerGroups()
-	new Animate()
+	document.querySelectorAll("[data-animate-group]").forEach(group => {new Animate(group) })
+
 })
 
 window.addEventListener("load", function () {
