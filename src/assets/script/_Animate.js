@@ -1,109 +1,109 @@
-class item {
+class Animate {
 	/**
 	 *
 	 * @param {HTMLElement} group
 	 */
 	constructor(group) {
 		this.list = {}
-		this.items = [...group.querySelectorAll("[data-animate]")]
-		this.ignorePriority = false
 
-		this.items.forEach(item => {
+		group.querySelectorAll("[data-animate]").forEach(item => {
 			let priority = item.dataset.animatePriority ?? null
-			this.list[priority] ? this.list[priority].push(item) : this.list[priority] = [item]
+			this.list[priority] = this.list[priority] || []
+			this.list[priority].push({ target: item, animations: item.getAnimations() })
 		})
 
 		this.bindEnds()
+		this.bindQueue()
 
-		this.items.forEach(item => {
-			item.addEventListener("click", () => {
-				this.runOne(item)
+		for (const key in this.list) {
+			this.list[key].forEach(item => {
+				item.target.addEventListener("click", () => {
+					this.stopOne(item)
+					this.startOne(item)
+				})
 			})
-		})
-		this.runGroup(this.groups[0])
+		}
+
+		window.biba = this
+		this.start()
 	}
 
 	get groups() {
 		return Object.values(this.list)
 	}
 
-	bindQueue() {
+	get items() {
+		return Object.values(this.list).flat()
+	}
 
+	bindQueue() {
+		this.items.forEach(item => {
+			item.animations.forEach((animation, index, animations) => {
+				animation.addEventListener("finish", () => {
+					animations[index + 1]?.play()
+				})
+			})
+		})
 	}
 
 	bindEnds() {
-		function isGroupDone() { }
+		function isGroupDone(group) {
+			return group.reduce((acc, item) => {
+				return acc && item.animations.reduce((acc, animation) => {
+					return acc && animation.playState == "finished"
+				}, true)
+			}, true)
+		}
 
 		this.items.forEach(item => {
-			let animations = item.getAnimations()
-			animations.forEach((animation, index) => {
+			item.animations.forEach((animation, index, animations) => {
 				animation.addEventListener("finish", () => {
-					animations[index + 1] ? animations[index + 1].play() : item.dispatchEvent(new Event("animationsend"))
+					animations[index + 1] || item.target.dispatchEvent(new Event("animationsend"))
 				})
 			})
 		})
 
-		this.groups.forEach((group, i, groups) => {
-			group.forEach((item, j) => {
-				item.addEventListener("animationsend", () => {
-					console.log(isGroupDone(group))
-
-					if (false) {
-						console.log("done")
-
-						group.forEach(item => {
-							item.dispatchEvent(new Event("animationsgroupend"))
-						})
+		this.groups.forEach(group => {
+			group.forEach(item => {
+				item.target.addEventListener("animationsend", () => {
+					if (isGroupDone(group)) {
+						group.forEach(item => { item.target.dispatchEvent(new Event("animationgroupend")) })
 					}
 				})
 			})
 		})
 	}
 
-	runOne(item) {
-		item.getAnimations()[0].play()
+	startOne(item) {
+		item.animations[0].play()
 	}
 
-	runGroup(group) {
+	restartOne(item) {
+		this.stopOne(item)
+		this.startOne(item)
+	}
+
+	startGroup(group) {
 		group?.forEach(item => {
-			this.runOne(item)
+			this.restartOne(item)
 		})
 	}
 
-	runAll() {
+	startAll() {
 		this.items.forEach(item => {
-			this.runOne(item)
+			this.restartOne(item)
 		})
 	}
 
 	stopOne(item) {
-		item.style.setProperty("--play", "paused")
-	}
-
-	resetOne(item) {
-		let iterations = getComputedStyle(item).getPropertyValue("--iterations")
-		item.style.setProperty("--iterations", iterations + 1)
-	}
-
-	resetAll() {
-		this.items.forEach(item => {
-			this.resetOne(item)
+		item.animations.forEach(animation => {
+			animation.cancel()
 		})
 	}
 
 	start() {
-		this.runGroup(this.groups[0])
-	}
-
-	restart() {
-		this.resetAll()
-		this.start()
-	}
-
-	restartHard() {
-		this.resetAll()
-		this.runAll()
+		this.startGroup(this.groups[0])
 	}
 }
 
-export default item
+export default Animate
