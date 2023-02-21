@@ -77,4 +77,9 @@ function bindSplideArrows(splide, arrows) {
 	setArrowsState()
 }
 
-export { toggleNoscrollBody, ifClickInside }
+function headerHeightToCSS() {
+	document.querySelector(':root')
+		.style.setProperty('--header-height', `${document.querySelector('header').getBoundingClientRect().height}px`)
+}
+
+export { toggleNoscrollBody, ifClickInside, bindSplideArrows, headerHeightToCSS }

@@ -40,21 +40,15 @@ function initInputControllerGroups() {
 }
 
 function initPhoneMask() {
-	document.querySelectorAll('input[type=tel]')
-		.forEach(input => {
-			new Cleave(input, {
-				phone: true,
-				phoneRegionCode: "RU",
-				delimiter: "-",
-				prefix: "+7",
-				noImmediatePrefix: true
-			})
+	document.querySelectorAll('input[type=tel]').forEach(input => {
+		new Cleave(input, {
+			phone: true,
+			phoneRegionCode: "RU",
+			delimiter: "-",
+			prefix: "+7",
+			noImmediatePrefix: true
 		})
-}
-
-function headerHeightToCSS() {
-	document.querySelector(':root')
-		.style.setProperty('--header-height', `${document.querySelector('header').getBoundingClientRect().height}px`)
+	})
 }
 
 function initPopups() {
