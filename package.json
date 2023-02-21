@@ -12,7 +12,7 @@
 		"build_watch_min": "node ./node_modules/gulp/bin/gulp.js --fwatch --min",
 		"imagemin": "node ./node_modules/gulp/bin/gulp.js imagemin",
 		"ttfToWoff": "node ./node_modules/gulp/bin/gulp.js ttfToWoff",
-		"init": "npm i && node ./node_modules/gulp/bin/gulp.js init"
+		"init": "npm i && node ./node_modules/gulp/bin/gulp.js cleanInitials"
 	},
 	"devDependencies": {
 		"browser-sync": "^2.27.11",
