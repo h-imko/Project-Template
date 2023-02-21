@@ -67,7 +67,7 @@ class InputContollerGroup {
 		})
 	}
 
-	static findGroups = function () {
+	static findGroups() {
 		return Object.values([...document.querySelectorAll("[data-control-group]")].reduce((acc, curr) => {
 			let groupname = curr.dataset.controlGroup
 			acc[groupname] ? acc[groupname].push(curr) : acc[groupname] = [curr]

@@ -5,6 +5,7 @@ import InputContollerGroup from "./_InputControllerGroup"
 import Popup from "./_Popup"
 import Quantity from "./_Quantity"
 import Spoiler from "./_Spoiler"
+import SyncedInputs from "./_SyncedInputs"
 
 document.addEventListener('DOMContentLoaded', function () {
 	// initPopups()
@@ -13,11 +14,18 @@ document.addEventListener('DOMContentLoaded', function () {
 	// initQuantity()
 	// initSpoilers()
 	// initInputControllerGroups()
+	// initSyncedInputs()
 })
 
 window.addEventListener("load", function () {
 	// headerHeightToCSS()
 })
+
+function initSyncedInputs() {
+	SyncedInputs.findGroups().forEach(group => {
+		new SyncedInputs(...group)
+	})
+}
 
 function initQuantity() {
 	document.querySelectorAll(".quantity").forEach(item => {
