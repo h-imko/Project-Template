@@ -1,6 +1,7 @@
 import Cleave from "cleave.js"
 import 'cleave.js/dist/addons/cleave-phone.ru'
 import "fslightbox"
+import Dropzone from "./_Dropzone"
 import InputContollerGroup from "./_InputControllerGroup"
 import Popup from "./_Popup"
 import Quantity from "./_Quantity"
@@ -24,6 +25,12 @@ window.addEventListener("load", function () {
 function initSyncedInputs() {
 	SyncedInputs.findGroups().forEach(group => {
 		new SyncedInputs(...group)
+	})
+}
+
+function initDropzone() {
+	document.querySelectorAll(".dropzone").forEach(item => {
+		new Dropzone(item)
 	})
 }
 

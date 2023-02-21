@@ -7,8 +7,8 @@ class Dropzone {
 		this.fileList = {}
 		this.fileListRaw = []
 		this.dropzone = target
-		this.inner = target.querySelector(".inner")
-		this.input = target.querySelector("input[type=file]")
+		this.inner = target.querySelector(".dropzone__inner")
+		this.input = target.querySelector("input[type=file].dropzone__input")
 		this.limit = this.input.dataset.fileLimit || Number.MAX_SAFE_INTEGER
 		this.changeEvent = new Event("filelistChanged")
 
@@ -35,11 +35,7 @@ class Dropzone {
 	}
 
 	setFullStatus() {
-		if (this.fileList.length == this.limit) {
-			this.dropzone.classList.add("dropzone-full")
-		} else {
-			this.dropzone.classList.remove("dropzone-full")
-		}
+		this.dropzone.classList.toggle("dropzone--full", this.fileList.length == this.limit)
 	}
 
 	/**
