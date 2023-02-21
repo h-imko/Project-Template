@@ -61,25 +61,6 @@ function initPopups() {
 	window.popups = [...document.querySelectorAll("[data-popup]")].map(curr => new Popup(curr))
 }
 
-function initTabs() {
-	let controls = document.querySelectorAll(".tabs__control input[type=radio]")
-
-	function updateSlave(master, slave) {
-		if (master.checked) {
-			slave.checked = true
-		}
-	}
-
-	controls.forEach(master => {
-		let slave = document.querySelector(`#${master.dataset.target}`)
-
-		updateSlave(master, slave)
-		master.addEventListener("change", () => {
-			updateSlave(master, slave)
-		})
-	})
-}
-
 function initSpoilers() {
 	document.querySelectorAll('.spoiler')
 		.forEach(spoiler => {
