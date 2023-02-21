@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	// initSpoilers()
 	// initInputControllerGroups()
 	// initSyncedInputs()
+	initDropzone()
 })
 
 window.addEventListener("load", function () {
@@ -29,8 +30,9 @@ function initSyncedInputs() {
 }
 
 function initDropzone() {
-	document.querySelectorAll(".dropzone").forEach(item => {
-		new Dropzone(item)
+	window.dropzones = []
+	document.querySelectorAll(".dropzone").forEach(dropzone => {
+		window.dropzones.push(new Dropzone(dropzone))
 	})
 }
 

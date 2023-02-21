@@ -7,9 +7,10 @@
 		<main>
 			<h1>Hello world</h1>
 			<div class="dropzone">
-				<div class="dropzone__inner">
-					<input type="file" name="" id="" class="dropzone__input">
-				</div>
+				<input type="file" class="dropzone__input" multiple>
+				<ul class="dropzone__list">
+					<li class="dropzone__list__item dropzone__list__item--placeholder"></li>
+				</ul>
 			</div>
 		</main>
 		{{>footer}}

@@ -1,41 +1,22 @@
 class Dropzone {
 	/**
 	 *
-	 * @param {Element} target
+	 * @param {HTMLElement} target
 	 */
 	constructor(target) {
-		this.fileList = {}
-		this.fileListRaw = []
 		this.dropzone = target
-		this.inner = target.querySelector(".dropzone__inner")
 		this.input = target.querySelector("input[type=file].dropzone__input")
-		this.limit = this.input.dataset.fileLimit || Number.MAX_SAFE_INTEGER
-		this.changeEvent = new Event("filelistChanged")
-
+		this.list = target.querySelector(".dropzone__list")
+		this.files = new DataTransfer()
+		this.bases = []
+		this.changeEvent = new Event("dropzonechange")
 		this.bindEvents()
 	}
 
-	clearVisual() {
-		this.inner.innerHTML = ""
-	}
-
-	async prepareFileList() {
-		this.fileList = {}
-
-		for (let index = 0; index < this.fileListRaw.length; index++) {
-			const file = this.fileListRaw[index]
-			this.fileList[await file.text()] = file
-		}
-
-		Object.keys(this.fileList).slice(this.limit - 1, -1).forEach(key => {
-			delete this.fileList[key]
+	get entries() {
+		return [...this.files.files].map((file, index) => {
+			return { file: file, base: this.bases[index] }
 		})
-
-		this.fileListRaw = Object.values(this.fileList)
-	}
-
-	setFullStatus() {
-		this.dropzone.classList.toggle("dropzone--full", this.fileList.length == this.limit)
 	}
 
 	/**
@@ -43,7 +24,7 @@ class Dropzone {
 	 * @param {File} file
 	 * @returns	{(Promise<String|null>|ProgressEvent<FileReader>)}
 	 */
-	getBase64(file) {
+	getBase(file) {
 		return new Promise((resolve, reject) => {
 			const reader = new FileReader()
 			reader.readAsDataURL(file)
@@ -52,90 +33,74 @@ class Dropzone {
 		})
 	}
 
-	makeMiniatures() {
-		Object.entries(this.fileList).forEach(([key, value], index) => {
-			let wrapper = document.createElement("div")
-			wrapper.classList.add("file")
-			wrapper.setAttribute("data-filename", value.name)
-
-			wrapper.addEventListener("click", (event) => {
-				event.stopPropagation()
-				this.fileListRaw.splice(index, 1)
-				this.dropzone.dispatchEvent(this.changeEvent)
-			})
-
-			this.getBase64(value).then(base => {
-				wrapper.style.setProperty("background-image", `url(${base})`)
-			})
-
-			this.inner.append(wrapper)
-		})
+	removeFile(index) {
+		this.files.items.remove(index)
+		this.bases.splice(index, 1)
+		this.dropzone.dispatchEvent(this.changeEvent)
 	}
 
 	/**
 	 *
-	 * @param {Event} event
+	 * @param {File} file
+	 * @param {Boolean} addBase
+	 * @returns {HTMLLIElement}
 	 */
-	handleDrop(event) {
-		event.preventDefault()
+	makeListItem(index, { file, base } = {}) {
+		let item = document.createElement("li")
+		item.classList.add("dropzone__list__item")
 
-		if (event.dataTransfer.items) {
-			for (let item of event.dataTransfer.items) {
-				if (item.kind === 'file' && item.type === "image/jpeg" || item.type === "image/png") {
-					this.fileListRaw.push(item.getAsFile())
-				}
+		if (file) {
+			item.setAttribute("data-file-name", file.name)
+
+			if (`${file.type}`.startsWith("image")) {
+				let img = document.createElement("img")
+				img.classList.add("dropzone__list__item__preview")
+				img.setAttribute("src", base)
+				item.appendChild(img)
 			}
-		} else if (event.dataTransfer.files) {
-			for (const item of event.dataTransfer.files) {
-				if (item.type === "image/jpeg" || item.type === "image/png") {
-					this.fileListRaw.push(item)
-				}
-			}
+			item.addEventListener("click", () => {
+				this.removeFile(index)
+			})
 		} else {
-			console.warn("такой дроп не поддерживается")
+			item.classList.add("dropzone__list__item--placeholder")
 		}
-
-		this.dropzone.dispatchEvent(this.changeEvent)
+		return item
 	}
 
-	async handleChoose() {
-		for (const file of this.input.files) {
-			this.fileListRaw.push(file)
+	fillList() {
+		if (this.entries.length) {
+			this.list.replaceChildren(...[...this.entries].map(((entry, index) => {
+				return this.makeListItem(index, entry)
+			})))
+		} else {
+			this.list.replaceChildren(this.makeListItem())
 		}
-		this.dropzone.dispatchEvent(this.changeEvent)
 	}
 
-	syncInputToFileList() {
-		let dt = new DataTransfer()
-		Object.values(this.fileList).forEach(file => {
-			dt.items.add(file)
-		})
-		this.input.files = dt.files
+	readInput() {
+		let incoming = this.input.files
+
+		for (const file of incoming) {
+			this.getBase(file).then(base => {
+				if (!this.bases.includes(base)) {
+					this.bases.push(base)
+					this.files.items.add(file)
+					this.dropzone.dispatchEvent(this.changeEvent)
+				}
+			})
+		}
 	}
 
-	async refreshDropzone() {
-		await this.prepareFileList()
-		this.clearVisual()
-		this.makeMiniatures()
-		this.setFullStatus()
-		this.syncInputToFileList()
+	fillInput() {
+		this.input.files = this.files.files
 	}
 
 	bindEvents() {
-		this.input.addEventListener('change', () => { this.handleChoose() })
+		this.input.addEventListener('change', () => { this.readInput() })
 
-		this.dropzone.addEventListener('drop', (event) => { this.handleDrop(event) })
-
-		this.dropzone.addEventListener('dragover', (event) => {
-			event.preventDefault()
-		})
-
-		this.inner.addEventListener("click", () => {
-			this.input.click()
-		})
-
-		this.dropzone.addEventListener('filelistChanged', () => {
-			this.refreshDropzone()
+		this.dropzone.addEventListener(this.changeEvent.type, () => {
+			this.fillList()
+			this.fillInput()
 		})
 	}
 }
