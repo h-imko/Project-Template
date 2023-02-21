@@ -7,16 +7,11 @@ class Dropzone {
 		this.dropzone = target
 		this.input = target.querySelector("input[type=file].dropzone__input")
 		this.list = target.querySelector(".dropzone__list")
+		this.placeholder = target.querySelector(".dropzone__list__item--placeholder")
 		this.files = new DataTransfer()
 		this.bases = []
 		this.changeEvent = new Event("dropzonechange")
 		this.bindEvents()
-	}
-
-	get entries() {
-		return [...this.files.files].map((file, index) => {
-			return { file: file, base: this.bases[index] }
-		})
 	}
 
 	/**
@@ -36,7 +31,7 @@ class Dropzone {
 	removeFile(index) {
 		this.files.items.remove(index)
 		this.bases.splice(index, 1)
-		this.dropzone.dispatchEvent(this.changeEvent)
+		this.fillInput()
 	}
 
 	/**
@@ -45,7 +40,7 @@ class Dropzone {
 	 * @param {Boolean} addBase
 	 * @returns {HTMLLIElement}
 	 */
-	makeListItem(index, { file, base } = {}) {
+	makeListItem(file, base) {
 		let item = document.createElement("li")
 		item.classList.add("dropzone__list__item")
 
@@ -59,7 +54,8 @@ class Dropzone {
 				item.appendChild(img)
 			}
 			item.addEventListener("click", () => {
-				this.removeFile(index)
+				this.removeFile(Array.from(item.parentNode.children).indexOf(item))
+				item.remove()
 			})
 		} else {
 			item.classList.add("dropzone__list__item--placeholder")
@@ -67,17 +63,11 @@ class Dropzone {
 		return item
 	}
 
-	fillList() {
-		if (this.entries.length) {
-			this.list.replaceChildren(...[...this.entries].map(((entry, index) => {
-				return this.makeListItem(index, entry)
-			})))
-		} else {
-			this.list.replaceChildren(this.makeListItem())
-		}
+	appendItem(item) {
+		this.list.insertBefore(item, this.placeholder)
 	}
 
-	readInput() {
+	add() {
 		let incoming = this.input.files
 
 		for (const file of incoming) {
@@ -85,7 +75,8 @@ class Dropzone {
 				if (!this.bases.includes(base)) {
 					this.bases.push(base)
 					this.files.items.add(file)
-					this.dropzone.dispatchEvent(this.changeEvent)
+					this.fillInput()
+					this.appendItem(this.makeListItem(file, base))
 				}
 			})
 		}
@@ -96,12 +87,7 @@ class Dropzone {
 	}
 
 	bindEvents() {
-		this.input.addEventListener('change', () => { this.readInput() })
-
-		this.dropzone.addEventListener(this.changeEvent.type, () => {
-			this.fillList()
-			this.fillInput()
-		})
+		this.input.addEventListener('change', () => { this.add() })
 	}
 }
 
