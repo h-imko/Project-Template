@@ -82,4 +82,22 @@ function headerHeightToCSS() {
 		.style.setProperty('--header-height', `${document.querySelector('header').getBoundingClientRect().height}px`)
 }
 
-export { toggleNoscrollBody, ifClickInside, bindSplideArrows, headerHeightToCSS }
+function isVarName(name) {
+	if (typeof name !== 'string') {
+		return false
+	}
+
+	if (name.trim() !== name) {
+		return false
+	}
+
+	try {
+		new Function(name, 'var ' + name)
+	} catch (_) {
+		return false
+	}
+
+	return true
+}
+
+export { toggleNoscrollBody, ifClickInside, bindSplideArrows, headerHeightToCSS, isVarName }

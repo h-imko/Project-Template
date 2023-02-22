@@ -1,0 +1,28 @@
+.popup {
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	right: 0;
+	left: 0;
+	background-color: #00000088;
+	padding-top: 64px;
+	border-bottom: 64px;
+	overflow: auto;
+	z-index: 666;
+	@include transition-base;
+	pointer-events: none;
+	opacity: 0;
+	display: flex;
+
+	&.is-active {
+		pointer-events: auto;
+		opacity: 1;
+	}
+
+	&__inner {
+		margin-top: auto;
+		margin-bottom: auto;
+		@extend %container;
+		background-color: #fff;
+	}
+}

@@ -1,4 +1,4 @@
-import { ifClickInside, toggleNoscrollBody } from "./_helpers"
+import { ifClickInside, isVarName, toggleNoscrollBody } from "./_helpers"
 
 class Popup {
 	/**
@@ -6,27 +6,22 @@ class Popup {
 	 * @param {Element} target
 	 */
 	constructor(target) {
-		this.openedClass = "show"
+		this.activeClass = "is-active"
 		this.popup = target
-		this.inner = target.querySelector(".popup__inner")
-		this.controllers = [...document.querySelectorAll(`[data-popup-target="${target.id}"]`)]
+		this.name = this.popup.dataset.popup
+		this.inner = this.popup.querySelector("[data-popup-inner]")
+		this.controllers = [...document.querySelectorAll(`[data-popup-target="${this.name}"]`)]
 		this.openers = this.controllers.filter(controller => controller.dataset.popupControl == "open")
 		this.togglers = this.controllers.filter(controller => controller.dataset.popupControl == "toggle")
-		this.closers = [...this.controllers.filter(controller => controller.dataset.popupControl == "close"), ...target.querySelectorAll(".popup__selfcloser")]
+		this.closers = [...this.controllers.filter(controller => controller.dataset.popupControl == "close"), ...this.popup.querySelectorAll("[data-popup-selfcloser]")]
 		this.initControllers()
 		this.bindGlobalControls()
 	}
 
 	updateControllers() {
-		if (this.popup.classList.contains(this.openedClass)) {
-			[...this.openers, ...this.togglers].forEach(function (controller) {
-				controller.classList.add("popup-controller--active")
-			})
-		} else {
-			[...this.openers, ...this.togglers].forEach(function (controller) {
-				controller.classList.remove("popup-controller--active")
-			})
-		}
+		[...this.openers, ...this.togglers].forEach(function (controller) {
+			controller.classList.toggle(this.activeClass, this.popup.classList.contains(this.activeClass))
+		})
 	}
 
 	/**
@@ -34,7 +29,7 @@ class Popup {
 	 * @param {Event} event
 	 */
 	closePopup(event) {
-		this.popup.classList.remove(this.openedClass)
+		this.popup.classList.remove(this.activeClass)
 		toggleNoscrollBody(false)
 		this.updateControllers()
 	}
@@ -44,7 +39,7 @@ class Popup {
 	 * @param {Event} event
 	 */
 	openPopup(event) {
-		this.popup.classList.add(this.openedClass)
+		this.popup.classList.add(this.activeClass)
 		toggleNoscrollBody(true)
 		this.updateControllers()
 	}
@@ -54,7 +49,7 @@ class Popup {
 	 * @param {Event} event
 	 */
 	togglePopup(event) {
-		this.popup.classList.toggle(this.openedClass)
+		this.popup.classList.toggle(this.activeClass)
 		toggleNoscrollBody()
 		this.updateControllers()
 	}
@@ -65,9 +60,13 @@ class Popup {
 	 * window.closePopup_my_cool_popup()
 	 */
 	bindGlobalControls() {
-		window[`closePopup_${this.popup.id}`] = this.closePopup.bind(this)
-		window[`openPopup_${this.popup.id}`] = this.openPopup.bind(this)
-		window[`togglePopup_${this.popup.id}`] = this.togglePopup.bind(this)
+		if (!isVarName(this.name)) {
+			console.error(`Недопустимое имя попапа - ${this.name}`)
+			return
+		}
+		window[`closePopup_${this.name}`] = this.closePopup.bind(this)
+		window[`openPopup_${this.name}`] = this.openPopup.bind(this)
+		window[`togglePopup_${this.name}`] = this.togglePopup.bind(this)
 	}
 
 	initControllers() {
@@ -90,7 +89,7 @@ class Popup {
 		})
 
 		document.addEventListener('click', (event) => {
-			if (!ifClickInside(event, [this.inner, ...this.openers, ...this.togglers, ...this.closers]) && this.popup.classList.contains(this.openedClass)) {
+			if (!ifClickInside(event, [this.inner, ...this.openers, ...this.togglers, ...this.closers]) && this.popup.classList.contains(this.activeClass)) {
 				this.closePopup(event)
 			}
 		})
