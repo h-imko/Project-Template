@@ -1,6 +1,8 @@
 import Cleave from "cleave.js"
 import 'cleave.js/dist/addons/cleave-phone.ru'
 import "fslightbox"
+import { Splide } from "@splidejs/splide"
+import tippy from "tippy.js"
 import Dropzone from "./_Dropzone"
 import InputContollerGroup from "./_InputControllerGroup"
 import Popup from "./_Popup"
@@ -65,8 +67,7 @@ function initPopups() {
 }
 
 function initSpoilers() {
-	document.querySelectorAll('.spoiler')
-		.forEach(spoiler => {
-			new Spoiler(spoiler)
-		})
+	document.querySelectorAll('.spoiler').forEach(spoiler => {
+		new Spoiler(spoiler)
+	})
 }
