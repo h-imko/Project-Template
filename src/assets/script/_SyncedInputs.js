@@ -6,8 +6,6 @@ class SyncedInputs {
 	constructor(...inputs) {
 		this.items = inputs
 		this.items.forEach(item => {
-			console.log(item)
-
 			item.addEventListener("change", () => {
 				let checked = item.checked
 				this.items.forEach(item => {

@@ -1,54 +1,56 @@
-$parent: ".spoiler";
-$toggler: #{$parent}__toggler;
-$content: #{$parent}__content;
-$initial: #{$parent}__initial;
-$inner: #{$parent}__inner;
-$final: #{$parent}__final;
-$flipper: #{$parent}__flipper;
+.spoiler {
+	&__content {
+		overflow: hidden;
+		display: grid;
+		grid-template-rows: minmax(0, 0);
+		min-height: var(--initial-height, 0);
+		transition: var(--transition, min-height var(--transition-duration, 0.3s) ease);
 
-#{$content} {
-	overflow: hidden;
-	display: grid;
-	grid-template-rows: minmax(0, 0);
-	min-height: var(--initial-height, 0);
-	transition: var(--transition, min-height var(--transition-duration, 0.3s) ease);
-
-	&.is-active {
-		min-height: var(--scroll-height, 9999px);
-		grid-template-rows: minmax(var(--scroll-height, 9999px), min-content);
-		transition: var(--transition, min-height var(--transition-duration, 0.3s) ease, grid-template-rows 0s var(--transition-duration, 0.3s));
-	}
-}
-
-#{$toggler} {
-	cursor: pointer;
-	user-select: none;
-}
-
-#{$parent},
-#{$toggler},
-#{$content} {
-	&.is-active {
-		#{$flipper} {
-			transform: scaleY(-1);
-		}
-
-		#{$initial} {
-			display: none;
-		}
-
-		#{$final} {
-			display: block;
+		&.is-active {
+			min-height: var(--scroll-height, 9999px);
+			grid-template-rows: minmax(var(--scroll-height, 9999px), min-content);
+			transition: var(--transition, min-height var(--transition-duration, 0.3s) ease, grid-template-rows 0s var(--transition-duration, 0.3s));
 		}
 	}
 
-	&:not(.is-active) {
-		#{$initial} {
-			display: block;
+	&__toggler {
+		cursor: pointer;
+		user-select: none;
+	}
+
+	&__flipper {
+		transition: all var(--transition-duration, 0.3s) ease;
+	}
+
+	&,
+	&__toggler,
+	&__content {
+		&.is-active {
+			.spoiler__flipper {
+				transform: scaleY(-1);
+			}
+
+			.spoiler__initial {
+				display: none;
+			}
+
+			.spoiler__final {
+				display: block;
+			}
 		}
 
-		#{$final} {
-			display: none;
+		&:not(.is-active) {
+			.spoiler__flipper {
+				transform: scaleY(1);
+			}
+
+			.spoiler__initial {
+				display: block;
+			}
+
+			.spoiler__final {
+				display: none;
+			}
 		}
 	}
 }
