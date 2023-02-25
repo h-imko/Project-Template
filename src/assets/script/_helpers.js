@@ -100,4 +100,13 @@ function isVarName(name) {
 	return true
 }
 
-export { toggleNoscrollBody, ifClickInside, bindSplideArrows, headerHeightToCSS, isVarName }
+let breakpoints = (() => {
+	let style = getComputedStyle(document.documentElement)
+	return {
+		mobile: parseInt(style.getPropertyValue("--mobile")),
+		tablet: parseInt(style.getPropertyValue("--tablet")),
+		laptop: parseInt(style.getPropertyValue("--laptop"))
+	}
+})()
+
+export { toggleNoscrollBody, ifClickInside, bindSplideArrows, headerHeightToCSS, isVarName, breakpoints }

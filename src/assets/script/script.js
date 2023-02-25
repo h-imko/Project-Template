@@ -9,6 +9,7 @@ import Popup from "./_Popup"
 import Quantity from "./_Quantity"
 import Spoiler from "./_Spoiler"
 import SyncedInputs from "./_SyncedInputs"
+import { breakpoints } from "./_helpers"
 
 document.addEventListener('DOMContentLoaded', function () {
 	// initPopups()
