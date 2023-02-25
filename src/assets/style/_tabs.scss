@@ -1,26 +1,26 @@
 .tabs {
-	&__control {
-		input {
-			visibility: hidden;
-			position: absolute;
-			pointer-events: none;
-		}
+	input:is(&__controller) {
+		visibility: hidden;
+		position: absolute;
+		pointer-events: none;
+	}
 
+	&__control {
 		&__visual {
 			cursor: pointer;
 			user-select: none;
+
+			&:is(.tabs__controller:checked ~ &) {}
+
+			&:is(.tabs__controller:not(:checked) ~ &) {}
 		}
 	}
 
 	&__content {
-		$parent: &;
+		&__visual {
+			&:is(.tabs__controller:checked ~ &) {}
 
-		input {
-			visibility: hidden;
-			position: absolute;
-			pointer-events: none;
-
-			&:not(:checked) ~ #{$parent}__visual {
+			&:is(.tabs__controller:not(:checked) ~ &) {
 				display: none;
 			}
 		}
