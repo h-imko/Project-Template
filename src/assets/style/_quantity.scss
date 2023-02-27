@@ -1,0 +1,11 @@
+.quantity {
+	&__input {}
+
+	&__button {
+		cursor: pointer;
+
+		&--add {}
+
+		&--subtract {}
+	}
+}
