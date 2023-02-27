@@ -10,13 +10,13 @@
 
 	&__helper {
 		order: 3;
-		@include transition-base;
+		transition: opacity var(--transition-duration) ease;
 	}
 
 	%base {
 		order: 2;
 		outline: none;
-		@include transition-base;
+		transition: opacity var(--transition-duration) ease;
 		-moz-appearance: initial;
 		-webkit-appearance: initial;
 

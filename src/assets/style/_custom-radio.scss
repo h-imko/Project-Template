@@ -29,7 +29,7 @@
 			// border-color: ;
 			// background: ;
 			border-radius: 50%;
-			@include transition-base;
+			transition: opacity var(--transition-duration) ease;
 		}
 
 		&::after {
@@ -37,7 +37,7 @@
 			position: absolute;
 			content: "";
 			border-radius: 50%;
-			@include transition-base;
+			transition: opacity var(--transition-duration) ease;
 			border-width: calc(var(--check-size) / 2);
 			border-style: solid;
 			// border-color: ;

@@ -9,7 +9,7 @@
 	border-bottom: 64px;
 	overflow: auto;
 	z-index: 666;
-	@include transition-base;
+	transition: opacity var(--transition-duration) ease;
 	pointer-events: none;
 	opacity: 0;
 	display: flex;

@@ -9,7 +9,7 @@
 	mask-repeat: no-repeat;
 	mask-position: center;
 	flex-shrink: 0;
-	@include transition-base;
+	transition: opacity var(--transition-duration) ease;
 	width: var(--size, 24px);
 	height: var(--size, 24px);
 	background-color: var(--color, #000);

@@ -35,7 +35,7 @@ function initSyncedInputs() {
 function initDropzone() {
 	window.dropzones = []
 	document.querySelectorAll(".dropzone").forEach(dropzone => {
-		window.dropzones.push(new Dropzone(dropzone))
+		new Dropzone(dropzone)
 	})
 }
 
@@ -64,7 +64,9 @@ function initPhoneMask() {
 }
 
 function initPopups() {
-	window.popups = [...document.querySelectorAll("[data-popup]")].map(curr => new Popup(curr))
+	window.popups = [...document.querySelectorAll("[data-popup]")].map(curr => {
+		new Popup(curr)
+	})
 }
 
 function initSpoilers() {
