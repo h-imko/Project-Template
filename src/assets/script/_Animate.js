@@ -1,4 +1,7 @@
 class Animate {
+	#followQueue = false
+	#groups
+	#items
 	/**
 	 *
 	 * @param {HTMLElement} group
@@ -15,18 +18,19 @@ class Animate {
 			list[priority].items.push({ target: item, animations: item.getAnimations() })
 		})
 
-		this.groups = Object.values(list)
+		this.#groups = Object.values(list)
 
-		this.items = this.groups.reduce((acc, item) => {
+		this.#items = this.#groups.reduce((acc, item) => {
 			return [...acc, item.items]
 		}, []).flat()
 
-		this.bindEnds()
-		this.bindQueue()
+
+		this.#bindEnds()
+		this.#bindQueue()
 	}
 
-	bindQueue() {
-		this.items.forEach(item => {
+	#bindQueue() {
+		this.#items.forEach(item => {
 			item.animations.forEach((animation, index, animations) => {
 				animation.addEventListener("finish", () => {
 					animations[index + 1]?.play()
@@ -34,14 +38,16 @@ class Animate {
 			})
 		})
 
-		this.groups.forEach((group, index, groups) => {
+		this.#groups.forEach((group, index, groups) => {
 			group.target.addEventListener("animationgroupend", () => {
-				this.startGroup(groups[index + 1])
+				if (this.#followQueue) {
+					this.#startGroup(groups[index + 1])
+				}
 			})
 		})
 	}
 
-	bindEnds() {
+	#bindEnds() {
 		function isGroupDone(group) {
 			return group.items.reduce((acc, item) => {
 				return acc && item.animations.reduce((acc, animation) => {
@@ -50,7 +56,7 @@ class Animate {
 			}, true)
 		}
 
-		this.items.forEach(item => {
+		this.#items.forEach(item => {
 			item.animations.forEach((animation, index, animations) => {
 				animation.addEventListener("finish", () => {
 					animations[index + 1] || item.target.dispatchEvent(new Event("animationsend"))
@@ -58,7 +64,7 @@ class Animate {
 			})
 		})
 
-		this.groups.forEach(group => {
+		this.#groups.forEach(group => {
 			group.items.forEach(item => {
 				item.target.addEventListener("animationsend", () => {
 					if (isGroupDone(group)) {
@@ -72,17 +78,17 @@ class Animate {
 	/**
 	 * Останавливает анимации элемента и запускает их заново
 	 */
-	restartOne(item) {
-		this.stopOne(item)
-		this.startOne(item)
+	#restartOne(item) {
+		this.#stopOne(item)
+		this.#startOne(item)
 	}
 
 	/**
 	 * Останавливает анимации элементов группы и запускает их заново одновременно
 	 */
-	restartGroup(group) {
+	#restartGroup(group) {
 		group?.items.forEach(item => {
-			this.restartOne(item)
+			this.#restartOne(item)
 		})
 	}
 
@@ -90,8 +96,9 @@ class Animate {
 	 * Останавливает анимации всех элементов и запускает их заново одновременно
 	 */
 	restartAll() {
-		this.items.forEach(item => {
-			this.restartOne(item)
+		this.#followQueue = false
+		this.#items.forEach(item => {
+			this.#restartOne(item)
 		})
 	}
 
@@ -108,7 +115,7 @@ class Animate {
 	/**
 	 * Останавливает анимации элемента
 	 */
-	stopOne(item) {
+	#stopOne(item) {
 		item.animations.forEach(animation => {
 			animation.cancel()
 		})
@@ -118,24 +125,24 @@ class Animate {
 	 * Останавливает анимации всех элементов
 	 */
 	stopAll() {
-		this.items.forEach(item => {
-			this.stopOne(item)
+		this.#items.forEach(item => {
+			this.#stopOne(item)
 		})
 	}
 
 	/**
 	 * Запускает анимации одного элемента
 	 */
-	startOne(item) {
+	#startOne(item) {
 		item.animations[0].play()
 	}
 
 	/**
 	 * Запускает анимации элементов группы
 	 */
-	startGroup(group) {
+	#startGroup(group) {
 		group?.items.forEach(item => {
-			this.startOne(item)
+			this.#startOne(item)
 		})
 	}
 
@@ -143,7 +150,8 @@ class Animate {
 	 * Запускает анимации всех элементов в общей очереди
 	 */
 	start() {
-		this.startGroup(this.groups[0])
+		this.#followQueue = true
+		this.#startGroup(this.#groups[0])
 	}
 }
 
