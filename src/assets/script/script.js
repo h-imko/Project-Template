@@ -14,13 +14,16 @@ document.addEventListener('DOMContentLoaded', function () {
 	// initQuantity()
 	// initSpoilers()
 	// initInputControllerGroups()
-	document.querySelectorAll("[data-animate-group]").forEach(group => {new Animate(group) })
-
+	initAnimates()
 })
 
 window.addEventListener("load", function () {
 	// headerHeightToCSS()
 })
+
+function initAnimates() {
+	window.animates = [...document.querySelectorAll("[data-animate-group]")].map(group => new Animate(group))
+}
 
 function initQuantity() {
 	document.querySelectorAll(".quantity").forEach(item => {

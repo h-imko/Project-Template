@@ -9,11 +9,10 @@
 	animation-direction: normal;
 	position: relative;
 	display: inline-flex;
-	&:nth-child(even){
 
-	animation-duration: 2s, 2s;
+	&:nth-child(even) {
+		animation-duration: 2s, 2s;
 	}
-
 
 	@keyframes biba {
 		0% {

@@ -4,30 +4,25 @@ class Animate {
 	 * @param {HTMLElement} group
 	 */
 	constructor(group) {
-		this.list = {}
+		let list = {}
 
 		group.querySelectorAll("[data-animate]").forEach(item => {
 			let priority = item.dataset.animatePriority ?? null
-			this.list[priority] = this.list[priority] || {}
-			this.list[priority].items = this.list[priority].items || []
-			this.list[priority].target = this.list[priority].target || new EventTarget()
-			this.list[priority].items.push({ target: item, animations: item.getAnimations() })
+			list[priority] = list[priority] || {}
+			list[priority].items = list[priority].items || []
+			list[priority].target = list[priority].target || new EventTarget()
+
+			list[priority].items.push({ target: item, animations: item.getAnimations() })
 		})
+
+		this.groups = Object.values(list)
+
+		this.items = this.groups.reduce((acc, item) => {
+			return [...acc, item.items]
+		}, []).flat()
 
 		this.bindEnds()
 		this.bindQueue()
-
-		this.start()
-	}
-
-	get groups() {
-		return Object.values(this.list)
-	}
-
-	get items() {
-		return Object.values(this.list).reduce((acc, item) => {
-			return [...acc, item.items]
-		}, []).flat()
 	}
 
 	bindQueue() {
@@ -74,33 +69,79 @@ class Animate {
 		})
 	}
 
-	startOne(item) {
-		item.animations[0].play()
-	}
-
+	/**
+	 * Останавливает анимации элемента и запускает их заново
+	 */
 	restartOne(item) {
 		this.stopOne(item)
 		this.startOne(item)
 	}
 
-	startGroup(group) {
+	/**
+	 * Останавливает анимации элементов группы и запускает их заново одновременно
+	 */
+	restartGroup(group) {
 		group?.items.forEach(item => {
 			this.restartOne(item)
 		})
 	}
 
-	startAll() {
+	/**
+	 * Останавливает анимации всех элементов и запускает их заново одновременно
+	 */
+	restartAll() {
 		this.items.forEach(item => {
 			this.restartOne(item)
 		})
 	}
 
+	/**
+	 * Останавливает анимации всех элементов и запускает их заново в общей очереди
+	 */
+	restart() {
+		this.stopAll()
+		requestAnimationFrame(() => {
+			this.start()
+		})
+	}
+
+	/**
+	 * Останавливает анимации элемента
+	 */
 	stopOne(item) {
 		item.animations.forEach(animation => {
 			animation.cancel()
 		})
 	}
 
+	/**
+	 * Останавливает анимации всех элементов
+	 */
+	stopAll() {
+		this.items.forEach(item => {
+			this.stopOne(item)
+		})
+	}
+
+	/**
+	 * Запускает анимации одного элемента
+	 */
+	startOne(item) {
+		item.animations[0].play()
+	}
+
+	/**
+	 * Запускает анимации элементов группы
+	 */
+	startGroup(group) {
+		group?.items.forEach(item => {
+			this.startOne(item)
+		})
+	}
+
+	/**
+	 * Запускает анимации всех элементов в общей очереди
+	 */
 	start() {
 		this.startGroup(this.groups[0])
 	}
