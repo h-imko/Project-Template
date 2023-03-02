@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	// initQuantity()
 	// initSpoilers()
 	// initInputControllerGroups()
-	initAnimates()
+	// initAnimates()
 })
 
 window.addEventListener("load", function () {
