@@ -19,7 +19,7 @@ class Popup {
 	}
 
 	updateControllers() {
-		[...this.openers, ...this.togglers].forEach(function (controller) {
+		[...this.openers, ...this.togglers].forEach((controller) => {
 			controller.classList.toggle(this.activeClass, this.popup.classList.contains(this.activeClass))
 		})
 	}
