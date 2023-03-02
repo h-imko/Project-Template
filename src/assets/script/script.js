@@ -8,6 +8,7 @@ import InputContollerGroup from "./_InputControllerGroup"
 import Popup from "./_Popup"
 import Quantity from "./_Quantity"
 import Spoiler from "./_Spoiler"
+import Animate from "./_Animate"
 import SyncedInputs from "./_SyncedInputs"
 import { breakpoints } from "./_helpers"
 
@@ -20,6 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	// initInputControllerGroups()
 	// initSyncedInputs()
 	// initDropzone()
+	// initAnimates()
 })
 
 window.addEventListener("load", function () {
@@ -37,6 +39,10 @@ function initDropzone() {
 	document.querySelectorAll(".dropzone").forEach(dropzone => {
 		new Dropzone(dropzone)
 	})
+}
+
+function initAnimates() {
+	window.animates = [...document.querySelectorAll("[data-animate-group]")].map(group => new Animate(group))
 }
 
 function initQuantity() {

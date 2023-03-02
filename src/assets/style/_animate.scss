@@ -1,0 +1,44 @@
+.animate {}
+
+[data-animate] {
+	animation-name: biba, boba;
+	animation-duration: 1s, 1s;
+	animation-fill-mode: both;
+	animation-iteration-count: 1, 1;
+	animation-play-state: paused;
+	animation-direction: normal;
+	position: relative;
+	display: inline-flex;
+
+	&:nth-child(even) {
+		animation-duration: 2s, 2s;
+	}
+
+	@keyframes biba {
+		0% {
+			opacity: 1;
+		}
+
+		50% {
+			opacity: 0;
+		}
+
+		100% {
+			opacity: 1;
+		}
+	}
+
+	@keyframes boba {
+		0% {
+			transform: scaleX(1);
+		}
+
+		50% {
+			transform: scaleX(2);
+		}
+
+		100% {
+			transform: scaleX(1);
+		}
+	}
+}
