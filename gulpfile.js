@@ -14,6 +14,8 @@ import Sass from "sass"
 import Esbuild from "gulp-esbuild"
 import Ttf2woff2 from "ttf2woff2"
 import Stream from "stream"
+import Ejs from "ejs"
+import { cwd } from "process"
 
 const gulpMem = new GulpMem(),
 	argv = process.argv.slice(2).reduce(function (acc, curr) {
@@ -23,63 +25,8 @@ const gulpMem = new GulpMem(),
 gulpMem.logFn = null
 gulpMem.serveBasePath = "./build"
 
-const tree = {
-	build: {
-		assets: {
-			script: null,
-			static: {
-				font: null,
-				img: null,
-			},
-			style: null,
-		}
-	},
-	src: {
-		assets: {
-			hbs: null,
-			script: null,
-			static: {
-				font: null,
-				img: null,
-				"img-raw": null,
-			},
-			style: null,
-		}
-	}
-}
-
-function getGlob(key, build = false, allOf = "", prefix = "", exclude = false) {
-	let foundPath = []
-	function keyExists(obj = build ? tree.build : tree.src) {
-		if (!obj || (typeof obj !== "object" && !Array.isArray(obj))) {
-			return false
-		} else if (obj.hasOwnProperty(key)) {
-			return true
-		} else if (Array.isArray(obj)) {
-			let parentKey = foundPath.length ? foundPath.pop() : ""
-			for (let i = 0; i < obj.length; i++) {
-				foundPath.push(`${parentKey}[${i}]`)
-				const result = keyExists(obj[i], key)
-				if (result) {
-					return result
-				}
-				foundPath.pop()
-			}
-		} else {
-			for (const k in obj) {
-				foundPath.push(k)
-				const result = keyExists(obj[k], key)
-				if (result) {
-					return result
-				}
-				foundPath.pop()
-			}
-		}
-		return false
-	}
-	keyExists()
-	foundPath = pathTransform.toPosix(Path.join(...foundPath, key))
-	return `${exclude ? "!" : ""}./${build ? "build/" : "src/"}${foundPath}/${allOf ? `**/${prefix}*.${allOf}` : ""}`
+Ejs.fileLoader = function (filePath) {
+	return Fs.readFileSync(filePath.replace(/^\w:\\src\\|\/src\//, `${cwd()}${Path.sep}src${Path.sep}`))
 }
 
 const pathTransform = {
@@ -92,6 +39,20 @@ function nothing(callback = () => { }) {
 	return new Stream.PassThrough({
 		readableObjectMode: true,
 		writableObjectMode: true
+	})
+}
+
+function ejs() {
+	return new Stream.Transform({
+		writableObjectMode: true,
+		readableObjectMode: true,
+		transform(chunk, encoding, callback) {
+			Ejs.renderFile(chunk.path).then(html => {
+				chunk.contents = Buffer.from(html, encoding)
+				chunk.path = pathTransform.ext(chunk.path, ".html")
+				callback(null, chunk)
+			})
+		}
 	})
 }
 
@@ -229,11 +190,11 @@ function js() {
 }
 
 function html() {
-	return Gulp.src(["./src/*.html"])
-		.pipe(Hb()
-			.partials('./src/assets/hbs/**/*.hbs').on("error", function (error) {
-				printPaintedMessage(`${error.fileName} ${error.message}`, "HBS")
-				BrowserSync.notify("HBS Error")
+	return Gulp.src(["./src/*.ejs", "./src/*.html"])
+		.pipe(ejs()
+			.on("error", function (error) {
+				printPaintedMessage(`${error.fileName} ${error.message}`, "EJS")
+				BrowserSync.notify("EJS Error")
 				this.emit("end")
 			})
 		)
@@ -314,7 +275,7 @@ function cleanInitials() {
 }
 
 function watch() {
-	Gulp.watch(["./src/**/*.html", "./src/**/*.hbs"], html)
+	Gulp.watch(["./src/**/*.html", "./src/**/*.ejs"], html)
 	Gulp.watch(["./src/assets/script/**/*"], js)
 	Gulp.watch(["./src/assets/style/**/*"], css)
 	Gulp.watch("./src/assets/static/img-raw/icon/**/*.svg", {
