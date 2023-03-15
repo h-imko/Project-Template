@@ -2,7 +2,6 @@ import BrowserSync from "browser-sync"
 import Fs from "fs"
 import Gulp from "gulp"
 import AutoPrefixer from "gulp-autoprefixer"
-import Hb from "gulp-hb"
 import Imagemin, {
 	svgo, mozjpeg
 } from "gulp-imagemin"
