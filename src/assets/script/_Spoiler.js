@@ -5,7 +5,7 @@ class Spoiler {
 	 */
 	constructor(target) {
 		this.spoiler = target
-		this.togglers = [target.querySelector('.spoiler__toggler'), ...document.querySelectorAll(`[data-spoiler-target="${this.spoiler.id}"]`)]
+		this.togglers = [target.querySelector('.spoiler__toggler'), ...document.querySelectorAll(`[data-spoiler-target="${this.dataset.spoiler}"]`)]
 		this.content = target.querySelector('.spoiler__content')
 		this.activeClass = "is-active"
 		console.log(this.togglers)
