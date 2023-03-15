@@ -8,7 +8,6 @@ class Spoiler {
 		this.togglers = [target.querySelector('.spoiler__toggler'), ...document.querySelectorAll(`[data-spoiler-target="${this.dataset.spoiler}"]`)]
 		this.content = target.querySelector('.spoiler__content')
 		this.activeClass = "is-active"
-		console.log(this.togglers)
 
 		this.initClick()
 	}
