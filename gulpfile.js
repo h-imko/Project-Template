@@ -19,7 +19,8 @@ import { cwd } from "process"
 const gulpMem = new GulpMem(),
 	argv = process.argv.slice(2).reduce(function (acc, curr) {
 		return { ...acc, [curr.replace("--", "")]: true }
-	}, {}), currentGulp = argv.ram ? gulpMem : Gulp
+	}, {}), currentGulp = argv.ram ? gulpMem : Gulp,
+	browserSync = BrowserSync.create()
 
 gulpMem.logFn = null
 gulpMem.serveBasePath = "./build"
@@ -121,12 +122,12 @@ function sass() {
 }
 
 function browserSyncInit() {
-	BrowserSync.init({
+	browserSync.init({
 		server: {
 			baseDir: "./build",
-			middleware: argv.ram ? gulpMem.middleware : false
+			middleware: argv.ram ? gulpMem.middleware : false,
 		},
-		port: 3000,
+		port: 3000
 	})
 }
 
@@ -153,7 +154,7 @@ function css() {
 		.pipe(sass()
 			.on("error", function (error) {
 				printPaintedMessage(error.message, "Sass")
-				BrowserSync.notify("SASS Error")
+				browserSync.notify("SASS Error")
 				this.emit("end")
 			}))
 		.pipe(AutoPrefixer({
@@ -163,7 +164,7 @@ function css() {
 		.pipe(repaceSrc())
 		.pipe(Sourcemaps.write("./"))
 		.pipe(currentGulp.dest("./build/assets/style/"))
-		.pipe(BrowserSync.stream())
+		.pipe(browserSync.stream())
 }
 
 function js() {
@@ -178,14 +179,14 @@ function js() {
 		})
 			.on("error", function (error) {
 				printPaintedMessage(error.message, "JS")
-				BrowserSync.notify("JS Error")
+				browserSync.notify("JS Error")
 				this.emit("end")
 			})
 		)
 		.pipe(repaceSrc())
 		.pipe(Sourcemaps.write("./"))
 		.pipe(currentGulp.dest("./build/assets/script/"))
-		.pipe(BrowserSync.stream())
+		.pipe(browserSync.stream())
 }
 
 function html() {
@@ -193,13 +194,13 @@ function html() {
 		.pipe(ejs()
 			.on("error", function (error) {
 				printPaintedMessage(`${error.fileName} ${error.message}`, "EJS")
-				BrowserSync.notify("EJS Error")
+				browserSync.notify("EJS Error")
 				this.emit("end")
 			})
 		)
 		.pipe(repaceSrc())
 		.pipe(currentGulp.dest("./build"))
-		.pipe(BrowserSync.stream())
+		.pipe(browserSync.stream())
 }
 
 function copyStatic() {
@@ -208,7 +209,14 @@ function copyStatic() {
 		since: Gulp.lastRun(copyStatic)
 	})
 		.pipe(currentGulp.dest("./build/assets/static/"))
-		.pipe(BrowserSync.stream())
+		.pipe(new Stream.PassThrough({
+			readableObjectMode: true,
+			writableObjectMode: true,
+			transform(chunk, encoding, callback) {
+				browserSync.reload()
+				callback(null, chunk)
+			}
+		}))
 }
 
 function makeIconsSCSS() {
