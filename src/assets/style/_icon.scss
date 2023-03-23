@@ -5,7 +5,7 @@
 	display: inline-flex;
 	border: none;
 	user-select: none;
-	mask-size: cover;
+	mask-size: contain;
 	mask-repeat: no-repeat;
 	mask-position: center;
 	flex-shrink: 0;
