@@ -5,6 +5,14 @@
 	font-display: swap;
 }
 
+@font-face {
+	font-family: "";
+	src: url(/src/assets/static/font/) format("woff2-variations");
+	font-display: swap;
+	font-weight: 125 950;
+	font-style: normal;
+}
+
 h1,
 .h1,
 %h1 {
@@ -51,4 +59,6 @@ input {
 	@media screen and (max-width: $mobile) {}
 }
 
-a {}
+a {
+	color: inherit;
+}
