@@ -26,7 +26,7 @@ gulpMem.logFn = null
 gulpMem.serveBasePath = "./build"
 
 Ejs.fileLoader = function (filePath) {
-	return Fs.readFileSync(filePath.replace(/^\w:\\src\\|\/src\//, `${cwd()}${Path.sep}src${Path.sep}`))
+	return Fs.readFileSync(filePath.replace(/^(\w:\\src\\|\/src\/)/, `${cwd()}${Path.sep}src${Path.sep}`))
 }
 
 const pathTransform = {
