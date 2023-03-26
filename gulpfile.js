@@ -1,53 +1,54 @@
-import BrowserSync from "browser-sync"
-import Fs from "fs"
-import Gulp from "gulp"
-import AutoPrefixer from "gulp-autoprefixer"
+import browserSync from "browser-sync"
+import fs from "fs"
+import gulp from "gulp"
+import autoPrefixer from "gulp-autoprefixer"
 import Imagemin, {
 	svgo, mozjpeg
 } from "gulp-imagemin"
-import GulpMem from "gulp-mem"
-import Sourcemaps from "gulp-sourcemaps"
-import Pngquant from "imagemin-pngquant"
-import Path from "path"
-import Sass from "sass"
-import Esbuild from "gulp-esbuild"
-import Ttf2woff2 from "ttf2woff2"
-import Stream from "stream"
-import Ejs from "ejs"
+import gulpMemory from "gulp-mem"
+import sourcemaps from "gulp-sourcemaps"
+import pngquant from "imagemin-pngquant"
+import path from "path"
+import sass from "sass"
+import esbuild from "gulp-esbuild"
+import ttf2woff2 from "ttf2woff2"
+import stream from "stream"
+import { stacksvg } from "gulp-stacksvg"
+import ejs from "ejs"
 import { cwd } from "process"
 
-const gulpMem = new GulpMem(),
+const gulpMem = new gulpMemory(),
 	argv = process.argv.slice(2).reduce(function (acc, curr) {
 		return { ...acc, [curr.replace("--", "")]: true }
-	}, {}), currentGulp = argv.ram ? gulpMem : Gulp,
-	browserSync = BrowserSync.create()
+	}, {}), currentGulp = argv.ram ? gulpMem : gulp,
+	bs = browserSync.create()
 
 gulpMem.logFn = null
 gulpMem.serveBasePath = "./build"
 
-Ejs.fileLoader = function (filePath) {
-	return Fs.readFileSync(filePath.replace(/^(\w:\\src\\|\/src\/)/, `${cwd()}${Path.sep}src${Path.sep}`))
+ejs.fileLoader = function (filePath) {
+	return fs.readFileSync(filePath.replace(/^(\w:\\src\\|\/src\/)/, `${cwd()}${path.sep}src${path.sep}`))
 }
 
 const pathTransform = {
-	toPosix: (pathString) => `${pathString}`.split(Path.sep).join(Path.posix.sep),
-	ext: (file, newExt) => Path.join(Path.dirname(file), Path.basename(file, Path.extname(file)) + newExt)
+	toPosix: (pathString) => `${pathString}`.split(path.sep).join(path.posix.sep),
+	ext: (file, newExt) => path.join(path.dirname(file), path.basename(file, path.extname(file)) + newExt)
 }
 
 function nothing(callback = () => { }) {
 	callback()
-	return new Stream.PassThrough({
+	return new stream.PassThrough({
 		readableObjectMode: true,
 		writableObjectMode: true
 	})
 }
 
-function ejs() {
-	return new Stream.Transform({
+function ejsCompile() {
+	return new stream.Transform({
 		writableObjectMode: true,
 		readableObjectMode: true,
 		transform(chunk, encoding, callback) {
-			Ejs.renderFile(chunk.path).then(html => {
+			ejs.renderFile(chunk.path).then(html => {
 				chunk.contents = Buffer.from(html, encoding)
 				chunk.path = pathTransform.ext(chunk.path, ".html")
 				callback(null, chunk)
@@ -57,11 +58,11 @@ function ejs() {
 }
 
 function clean() {
-	return new Stream.Transform({
+	return new stream.Transform({
 		readableObjectMode: true,
 		writableObjectMode: true,
 		transform(chunk, encoding, callback) {
-			Fs.rm(chunk.path, {
+			fs.rm(chunk.path, {
 				recursive: true,
 				force: true
 			}, callback)
@@ -70,7 +71,7 @@ function clean() {
 }
 
 function replace(searchValue, repaceValue) {
-	return new Stream.Transform({
+	return new stream.Transform({
 		writableObjectMode: true,
 		readableObjectMode: true,
 		transform(chunk, encoding, callback) {
@@ -85,24 +86,24 @@ function repaceSrc() {
 }
 
 function newer(relatedTo) {
-	return new Stream.Transform({
+	return new stream.Transform({
 		readableObjectMode: true,
 		writableObjectMode: true,
 		transform(chunk, encoding, callback) {
-			Fs.stat(Path.join(relatedTo, Path.relative(chunk.base, chunk.path)), function (relatedError, relatedStat) {
+			fs.stat(path.join(relatedTo, path.relative(chunk.base, chunk.path)), function (relatedError, relatedStat) {
 				callback(null, (relatedError || (relatedStat.mtime < chunk.stat.mtime)) ? chunk : null)
 			})
 		}
 	})
 }
 
-function sass() {
-	return new Stream.Transform({
+function sassCompile() {
+	return new stream.Transform({
 		writableObjectMode: true,
 		readableObjectMode: true,
 		transform(chunk, encoding, callback) {
 			try {
-				let compiled = Sass.compileString(chunk.contents.toString(encoding), {
+				let compiled = sass.compileString(chunk.contents.toString(encoding), {
 					sourceMap: true,
 					sourceMapIncludeSources: true,
 					style: argv.min ? "compressed" : "expanded",
@@ -111,7 +112,7 @@ function sass() {
 				chunk.contents = Buffer.from(compiled.css, encoding)
 				chunk.path = pathTransform.ext(chunk.path, ".css")
 				Object.assign(chunk.sourceMap, compiled.sourceMap)
-				chunk.sourceMap.file = Path.basename(chunk.path)
+				chunk.sourceMap.file = path.basename(chunk.path)
 				callback(null, chunk)
 			}
 			catch (error) {
@@ -122,7 +123,7 @@ function sass() {
 }
 
 function browserSyncInit() {
-	browserSync.init({
+	bs.init({
 		server: {
 			baseDir: "./build",
 			middleware: argv.ram ? gulpMem.middleware : false,
@@ -149,28 +150,28 @@ function printPaintedMessage(message, module) {
 }
 
 function css() {
-	return Gulp.src(["./src/assets/style/**/*.scss", "!./src/assets/style/**/_*.scss"])
-		.pipe(Sourcemaps.init())
-		.pipe(sass()
+	return gulp.src(["./src/assets/style/**/*.scss", "!./src/assets/style/**/_*.scss"])
+		.pipe(sourcemaps.init())
+		.pipe(sassCompile()
 			.on("error", function (error) {
 				printPaintedMessage(error.message, "Sass")
-				browserSync.notify("SASS Error")
+				bs.notify("SASS Error")
 				this.emit("end")
 			}))
-		.pipe(AutoPrefixer({
+		.pipe(autoPrefixer({
 			cascade: false,
 			flexbox: false,
 		}))
 		.pipe(repaceSrc())
-		.pipe(Sourcemaps.write("./"))
+		.pipe(sourcemaps.write("./"))
 		.pipe(currentGulp.dest("./build/assets/style/"))
-		.pipe(browserSync.stream())
+		.pipe(bs.stream())
 }
 
 function js() {
-	return Gulp.src(["./src/assets/script/**/*.js", "!./src/assets/script/**/_*.js"])
-		.pipe(Sourcemaps.init())
-		.pipe(Esbuild({
+	return gulp.src(["./src/assets/script/**/*.js", "!./src/assets/script/**/_*.js"])
+		.pipe(sourcemaps.init())
+		.pipe(esbuild({
 			bundle: true,
 			minify: argv.min,
 			drop: argv.min ? ["console", "debugger"] : [],
@@ -179,80 +180,86 @@ function js() {
 		})
 			.on("error", function (error) {
 				printPaintedMessage(error.message, "JS")
-				browserSync.notify("JS Error")
+				bs.notify("JS Error")
 				this.emit("end")
 			})
 		)
 		.pipe(repaceSrc())
-		.pipe(Sourcemaps.write("./"))
+		.pipe(sourcemaps.write("./"))
 		.pipe(currentGulp.dest("./build/assets/script/"))
-		.pipe(browserSync.stream())
+		.pipe(bs.stream())
 }
 
 function html() {
-	return Gulp.src(["./src/*.ejs", "./src/*.html"])
-		.pipe(ejs()
+	return gulp.src(["./src/*.ejs", "./src/*.html"])
+		.pipe(ejsCompile()
 			.on("error", function (error) {
 				printPaintedMessage(`${error.fileName} ${error.message}`, "EJS")
-				browserSync.notify("EJS Error")
+				bs.notify("EJS Error")
 				this.emit("end")
 			})
 		)
 		.pipe(repaceSrc())
 		.pipe(currentGulp.dest("./build"))
-		.pipe(browserSync.stream())
+		.pipe(bs.stream())
 }
 
 function copyStatic() {
-	return Gulp.src(["./src/assets/static/**/*", "!./src/assets/static/img-raw/**/*"], {
+	return gulp.src(["./src/assets/static/**/*", "!./src/assets/static/img-raw/**/*"], {
 		allowEmpty: true,
-		since: Gulp.lastRun(copyStatic)
+		since: gulp.lastRun(copyStatic)
 	})
 		.pipe(currentGulp.dest("./build/assets/static/"))
-		.pipe(new Stream.PassThrough({
+		.pipe(new stream.PassThrough({
 			readableObjectMode: true,
 			writableObjectMode: true,
 			transform(chunk, encoding, callback) {
-				browserSync.reload()
+				bs.reload()
 				callback(null, chunk)
 			}
 		}))
 }
 
 function makeIconsSCSS() {
-	return Gulp.src("./src/assets/static/img-raw/icon/**/*.svg", {
+	return gulp.src("./src/assets/static/img-raw/icon/**/*.svg", {
 		allowEmpty: true,
 		read: false
 	})
-		.pipe(new Stream.Transform({
+		.pipe(new stream.Transform({
 			readableObjectMode: true,
 			writableObjectMode: true,
 			transform(chunk, encoding, callback) {
-				let name = Path.relative(chunk.base, chunk.path).replaceAll(Path.sep, '__').replace(/\.[^/.]+$/, "")
-				let path = pathTransform.toPosix(Path.relative(cwd(), chunk.path)).replace("/img-raw/", "/img/")
-
-				let css = `.icon--${name},%icon--${name}{mask-image: url(/${path});}`
+				let name = path.relative(chunk.base, chunk.path).replaceAll(path.sep, '__').replace(/\.[^/.]+$/, "").replaceAll(" ", '-')
+				let css = `.icon--${name},%icon--${name}{mask-image: url(/src/assets/static/img/icon/stack.svg#${name});}`
 				callback(null, css)
 			}
 		}))
-		.pipe(Fs.createWriteStream("./src/assets/style/_icons.scss"))
+		.pipe(fs.createWriteStream("./src/assets/style/_icons.scss"))
+}
+
+function makeIconsStack() {
+	return gulp.src(`./src/assets/static/img-raw/icon/**/*.svg`)
+		.pipe(stacksvg({
+			separator: "__"
+		}))
+		.pipe(gulp.dest(`./src/assets/static/img/icon/`))
 }
 
 function imagemin() {
-	return Gulp.src("./src/assets/static/img-raw/**/*", {
+	return gulp.src("./src/assets/static/img-raw/**/*", {
 		allowEmpty: true
 	})
 		.pipe(newer("./src/assets/static/img/"))
 		.pipe(Imagemin([
 			svgo(),
 			mozjpeg(),
-			Pngquant(),
+			pngquant(),
 		]))
-		.pipe(Gulp.dest("./src/assets/static/img/"))
+		.pipe(gulp.dest("./src/assets/static/img/"))
 }
 
 function cleanBuild() {
-	return Gulp.src("./build/", {
+	return gulp.src("./build/", {
 		read: false,
 		allowEmpty: true
 	})
@@ -260,21 +267,21 @@ function cleanBuild() {
 }
 
 function ttfToWoff() {
-	return Gulp.src("./src/assets/static/font/**/*.ttf")
-		.pipe(new Stream.Transform({
+	return gulp.src("./src/assets/static/font/**/*.ttf")
+		.pipe(new stream.Transform({
 			writableObjectMode: true,
 			readableObjectMode: true,
 			transform(chunk, encoding, callback) {
-				Fs.createWriteStream(pathTransform.ext(chunk.path, ".woff2"), {
+				fs.createWriteStream(pathTransform.ext(chunk.path, ".woff2"), {
 					autoClose: true
-				}).write(Ttf2woff2(chunk.contents))
-				Fs.rm(chunk.path, callback)
+				}).write(ttf2woff2(chunk.contents))
+				fs.rm(chunk.path, callback)
 			}
 		}))
 }
 
 function cleanInitials() {
-	return Gulp.src("./src/**/.placeholder", {
+	return gulp.src("./src/**/.placeholder", {
 		allowEmpty: true,
 		read: false
 	})
@@ -282,27 +289,28 @@ function cleanInitials() {
 }
 
 function watch() {
-	Gulp.watch(["./src/**/*.html", "./src/**/*.ejs"], html)
-	Gulp.watch(["./src/assets/script/**/*"], js)
-	Gulp.watch(["./src/assets/style/**/*"], css)
-	Gulp.watch("./src/assets/static/img-raw/icon/**/*.svg", {
+	gulp.watch(["./src/**/*.html", "./src/**/*.ejs"], html)
+	gulp.watch(["./src/assets/script/**/*"], js)
+	gulp.watch(["./src/assets/style/**/*"], css)
+	gulp.watch("./src/assets/static/img-raw/icon/**/*.svg", {
 		events: ["add", "unlink", "unlinkDir"]
-	}, makeIconsSCSS)
-	Gulp.watch("./src/assets/static/img-raw/**/*", imagemin)
-	Gulp.watch(["./src/assets/static/**/*", "!./src/assets/static/img-raw/**/*"], copyStatic)
+	}, gulp.parallel(makeIconsStack, makeIconsSCSS))
+	gulp.watch("./src/assets/static/img-raw/**/*", imagemin)
+	gulp.watch(["./src/assets/static/**/*", "!./src/assets/static/img-raw/**/*"], copyStatic)
 }
 
-export default Gulp.series(
-	Gulp.parallel(
+export default gulp.series(
+	gulp.parallel(
 		argv.ram ? nothing : cleanBuild,
 		imagemin,
-		makeIconsSCSS
-	), Gulp.parallel(
+		makeIconsSCSS,
+		makeIconsStack
+	), gulp.parallel(
 		copyStatic,
 		css,
 		js,
 		html
-	), argv.fwatch ? Gulp.parallel(
+	), argv.fwatch ? gulp.parallel(
 		watch,
 		browserSyncInit
 	) : nothing
