@@ -13,8 +13,6 @@ class Quantity {
 		this.max = Number(this.input.getAttribute("max")) ?? Number.MAX_SAFE_INTEGER
 		this.min = Number(this.input.getAttribute("min")) ?? Number.MIN_SAFE_INTEGER
 		this.step = Number(this.input.step) || 1
-		console.log(this.step)
-
 
 		this.bindControls()
 		this.bindInputEvents()
