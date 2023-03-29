@@ -24,12 +24,14 @@ class Quantity {
 		this.controls.add.forEach(button => {
 			button.addEventListener("click", () => {
 				this.input.stepUp(button.dataset.step || undefined)
+				this.input.dispatchEvent(new Event("change"))
 			})
 		})
 
 		this.controls.subtract.forEach(button => {
 			button.addEventListener("click", () => {
 				this.input.stepDown(button.dataset.step || undefined)
+				this.input.dispatchEvent(new Event("change"))
 			})
 		})
 	}
