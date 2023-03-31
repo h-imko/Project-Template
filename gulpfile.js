@@ -18,9 +18,8 @@ import ejs from "ejs"
 import { cwd } from "process"
 
 const gulpMem = new gulpMemory(),
-	argv = process.argv.slice(2).reduce(function (acc, curr) {
-		return { ...acc, [curr.replace("--", "")]: true }
-	}, {}), currentGulp = argv.ram ? gulpMem : gulp,
+	argv = getArgs(),
+	currentGulp = argv.ram ? gulpMem : gulp,
 	bs = browserSync.create()
 
 gulpMem.logFn = null
@@ -33,6 +32,12 @@ ejs.fileLoader = function (filePath) {
 const pathTransform = {
 	toPosix: (pathString) => `${pathString}`.split(path.sep).join(path.posix.sep),
 	ext: (file, newExt) => path.join(path.dirname(file), path.basename(file, path.extname(file)) + newExt)
+}
+
+function getArgs() {
+	return process.argv.slice(2).reduce(function (acc, curr) {
+		return { ...acc, [curr.replace("--", "")]: true }
+	}, {})
 }
 
 function nothing(callback = () => { }) {
