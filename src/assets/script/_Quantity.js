@@ -10,9 +10,9 @@ class Quantity {
 			add: [...target.querySelectorAll(".quantity__button.quantity__button--add")],
 			subtract: [...target.querySelectorAll(".quantity__button.quantity__button--subtract")]
 		}
-		this.max = Number(this.input.getAttribute("max")) ?? Number.MAX_SAFE_INTEGER
-		this.min = Number(this.input.getAttribute("min")) ?? Number.MIN_SAFE_INTEGER
-		this.step = Number(this.input.step) || 1
+		this.max = Number(this.input.getAttribute("max") ?? Number.MAX_SAFE_INTEGER)
+		this.min = Number(this.input.getAttribute("min") ?? Number.MIN_SAFE_INTEGER)
+		this.step = Number(this.input.step || 1)
 
 		this.bindControls()
 		this.bindInputEvents()
