@@ -98,7 +98,7 @@ function replace(searchValue, repaceValue) {
 	})
 }
 
-function repaceSrc() {
+function replaceSrc() {
 	return replace("/src/", "/")
 }
 
@@ -179,7 +179,7 @@ function css() {
 			cascade: false,
 			flexbox: false,
 		}))
-		.pipe(repaceSrc())
+		.pipe(replaceSrc())
 		.pipe(sourcemaps.write("./"))
 		.pipe(currentGulp.dest("./build/assets/style/"))
 		.pipe(bs.stream())
@@ -201,7 +201,7 @@ function js() {
 				this.emit("end")
 			})
 		)
-		.pipe(repaceSrc())
+		.pipe(replaceSrc())
 		.pipe(sourcemaps.write("./"))
 		.pipe(currentGulp.dest("./build/assets/script/"))
 		.pipe(bs.stream())
@@ -216,7 +216,8 @@ function html() {
 				this.emit("end")
 			})
 		)
-		.pipe(repaceSrc())
+		.pipe(replace(".scss", ".css"))
+		.pipe(replaceSrc())
 		.pipe(currentGulp.dest("./build"))
 		.pipe(bs.stream())
 }
