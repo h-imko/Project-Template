@@ -25,10 +25,6 @@ const gulpMem = new gulpMemory(),
 gulpMem.logFn = null
 gulpMem.serveBasePath = "./build"
 
-ejs.fileLoader = function (filePath) {
-	return fs.readFileSync(filePath.replace(/^(\w:\\src\\|\/src\/)/, `${cwd()}${path.sep}src${path.sep}`))
-}
-
 const pathTransform = {
 	toPosix: (pathString) => `${pathString}`.split(path.sep).join(path.posix.sep),
 	ext: (file, newExt) => path.join(path.dirname(file), path.basename(file, path.extname(file)) + newExt)
@@ -53,10 +49,26 @@ function ejsCompile() {
 		writableObjectMode: true,
 		readableObjectMode: true,
 		transform(chunk, encoding, callback) {
-			ejs.renderFile(chunk.path).then(html => {
+			ejs.renderFile(chunk.path, {}, {
+				includer: (origpath, parsedpath) => {
+					let ejsDir = path.join(cwd(), "src", "assets", "ejs")
+					let fileDirname = path.dirname(origpath).replace("@", ejsDir)
+					let fileBasename = `${path.basename(origpath, path.extname(origpath))}${path.extname(origpath) || ".ejs"}`
+					let resolvedPath = path.join(fileDirname, fileBasename)
+
+					if (parsedpath) {
+						parsedpath = parsedpath.replace(/^(\w:\\src\\|\/src\/)/, path.join(cwd(), "src", "/"))
+					}
+
+					return { filename: parsedpath || resolvedPath }
+				}
+			}).then(html => {
 				chunk.contents = Buffer.from(html, encoding)
 				chunk.path = pathTransform.ext(chunk.path, ".html")
 				callback(null, chunk)
+			}).catch(error => {
+				chunk.path = pathTransform.ext(chunk.path, ".html")
+				callback(error, chunk)
 			})
 		}
 	})
