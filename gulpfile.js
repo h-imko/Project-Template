@@ -50,18 +50,9 @@ function ejsCompile() {
 		readableObjectMode: true,
 		transform(chunk, encoding, callback) {
 			ejs.renderFile(chunk.path, {}, {
-				includer: (origpath, parsedpath) => {
-					let ejsDir = path.join(cwd(), "src", "assets", "ejs")
-					let fileDirname = path.dirname(origpath).replace("@", ejsDir)
-					let fileBasename = `${path.basename(origpath, path.extname(origpath))}${path.extname(origpath) || ".ejs"}`
-					let resolvedPath = path.join(fileDirname, fileBasename)
-
-					if (parsedpath) {
-						parsedpath = parsedpath.replace(/^(\w:\\src\\|\/src\/)/, path.join(cwd(), "src", "/"))
-					}
-
-					return { filename: parsedpath || resolvedPath }
-				}
+				root: path.join(cwd(), "src", "assets", "ejs"),
+				beautify: false,
+				compileDebug: argv.min ?? false,
 			}).then(html => {
 				chunk.contents = Buffer.from(html, encoding)
 				chunk.path = pathTransform.ext(chunk.path, ".html")
