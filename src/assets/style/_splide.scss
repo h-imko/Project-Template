@@ -1,1 +1,19 @@
 @import "@splidejs/splide/dist/css/splide-core.min";
+
+.splide {
+	&__arrows {}
+
+	&__arrow {}
+
+	&__pagination {
+		li {}
+
+		&__page {}
+	}
+
+	&__track {}
+
+	&__list {}
+
+	&__slide {}
+}

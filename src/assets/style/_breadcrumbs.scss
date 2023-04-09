@@ -1,1 +1,32 @@
-.breadcrumbs {}
+@use "container";
+
+.breadcrumbs {
+	font-size: 0;
+
+	&__container {
+		@extend .container;
+
+		&__item {
+			span {}
+
+			&:not(:last-child) {
+				span {
+					&::after {
+						content: '';
+						--size: 3px;
+						width: var(--size);
+						height: var(--size);
+						// margin: 0 5px;
+						display: inline-block;
+						// background-color: ;
+						vertical-align: middle;
+					}
+				}
+			}
+
+			&:last-child {
+				// color:  ;
+			}
+		}
+	}
+}

@@ -6,6 +6,8 @@
 		min-height: var(--initial-height, 0);
 		transition: var(--transition, min-height var(--transition-duration, 0.3s) ease);
 
+		&__inner {}
+
 		&.is-active {
 			min-height: var(--scroll-height, 9999px);
 			grid-template-rows: minmax(var(--scroll-height, 9999px), min-content);

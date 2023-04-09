@@ -1,3 +1,5 @@
+@use "breakpoint";
+
 @font-face {
 	font-family: "";
 	src: url(/src/assets/static/font/);
@@ -14,49 +16,42 @@
 }
 
 h1,
-.h1,
-%h1 {
-	@media screen and (max-width: $mobile) {}
+.h1 {
+	@media screen and (max-width: breakpoint.$mobile) {}
 }
 
 h2,
-.h2,
-%h2 {
-	@media screen and (max-width: $mobile) {}
+.h2 {
+	@media screen and (max-width: breakpoint.$mobile) {}
 }
 
 h3,
-.h3,
-%h3 {
-	@media screen and (max-width: $mobile) {}
+.h3 {
+	@media screen and (max-width: breakpoint.$mobile) {}
 }
 
 h4,
-.h4,
-%h4 {
-	@media screen and (max-width: $mobile) {}
+.h4 {
+	@media screen and (max-width: breakpoint.$mobile) {}
 }
 
 h5,
-.h5,
-%h5 {
-	@media screen and (max-width: $mobile) {}
+.h5 {
+	@media screen and (max-width: breakpoint.$mobile) {}
 }
 
 h6,
-.h6,
-%h6 {
-	@media screen and (max-width: $mobile) {}
+.h6 {
+	@media screen and (max-width: breakpoint.$mobile) {}
 }
 
-.subtitle,
-%subtitle {
-	@media screen and (max-width: $mobile) {}
+.subtitle {
+	@media screen and (max-width: breakpoint.$mobile) {}
 }
 
 body,
 input {
-	@media screen and (max-width: $mobile) {}
+	@media screen and (max-width: breakpoint.$mobile) {}
 }
 
 a {

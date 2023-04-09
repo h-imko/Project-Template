@@ -1,7 +1,14 @@
+@use "breakpoint";
+
 :root {
+	--mobile: #{breakpoint.$mobile};
+	--tablet: #{breakpoint.$tablet};
+	--laptop: #{breakpoint.$laptop};
 	--header-margin: 24px;
 	--button-height: 56px;
 	--container-padding: 16px;
 	--container-width: 1280px;
 	--transition-duration: .3s;
+	--default-transition: all var(--transition-duration) ease;
+	--main-gap: 80px;
 }

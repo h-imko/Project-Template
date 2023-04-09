@@ -1,7 +1,6 @@
-@import "./icons";
+@use "icons";
 
-.icon,
-%icon {
+.icon {
 	display: inline-flex;
 	border: none;
 	user-select: none;

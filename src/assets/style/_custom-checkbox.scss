@@ -1,3 +1,5 @@
+@use "icon";
+
 .custom-checkbox {
 	display: flex;
 	align-items: center;
@@ -38,7 +40,7 @@
 			position: absolute;
 			content: "";
 			opacity: 0;
-			@extend %icon;
+			@extend .icon;
 			// background: ;
 			width: calc(var(--size) - var(--border-width) * 2) !important;
 			height: calc(var(--size) - var(--border-width) * 2) !important;

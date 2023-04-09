@@ -1,3 +1,5 @@
+@use "container";
+
 .popup {
 	position: fixed;
 	top: 0;
@@ -22,7 +24,7 @@
 	&__inner {
 		margin-top: auto;
 		margin-bottom: auto;
-		@extend %container;
+		@extend .container;
 		background-color: #fff;
 	}
 }
