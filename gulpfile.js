@@ -2,12 +2,10 @@ import browserSync from "browser-sync"
 import fs from "fs"
 import gulp from "gulp"
 import autoPrefixer from "gulp-autoprefixer"
-import Imagemin, {
-	svgo, mozjpeg
-} from "gulp-imagemin"
+import Imagemin, { svgo } from "gulp-imagemin"
 import gulpMemory from "gulp-mem"
 import sourcemaps from "gulp-sourcemaps"
-import pngquant from "imagemin-pngquant"
+import webp from "imagemin-webp"
 import path from "path"
 import sass from "sass"
 import esbuild from "gulp-esbuild"
@@ -93,14 +91,47 @@ function replaceSrc() {
 	return replace("/src/", "/")
 }
 
-function newer(relatedTo) {
+function newer(relatedTo, newExt, ...oldExt) {
 	return new stream.Transform({
 		readableObjectMode: true,
 		writableObjectMode: true,
 		transform(chunk, encoding, callback) {
-			fs.stat(path.join(relatedTo, path.relative(chunk.base, chunk.path)), function (relatedError, relatedStat) {
+			let newPath = path.join(relatedTo, path.relative(chunk.base, chunk.path))
+			let currExt = path.extname(newPath).slice(1)
+
+			if (newExt) {
+				if (oldExt.length) {
+					if (oldExt.includes(currExt)) {
+						newPath = changeExt(newPath, newExt, ...oldExt)
+					}
+				} else {
+					newPath = changeExt(newPath, newExt)
+				}
+			}
+
+			fs.stat(newPath, function (relatedError, relatedStat) {
 				callback(null, (relatedError || (relatedStat.mtime < chunk.stat.mtime)) ? chunk : null)
 			})
+		}
+	})
+}
+
+function replaceImgFormats() {
+	return replace(/(\.png)|(\.jpg)|(\.jpeg)/gm, ".webp")
+}
+
+function changeExt(fileName, newExt, ...oldExt) {
+	oldExt = oldExt.length ? oldExt.join("|") : path.extname(fileName)
+	return fileName.replace(new RegExp(`\\.${oldExt}`), `.${newExt}`)
+}
+
+function ext(newExt, ...oldExt) {
+	return new stream.Transform({
+		writableObjectMode: true,
+		readableObjectMode: true,
+		transform(chunk, encoding, callback) {
+			chunk.path = changeExt(chunk.path, newExt, ...oldExt)
+			callback(null, chunk)
 		}
 	})
 }
@@ -258,12 +289,12 @@ function imagemin() {
 	return gulp.src("./src/assets/static/img-raw/**/*", {
 		allowEmpty: true
 	})
-		.pipe(newer("./src/assets/static/img/"))
+		.pipe(newer("./src/assets/static/img/", "webp", "png", "jpg", "jpeg"))
 		.pipe(Imagemin([
 			svgo(),
-			mozjpeg(),
-			pngquant(),
+			webp({ method: 6 })
 		]))
+		.pipe(ext("webp", "png", "jpg", "jpeg"))
 		.pipe(gulp.dest("./src/assets/static/img/"))
 }
 
