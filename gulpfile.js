@@ -245,7 +245,7 @@ function html() {
 }
 
 function copyStatic() {
-	return gulp.src(["./src/assets/static/**/*", "!./src/assets/static/img-raw/**/*"], {
+	return gulp.src(["./src/assets/static/**", "!./src/assets/static/img-raw/**"], {
 		allowEmpty: true,
 		since: gulp.lastRun(copyStatic)
 	})
