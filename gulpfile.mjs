@@ -155,6 +155,7 @@ function sassCompile() {
 				callback(null, chunk)
 			}
 			catch (error) {
+				error.fileName = path.relative(cwd(), chunk.path)
 				callback(error, chunk)
 			}
 		}
@@ -193,7 +194,7 @@ function css() {
 		.pipe(sourcemaps.init())
 		.pipe(sassCompile()
 			.on("error", function (error) {
-				printPaintedMessage(error.message, "Sass")
+				printPaintedMessage(`${error.fileName} ${error.message}`, "SASS")
 				bs.notify("SASS Error")
 				this.emit("end")
 			}))
