@@ -160,8 +160,12 @@ function ext(newExt, ...oldExt) {
 		writableObjectMode: true,
 		readableObjectMode: true,
 		transform(chunk, encoding, callback) {
-			chunk.path = changeExt(chunk.path, newExt, ...oldExt)
-			callback(null, chunk)
+			if (!fs.lstatSync(chunk.path).isDirectory()) {
+				chunk.path = changeExt(chunk.path, newExt, ...oldExt)
+				callback(null, chunk)
+			} else {
+				callback(null, null)
+			}
 		}
 	})
 }
@@ -349,7 +353,7 @@ function ttfToWoff() {
 }
 
 function cleanInitials() {
-	return gulp.src("./src/**/.placeholder", {
+	return gulp.src("./src/**/.gitkeep", {
 		allowEmpty: true,
 		read: false
 	})
