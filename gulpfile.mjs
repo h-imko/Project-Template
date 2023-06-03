@@ -361,7 +361,7 @@ function watch() {
 	gulp.watch(["./src/assets/script/**/*"], js)
 	gulp.watch(["./src/assets/style/**/*"], css)
 	gulp.watch(["./src/assets/static/img-raw/icon/**/*.svg"], gulp.parallel(makeIconsStack, makeIconsSCSS))
-	gulp.watch(["./src/assets/static/img-raw/"], gulp.series(imageMin, cleanExtraImgs))
+	gulp.watch(["./src/assets/static/img-raw/"], gulp.parallel(imageMin, cleanExtraImgs))
 	gulp.watch(["./src/assets/static/**/*", "!./src/assets/static/img-raw/**/*"], copyStatic)
 }
 
@@ -369,6 +369,7 @@ export default gulp.series(
 	gulp.parallel(
 		argv.ram ? nothing : cleanBuild,
 		imageMin,
+		cleanExtraImgs,
 		makeIconsSCSS,
 		makeIconsStack
 	), gulp.parallel(
