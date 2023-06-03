@@ -95,6 +95,41 @@ function replaceSrc() {
 	return replace("/src/", "/")
 }
 
+function cleanExtraImgs() {
+	return gulp.src([`./src/assets/static/img/**/*`, `!./src/assets/static/img/icon/stack.svg`], {
+		allowEmpty: true,
+		read: false
+	})
+		.pipe(new stream.Transform({
+			readableObjectMode: true,
+			writableObjectMode: true,
+			transform(chunk, encoding, callback) {
+				try {
+					if (!fs.lstatSync(chunk.path).isDirectory()) {
+						let currentExt = path.extname(chunk.path)
+						let originExts = [currentExt]
+
+						if (currentExt != ".svg") {
+							originExts.push(".png", ".jpg", ".jpeg")
+						}
+
+						let exists = originExts.reduce((accumulator, originExt) => {
+							let originPath = changeExt(chunk.path, originExt).replace(`${path.sep}img${path.sep}`, `${path.sep}img-raw${path.sep}`)
+							return accumulator = (accumulator || fs.existsSync(originPath))
+						}, false)
+
+						if (!exists) {
+							fs.rmSync(chunk.path)
+						}
+					}
+				} catch (err) {
+					var error = err
+				}
+				callback(error, chunk)
+			}
+		}))
+}
+
 function newer(relatedTo, newExt, ...oldExt) {
 	return new stream.Transform({
 		readableObjectMode: true,
@@ -147,12 +182,12 @@ function sassCompile() {
 				chunk.path = changeExt(chunk.path, ".css")
 				Object.assign(chunk.sourceMap, compiled.sourceMap)
 				chunk.sourceMap.file = path.basename(chunk.path)
-				callback(null, chunk)
 			}
-			catch (error) {
+			catch (err) {
+				var error = err
 				error.fileName = path.relative(cwd(), chunk.path)
-				callback(error, chunk)
 			}
+			callback(error, chunk)
 		}
 	})
 }
@@ -326,7 +361,7 @@ function watch() {
 	gulp.watch(["./src/assets/script/**/*"], js)
 	gulp.watch(["./src/assets/style/**/*"], css)
 	gulp.watch(["./src/assets/static/img-raw/icon/**/*.svg"], gulp.parallel(makeIconsStack, makeIconsSCSS))
-	gulp.watch(["./src/assets/static/img-raw/**/*"], imageMin)
+	gulp.watch(["./src/assets/static/img-raw/"], gulp.series(imageMin, cleanExtraImgs))
 	gulp.watch(["./src/assets/static/**/*", "!./src/assets/static/img-raw/**/*"], copyStatic)
 }
 
