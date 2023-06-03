@@ -2,7 +2,7 @@ import browserSync from "browser-sync"
 import fs from "fs"
 import gulp from "gulp"
 import autoPrefixer from "gulp-autoprefixer"
-import Imagemin from "gulp-imagemin"
+import imagemin from "gulp-imagemin"
 import gulpMemory from "gulp-mem"
 import sourcemaps from "gulp-sourcemaps"
 import webp from "imagemin-webp"
@@ -281,12 +281,12 @@ function makeIconsStack() {
 		.pipe(gulp.dest(`./src/assets/static/img/icon/`))
 }
 
-function imagemin() {
+function imageMin() {
 	return gulp.src("./src/assets/static/img-raw/**/*", {
 		allowEmpty: true
 	})
 		.pipe(newer("./src/assets/static/img/", "webp", "png", "jpg", "jpeg"))
-		.pipe(Imagemin([webp({ method: 6 })]))
+		.pipe(imagemin([webp({ method: 6 })]))
 		.pipe(ext("webp", "png", "jpg", "jpeg"))
 		.pipe(gulp.dest("./src/assets/static/img/"))
 }
@@ -326,14 +326,14 @@ function watch() {
 	gulp.watch(["./src/assets/script/**/*"], js)
 	gulp.watch(["./src/assets/style/**/*"], css)
 	gulp.watch(["./src/assets/static/img-raw/icon/**/*.svg"], gulp.parallel(makeIconsStack, makeIconsSCSS))
-	gulp.watch(["./src/assets/static/img-raw/**/*"], imagemin)
+	gulp.watch(["./src/assets/static/img-raw/**/*"], imageMin)
 	gulp.watch(["./src/assets/static/**/*", "!./src/assets/static/img-raw/**/*"], copyStatic)
 }
 
 export default gulp.series(
 	gulp.parallel(
 		argv.ram ? nothing : cleanBuild,
-		imagemin,
+		imageMin,
 		makeIconsSCSS,
 		makeIconsStack
 	), gulp.parallel(
@@ -347,4 +347,4 @@ export default gulp.series(
 	) : nothing
 )
 
-export { imagemin, ttfToWoff, cleanInitials }
+export { imageMin, ttfToWoff, cleanInitials }
