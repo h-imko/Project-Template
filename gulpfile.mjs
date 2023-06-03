@@ -2,7 +2,7 @@ import browserSync from "browser-sync"
 import fs from "fs"
 import gulp from "gulp"
 import autoPrefixer from "gulp-autoprefixer"
-import Imagemin, { svgo } from "gulp-imagemin"
+import Imagemin from "gulp-imagemin"
 import gulpMemory from "gulp-mem"
 import sourcemaps from "gulp-sourcemaps"
 import webp from "imagemin-webp"
@@ -286,10 +286,7 @@ function imagemin() {
 		allowEmpty: true
 	})
 		.pipe(newer("./src/assets/static/img/", "webp", "png", "jpg", "jpeg"))
-		.pipe(Imagemin([
-			svgo(),
-			webp({ method: 6 })
-		]))
+		.pipe(Imagemin([webp({ method: 6 })]))
 		.pipe(ext("webp", "png", "jpg", "jpeg"))
 		.pipe(gulp.dest("./src/assets/static/img/"))
 }
