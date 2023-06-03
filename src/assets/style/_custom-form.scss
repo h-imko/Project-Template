@@ -16,7 +16,7 @@
 
 	&__group {
 		display: flex;
-		asdasd gap: var(--gap);
+		gap: var(--gap);
 
 		@media (max-width: breakpoint.$mobile) {
 			flex-direction: column;

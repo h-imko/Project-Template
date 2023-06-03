@@ -23,9 +23,13 @@ const gulpMem = new gulpMemory(),
 gulpMem.logFn = null
 gulpMem.serveBasePath = "./build"
 
-const pathTransform = {
-	toPosix: (pathString) => `${pathString}`.split(path.sep).join(path.posix.sep),
-	ext: (file, newExt) => path.join(path.dirname(file), path.basename(file, path.extname(file)) + newExt)
+function changeExt(fileName, newExt, ...oldExt) {
+	oldExt = [...oldExt, path.extname(fileName)]
+	let pathObject = path.parse(fileName)
+
+	if (oldExt.includes(pathObject.ext)) {
+		return path.format({ ...pathObject, base: '', ext: newExt })
+	}
 }
 
 function getArgs() {
@@ -53,10 +57,10 @@ function ejsCompile() {
 				compileDebug: argv.min ?? false,
 			}).then(html => {
 				chunk.contents = Buffer.from(html, encoding)
-				chunk.path = pathTransform.ext(chunk.path, ".html")
+				chunk.path = changeExt(chunk.path, ".html")
 				callback(null, chunk)
 			}).catch(error => {
-				chunk.path = pathTransform.ext(chunk.path, ".html")
+				chunk.path = changeExt(chunk.path, ".html")
 				callback(error, chunk)
 			})
 		}
@@ -116,15 +120,6 @@ function newer(relatedTo, newExt, ...oldExt) {
 	})
 }
 
-function replaceImgFormats() {
-	return replace(/(\.png)|(\.jpg)|(\.jpeg)/gm, ".webp")
-}
-
-function changeExt(fileName, newExt, ...oldExt) {
-	oldExt = oldExt.length ? oldExt.join("|") : path.extname(fileName)
-	return fileName.replace(new RegExp(`\\.${oldExt}`), `.${newExt}`)
-}
-
 function ext(newExt, ...oldExt) {
 	return new stream.Transform({
 		writableObjectMode: true,
@@ -149,7 +144,7 @@ function sassCompile() {
 					loadPaths: ["node_modules", chunk.base]
 				})
 				chunk.contents = Buffer.from(compiled.css, encoding)
-				chunk.path = pathTransform.ext(chunk.path, ".css")
+				chunk.path = changeExt(chunk.path, ".css")
 				Object.assign(chunk.sourceMap, compiled.sourceMap)
 				chunk.sourceMap.file = path.basename(chunk.path)
 				callback(null, chunk)
@@ -313,7 +308,7 @@ function ttfToWoff() {
 			writableObjectMode: true,
 			readableObjectMode: true,
 			transform(chunk, encoding, callback) {
-				fs.createWriteStream(pathTransform.ext(chunk.path, ".woff2"), {
+				fs.createWriteStream(changeExt(chunk.path, ".woff2"), {
 					autoClose: true
 				}).write(ttf2woff2(chunk.contents))
 				fs.rm(chunk.path, callback)
@@ -333,10 +328,8 @@ function watch() {
 	gulp.watch(["./src/**/*.html", "./src/**/*.ejs"], html)
 	gulp.watch(["./src/assets/script/**/*"], js)
 	gulp.watch(["./src/assets/style/**/*"], css)
-	gulp.watch("./src/assets/static/img-raw/icon/**/*.svg", {
-		events: ["add", "unlink", "unlinkDir"]
-	}, gulp.parallel(makeIconsStack, makeIconsSCSS))
-	gulp.watch("./src/assets/static/img-raw/**/*", imagemin)
+	gulp.watch(["./src/assets/static/img-raw/icon/**/*.svg"], gulp.parallel(makeIconsStack, makeIconsSCSS))
+	gulp.watch(["./src/assets/static/img-raw/**/*"], imagemin)
 	gulp.watch(["./src/assets/static/**/*", "!./src/assets/static/img-raw/**/*"], copyStatic)
 }
 
