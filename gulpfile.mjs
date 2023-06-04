@@ -24,11 +24,13 @@ gulpMem.logFn = null
 gulpMem.serveBasePath = "./build"
 
 function changeExt(fileName, newExt, ...oldExt) {
-	oldExt = [...oldExt, path.extname(fileName)]
+	oldExt = oldExt.length ? oldExt : [path.extname(fileName)]
 	let pathObject = path.parse(fileName)
 
 	if (oldExt.includes(pathObject.ext)) {
 		return path.format({ ...pathObject, base: '', ext: newExt })
+	} else {
+		return fileName
 	}
 }
 
@@ -305,7 +307,7 @@ function makeIconsSCSS() {
 			writableObjectMode: true,
 			transform(chunk, encoding, callback) {
 				let name = path.relative(chunk.base, chunk.path).replaceAll(path.sep, '__').replace(/\.[^/.]+$/, "").replaceAll(" ", '-')
-				let css = `.icon--${name},%icon--${name}{mask-image: url(/src/assets/static/img/icon/stack.svg#${name});}`
+				let css = `.icon--${name}{mask-image: url(/src/assets/static/img/icon/stack.svg#${name});}`
 				callback(null, css)
 			}
 		}))
