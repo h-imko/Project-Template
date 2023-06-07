@@ -27,7 +27,7 @@ function changeExt(fileName, newExt, ...oldExt) {
 	oldExt = oldExt.length ? oldExt : [path.extname(fileName)]
 	let pathObject = path.parse(fileName)
 
-	if (oldExt.includes(pathObject.ext.slice(1))) {
+	if (oldExt.includes(pathObject.ext)) {
 		return path.format({ ...pathObject, base: '', ext: newExt })
 	} else {
 		return fileName
@@ -326,9 +326,9 @@ function imageMin() {
 	return gulp.src("./src/assets/static/img-raw/**/*", {
 		allowEmpty: true
 	})
-		.pipe(newer("./src/assets/static/img/", "webp", "png", "jpg", "jpeg"))
+		.pipe(newer("./src/assets/static/img/", ".webp", ".png", ".jpg", ".jpeg"))
 		.pipe(imagemin([webp({ method: 6 })]))
-		.pipe(ext("webp", "png", "jpg", "jpeg"))
+		.pipe(ext(".webp", ".png", ".jpg", ".jpeg"))
 		.pipe(gulp.dest("./src/assets/static/img/"))
 }
 
