@@ -138,7 +138,7 @@ function newer(relatedTo, newExt, ...oldExt) {
 		writableObjectMode: true,
 		transform(chunk, encoding, callback) {
 			let newPath = path.join(relatedTo, path.relative(chunk.base, chunk.path))
-			let currExt = path.extname(newPath).slice(1)
+			let currExt = path.extname(newPath)
 
 			if (newExt) {
 				if (oldExt.length) {
