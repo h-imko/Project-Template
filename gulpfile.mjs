@@ -27,7 +27,7 @@ function changeExt(fileName, newExt, ...oldExt) {
 	oldExt = oldExt.length ? oldExt : [path.extname(fileName)]
 	let pathObject = path.parse(fileName)
 
-	if (oldExt.includes(pathObject.ext)) {
+	if (oldExt.includes(pathObject.ext.slice(1))) {
 		return path.format({ ...pathObject, base: '', ext: newExt })
 	} else {
 		return fileName
