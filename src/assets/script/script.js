@@ -69,8 +69,9 @@ function initPhoneMask() {
 }
 
 function initPopups() {
-	window.popups = [...document.querySelectorAll("[data-popup]")].map(curr => {
-		new Popup(curr)
+	window.popups = {};
+	[...document.querySelectorAll("[data-popup]")].forEach(popup => {
+		window.popups[popup.dataset.popup] = new Popup(popup)
 	})
 }
 
