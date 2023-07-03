@@ -9,7 +9,7 @@ import Quantity from "./_Quantity"
 import Spoiler from "./_Spoiler"
 import Animate from "./_Animate"
 import SyncedInputs from "./_SyncedInputs"
-import { breakpoints } from "./_helpers"
+import { breakpoints, headerHeightToCSS } from "./_helpers"
 
 document.addEventListener('DOMContentLoaded', function () {
 	// initPopups()
