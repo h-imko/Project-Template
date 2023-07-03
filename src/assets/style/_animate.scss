@@ -7,4 +7,16 @@
 	animation-iteration-count: 1, 1;
 	animation-play-state: paused;
 	animation-direction: alternate;
+
+	@keyframes biba {
+		from {}
+
+		to {}
+	}
+
+	@keyframes boba {
+		from {}
+
+		to {}
+	}
 }

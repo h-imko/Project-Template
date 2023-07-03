@@ -115,10 +115,9 @@ function cleanExtraImgs() {
 							originExts.push(".png", ".jpg", ".jpeg")
 						}
 
-						let exists = originExts.reduce((accumulator, originExt) => {
-							let originPath = changeExt(chunk.path, originExt).replace(`${path.sep}img${path.sep}`, `${path.sep}img-raw${path.sep}`)
-							return accumulator = (accumulator || fs.existsSync(originPath))
-						}, false)
+						let exists = originExts.some(ext => {
+							return fs.existsSync(changeExt(chunk.path, ext).replace(`${path.sep}img${path.sep}`, `${path.sep}img-raw${path.sep}`))
+						})
 
 						if (!exists) {
 							fs.rmSync(chunk.path)

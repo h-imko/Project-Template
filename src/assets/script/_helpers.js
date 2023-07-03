@@ -40,9 +40,10 @@ function toggleNoscrollBody(action) {
  * @returns
  */
 function ifClickInside(event, targets) {
-	return targets.reduce(function (accumulator, currentValue, index, array) {
-		return accumulator + event.composedPath().includes(currentValue)
-	}, false)
+	let path = event.composedPath()
+	return targets.some(target => {
+		return path.includes(target)
+	})
 }
 
 /**

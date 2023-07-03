@@ -49,11 +49,7 @@ class Animate {
 
 	#bindEnds() {
 		function isGroupDone(group) {
-			return group.items.reduce((acc, item) => {
-				return acc && item.animations.reduce((acc, animation) => {
-					return acc && animation.playState == "finished"
-				}, true)
-			}, true)
+			return !group.items.some((item => item.animations.some(animation => animation.playState != "finished")))
 		}
 
 		this.#items.forEach(item => {
