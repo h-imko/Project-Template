@@ -140,13 +140,7 @@ function newer(relatedTo, newExt, ...oldExt) {
 			let currExt = path.extname(newPath)
 
 			if (newExt) {
-				if (oldExt.length) {
-					if (oldExt.includes(currExt)) {
-						newPath = changeExt(newPath, newExt, ...oldExt)
-					}
-				} else {
-					newPath = changeExt(newPath, newExt)
-				}
+				newPath = changeExt(newPath, newExt, ...(oldExt.includes(currExt) ? oldExt : []))
 			}
 
 			fs.stat(newPath, function (relatedError, relatedStat) {
