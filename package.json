@@ -4,14 +4,14 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"dev": "node ./node_modules/gulp/bin/gulp.js --ram --fwatch",
-		"build": "node ./node_modules/gulp/bin/gulp.js",
-		"build_min": "node ./node_modules/gulp/bin/gulp.js --min",
-		"build_watch": "node ./node_modules/gulp/bin/gulp.js --fwatch",
-		"build_watch_min": "node ./node_modules/gulp/bin/gulp.js --fwatch --min",
-		"imagemin": "node ./node_modules/gulp/bin/gulp.js imageMin",
-		"ttfToWoff": "node ./node_modules/gulp/bin/gulp.js ttfToWoff",
-		"init": "npm i && node ./node_modules/gulp/bin/gulp.js cleanInitials"
+		"dev": "node ./node_modules/gulp/bin/gulp.js --ram --fwatch --gulpfile \"./gulpfile.mjs\"",
+		"build": "node ./node_modules/gulp/bin/gulp.js --gulpfile \"./gulpfile.mjs\"",
+		"build_min": "node ./node_modules/gulp/bin/gulp.js --min --gulpfile \"./gulpfile.mjs\"",
+		"build_watch": "node ./node_modules/gulp/bin/gulp.js --fwatch --gulpfile \"./gulpfile.mjs\"",
+		"build_watch_min": "node ./node_modules/gulp/bin/gulp.js --fwatch --min --gulpfile \"./gulpfile.mjs\"",
+		"imagemin": "node ./node_modules/gulp/bin/gulp.js imageMin --gulpfile \"./gulpfile.mjs\"",
+		"ttfToWoff": "node ./node_modules/gulp/bin/gulp.js ttfToWoff --gulpfile \"./gulpfile.mjs\"",
+		"init": "npm i && node ./node_modules/gulp/bin/gulp.js cleanInitials --gulpfile \"./gulpfile.mjs\""
 	},
 	"devDependencies": {
 		"browser-sync": "^2.29.3",
