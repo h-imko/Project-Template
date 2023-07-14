@@ -19,6 +19,7 @@ const gulpMem = new gulpMemory(),
 	argv = getArgs(),
 	currentGulp = argv.ram ? gulpMem : gulp,
 	bs = browserSync.create()
+console.log(argv)
 
 gulpMem.logFn = null
 gulpMem.serveBasePath = "./build"
@@ -35,8 +36,13 @@ function changeExt(fileName, newExt, ...oldExt) {
 }
 
 function getArgs() {
-	return process.argv.slice(2).reduce(function (acc, curr) {
-		return { ...acc, [curr.replace("--", "")]: true }
+	return process.argv.slice(2).reduce(function (acc, curr, index, array) {
+		if (curr.startsWith("--")) {
+			return Object.assign(acc, { [curr.replace("--", "")]: array[index + 1]?.startsWith("--") ? true : array[index + 1] })
+		}
+		else {
+			return acc
+		}
 	}, {})
 }
 
@@ -197,7 +203,7 @@ function browserSyncInit() {
 			baseDir: "./build",
 			middleware: argv.ram ? gulpMem.middleware : false,
 		},
-		port: 3000
+		port: argv.port ?? 3000
 	})
 }
 
