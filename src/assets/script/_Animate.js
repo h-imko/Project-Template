@@ -1,3 +1,10 @@
+class PrioritySubgroup extends EventTarget {
+	constructor() {
+		super()
+		this.items = []
+	}
+}
+
 class Animate {
 	#followQueue = false
 	#groups
@@ -8,67 +15,46 @@ class Animate {
 	 */
 	constructor(group) {
 		let list = {}
+		this.#items = group.querySelectorAll("[data-animate]")
 
-		group.querySelectorAll("[data-animate]").forEach(item => {
+		this.#items.forEach(item => {
 			let priority = item.dataset.animatePriority ?? null
-			list[priority] = list[priority] || {}
-			list[priority].items = list[priority].items || []
-			list[priority].target = list[priority].target || new EventTarget()
-
-			list[priority].items.push({ target: item, animations: item.getAnimations() })
+			list[priority] ??= new PrioritySubgroup()
+			item.animations = item.getAnimations()
+			list[priority].items.push(item)
 		})
 
 		this.#groups = Object.values(list)
 
-		this.#items = this.#groups.reduce((acc, item) => {
-			return [...acc, item.items]
-		}, []).flat()
-
-
-		this.#bindEnds()
-		this.#bindQueue()
-	}
-
-	#bindQueue() {
-		this.#items.forEach(item => {
-			item.animations.forEach((animation, index, animations) => {
-				animation.addEventListener("finish", () => {
-					animations[index + 1]?.play()
-				})
-			})
-		})
-
 		this.#groups.forEach((group, index, groups) => {
-			group.target.addEventListener("animationgroupend", () => {
+			group.addEventListener("animationgroupend", () => {
 				if (this.#followQueue) {
 					this.#startGroup(groups[index + 1])
 				}
 			})
+
+			group.items.forEach(item => {
+				item.addEventListener("animationsend", () => {
+					if (this.#isGroupDone(group)) {
+						group.dispatchEvent(new Event("animationgroupend"))
+					}
+				})
+
+				item.animations.forEach((animation, index, animations) => {
+					animation.addEventListener("finish", () => {
+						if (animations[index + 1]) {
+							animations[index + 1].play()
+						} else {
+							item.dispatchEvent(new Event("animationsend"))
+						}
+					})
+				})
+			})
 		})
 	}
 
-	#bindEnds() {
-		function isGroupDone(group) {
-			return !group.items.some((item => item.animations.some(animation => animation.playState != "finished")))
-		}
-
-		this.#items.forEach(item => {
-			item.animations.forEach((animation, index, animations) => {
-				animation.addEventListener("finish", () => {
-					animations[index + 1] || item.target.dispatchEvent(new Event("animationsend"))
-				})
-			})
-		})
-
-		this.#groups.forEach(group => {
-			group.items.forEach(item => {
-				item.target.addEventListener("animationsend", () => {
-					if (isGroupDone(group)) {
-						group.target.dispatchEvent(new Event("animationgroupend"))
-					}
-				})
-			})
-		})
+	#isGroupDone(group) {
+		return group.items.every((item => item.animations.some(animation => animation.playState == "finished")))
 	}
 
 	/**

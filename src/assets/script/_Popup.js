@@ -54,21 +54,6 @@ class Popup {
 		this.updateControllers()
 	}
 
-	/**
-	 * Выносит в свойства {@link Window} методы контроля попапа - {@link closePopup}, {@link openPopup}, {@link togglePopup} с именами соответственно [действие]Popup_[id попапа]
-	 * @example <caption>закрывает попап с айди my_cool_popup</caption>
-	 * window.closePopup_my_cool_popup()
-	 */
-	bindGlobalControls() {
-		if (!isVarName(this.name)) {
-			console.error(`Недопустимое имя попапа - ${this.name}`)
-			return
-		}
-		window[`closePopup_${this.name}`] = this.closePopup.bind(this)
-		window[`openPopup_${this.name}`] = this.openPopup.bind(this)
-		window[`togglePopup_${this.name}`] = this.togglePopup.bind(this)
-	}
-
 	initControllers() {
 		this.openers.forEach((opener) => {
 			opener.addEventListener('click', () => {
