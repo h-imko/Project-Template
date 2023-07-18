@@ -38,7 +38,7 @@ function changeExt(fileName, newExt, ...oldExt) {
 function getArgs() {
 	return process.argv.slice(2).reduce(function (acc, curr, index, array) {
 		if (curr.startsWith("--")) {
-			return Object.assign(acc, { [curr.replace("--", "")]: array[index + 1]?.startsWith("--") ? true : array[index + 1] })
+			return Object.assign(acc, { [curr.replace("--", "")]: (!array[index + 1] || array[index + 1]?.startsWith("--")) ? true : array[index + 1] })
 		}
 		else {
 			return acc
