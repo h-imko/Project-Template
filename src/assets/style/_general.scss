@@ -1,4 +1,4 @@
-@use "breakpoint";
+@use "breakpoint" as *;
 
 * {
 	box-sizing: border-box;
@@ -39,13 +39,13 @@ body {
 }
 
 .d-mobile {
-	@media (min-width: breakpoint.$mobile) {
+	@media (min-width: $mobile) {
 		display: none !important;
 	}
 }
 
 .d-desktop {
-	@media (max-width: breakpoint.$mobile) {
+	@media (max-width: $mobile) {
 		display: none !important;
 	}
 }

@@ -1,4 +1,4 @@
-@use "breakpoint";
+@use "breakpoint" as *;
 
 .custom-form {
 	width: 100%;
@@ -8,7 +8,7 @@
 	gap: calc(var(--gap) * 2);
 	--gap: 18px;
 
-	@media (max-width: breakpoint.$mobile) {
+	@media (max-width: $mobile) {
 		--gap: 12px;
 	}
 
@@ -18,7 +18,7 @@
 		display: flex;
 		gap: var(--gap);
 
-		@media (max-width: breakpoint.$mobile) {
+		@media (max-width: $mobile) {
 			flex-direction: column;
 			align-items: stretch;
 			gap: calc(var(--gap) * 2);
@@ -33,7 +33,7 @@
 		gap: var(--gap);
 
 		&:empty {
-			@media (max-width: breakpoint.$mobile) {
+			@media (max-width: $mobile) {
 				display: none;
 			}
 		}
@@ -43,7 +43,7 @@
 		display: flex;
 		gap: var(--gap);
 
-		@media (max-width: breakpoint.$mobile) {
+		@media (max-width: $mobile) {
 			flex-direction: column;
 		}
 	}

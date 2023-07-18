@@ -1,4 +1,4 @@
-@use "breakpoint";
+@use "breakpoint" as *;
 
 @font-face {
 	font-family: "";
@@ -17,41 +17,41 @@
 
 h1,
 .h1 {
-	@media screen and (max-width: breakpoint.$mobile) {}
+	@media screen and (max-width: $mobile) {}
 }
 
 h2,
 .h2 {
-	@media screen and (max-width: breakpoint.$mobile) {}
+	@media screen and (max-width: $mobile) {}
 }
 
 h3,
 .h3 {
-	@media screen and (max-width: breakpoint.$mobile) {}
+	@media screen and (max-width: $mobile) {}
 }
 
 h4,
 .h4 {
-	@media screen and (max-width: breakpoint.$mobile) {}
+	@media screen and (max-width: $mobile) {}
 }
 
 h5,
 .h5 {
-	@media screen and (max-width: breakpoint.$mobile) {}
+	@media screen and (max-width: $mobile) {}
 }
 
 h6,
 .h6 {
-	@media screen and (max-width: breakpoint.$mobile) {}
+	@media screen and (max-width: $mobile) {}
 }
 
 .subtitle {
-	@media screen and (max-width: breakpoint.$mobile) {}
+	@media screen and (max-width: $mobile) {}
 }
 
 body,
 input {
-	@media screen and (max-width: breakpoint.$mobile) {}
+	@media screen and (max-width: $mobile) {}
 }
 
 a {
