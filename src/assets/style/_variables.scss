@@ -1,9 +1,6 @@
 @use "breakpoint";
 
 :root {
-	--mobile: #{breakpoint.$mobile};
-	--tablet: #{breakpoint.$tablet};
-	--laptop: #{breakpoint.$laptop};
 	--header-margin: 24px;
 	--button-height: 56px;
 	--container-padding: 16px;
