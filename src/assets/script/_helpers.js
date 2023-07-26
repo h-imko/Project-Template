@@ -75,7 +75,7 @@ function bindSplideArrows(splide, arrows) {
 }
 
 function headerHeightToCSS() {
-	document.documentElement.style.setProperty('--header-height', `${document.querySelector('header').getBoundingClientRect().height}px`)
+	document.documentElement.style.setProperty('--header-height', `${document.querySelector('header').clientHeight}px`)
 }
 
 function isVarName(name) {
