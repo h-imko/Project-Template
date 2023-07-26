@@ -75,7 +75,17 @@ function bindSplideArrows(splide, arrows) {
 }
 
 function headerHeightToCSS() {
-	document.documentElement.style.setProperty('--header-height', `${document.querySelector('header').clientHeight}px`)
+	let header = document.body.querySelector('header')
+
+	function setSize() {
+		document.documentElement.style.setProperty('--header-height', `${header.getClientRects()[0].height}px`)
+	}
+
+	setSize()
+
+	new ResizeObserver(() => {
+		setSize()
+	}).observe(header)
 }
 
 function isVarName(name) {

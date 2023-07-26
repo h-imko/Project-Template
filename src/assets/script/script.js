@@ -12,6 +12,7 @@ import SyncedInputs from "./_SyncedInputs"
 import { breakpoints, headerHeightToCSS } from "./_helpers"
 
 document.addEventListener('DOMContentLoaded', function () {
+	// headerHeightToCSS()
 	// initPopups()
 	// initTabs()
 	// initPhoneMask()
@@ -21,10 +22,6 @@ document.addEventListener('DOMContentLoaded', function () {
 	// initSyncedInputs()
 	// initDropzone()
 	// initAnimates()
-})
-
-window.addEventListener("load", function () {
-	// headerHeightToCSS()
 })
 
 function initSyncedInputs() {
