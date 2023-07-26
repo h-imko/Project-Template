@@ -15,7 +15,6 @@ class Popup {
 		this.togglers = this.controllers.filter(controller => controller.dataset.popupControl == "toggle")
 		this.closers = [...this.controllers.filter(controller => controller.dataset.popupControl == "close"), ...this.popup.querySelectorAll("[data-popup-selfcloser]")]
 		this.initControllers()
-		this.bindGlobalControls()
 	}
 
 	updateControllers() {
