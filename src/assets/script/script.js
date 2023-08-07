@@ -6,7 +6,6 @@ import Dropzone from "./_Dropzone"
 import InputContollerGroup from "./_InputControllerGroup"
 import Popup from "./_Popup"
 import Quantity from "./_Quantity"
-import Spoiler from "./_Spoiler"
 import Animate from "./_Animate"
 import SyncedInputs from "./_SyncedInputs"
 import { breakpoints, headerHeightToCSS } from "./_helpers"
@@ -17,7 +16,6 @@ document.addEventListener('DOMContentLoaded', function () {
 	// initTabs()
 	// initPhoneMask()
 	// initQuantity()
-	// initSpoilers()
 	// initInputControllerGroups()
 	// initSyncedInputs()
 	// initDropzone()
@@ -62,11 +60,5 @@ function initPhoneMask() {
 			prefix: "+7",
 			noImmediatePrefix: true
 		})
-	})
-}
-
-function initSpoilers() {
-	document.querySelectorAll('.spoiler').forEach(spoiler => {
-		new Spoiler(spoiler)
 	})
 }

@@ -1,7 +1,7 @@
-.test {
-	--transitionLength: 0.4s;
-	--transitionTiming: ease;
+.accordion {
 	display: grid;
+	grid-template-rows: 1fr auto;
+	height: min-content;
 
 	&__toggler {
 		pointer-events: none;
@@ -23,7 +23,7 @@
 		display: grid;
 		grid-template-rows: 0fr;
 		overflow: hidden;
-		transition: grid-template-rows var(--transitionLength) var(--transitionTiming);
+		transition: grid-template-rows var(--transition-duration) ease;
 	}
 
 	&__controller:checked ~ &__wrapper {
@@ -32,6 +32,7 @@
 
 	&__content {
 		display: flex;
+		flex-direction: column;
 		min-height: 0;
 	}
 }
