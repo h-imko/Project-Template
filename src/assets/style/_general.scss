@@ -29,6 +29,10 @@ html {
 }
 
 body {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+
 	&.noscroll {
 		overflow: hidden;
 		top: calc(-1 * var(--scroll-position, 0));
@@ -36,6 +40,13 @@ body {
 		position: fixed;
 		width: 100%;
 	}
+}
+
+main {
+	flex-grow: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
 }
 
 .d-mobile {

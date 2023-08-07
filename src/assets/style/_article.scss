@@ -1,5 +1,3 @@
 article {
-	& + & {
-		margin-top: var(--main-gap);
-	}
+	flex-grow: 1;
 }
