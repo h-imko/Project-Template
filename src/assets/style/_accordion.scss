@@ -1,0 +1,37 @@
+.test {
+	--transitionLength: 0.4s;
+	--transitionTiming: ease;
+	display: grid;
+
+	&__toggler {
+		pointer-events: none;
+		grid-column: 1;
+		grid-row: 1;
+		border: 3px dashed grey;
+	}
+
+	&__controller {
+		grid-column: 1;
+		grid-row: 1;
+		width: 100%;
+		height: 100%;
+		opacity: 0;
+		cursor: pointer;
+	}
+
+	&__wrapper {
+		display: grid;
+		grid-template-rows: 0fr;
+		overflow: hidden;
+		transition: grid-template-rows var(--transitionLength) var(--transitionTiming);
+	}
+
+	&__controller:checked ~ &__wrapper {
+		grid-template-rows: 1fr;
+	}
+
+	&__content {
+		display: flex;
+		min-height: 0;
+	}
+}
