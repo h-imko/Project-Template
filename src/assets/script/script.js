@@ -13,7 +13,7 @@ import { breakpoints, headerHeightToCSS } from "./_helpers"
 
 document.addEventListener('DOMContentLoaded', function () {
 	// headerHeightToCSS()
-	// initPopups()
+	// Popup.initPopups()
 	// initTabs()
 	// initPhoneMask()
 	// initQuantity()
@@ -62,13 +62,6 @@ function initPhoneMask() {
 			prefix: "+7",
 			noImmediatePrefix: true
 		})
-	})
-}
-
-function initPopups() {
-	window.popups = {};
-	[...document.querySelectorAll("[data-popup]")].forEach(popup => {
-		window.popups[popup.dataset.popup] = new Popup(popup)
 	})
 }
 

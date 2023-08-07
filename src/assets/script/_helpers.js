@@ -2,36 +2,41 @@
  *	@description Блокирует {@link true} или разблокирует {@link false}  прокрутку страницы
  * @param {Boolean} action
  */
-function toggleNoscrollBody(action) {
-	function disable() {
-		document.documentElement.style.setProperty("--scroll-position", `${window.scrollY}px`)
-		document.documentElement.style.setProperty("--scrollbar-width", `${window.innerWidth - document.documentElement.clientWidth}px`)
-		document.body.classList.add('noscroll')
-	}
 
-	function enable() {
-		document.body.classList.remove('noscroll')
-		window.scrollTo({
-			top: document.documentElement.style.getPropertyValue('--scroll-position').replace('px', ""),
-			left: 0,
-			behavior: "instant"
-		})
-	}
-
-	function toggle() {
-		document.body.classList.contains('noscroll') ? enable() : disable()
-	}
-
-	if (typeof action !== "undefined") {
-		if (action) {
-			disable()
-		} else {
-			enable()
+let toggleNoscrollBody = (function () {
+	let lastPosition, scrollBarWidth = window.innerWidth - document.documentElement.clientWidth
+	return function (action) {
+		function disable() {
+			lastPosition = window.scrollY
+			document.documentElement.style.setProperty("--scroll-position", `${lastPosition}px`)
+			document.documentElement.style.setProperty("--scrollbar-width", `${scrollBarWidth}px`)
+			document.body.classList.add('noscroll')
 		}
-	} else {
-		toggle()
+
+		function enable() {
+			document.body.classList.remove('noscroll')
+			window.scrollTo({
+				top: lastPosition,
+				left: 0,
+				behavior: "instant"
+			})
+		}
+
+		function toggle() {
+			document.body.classList.contains('noscroll') ? enable() : disable()
+		}
+
+		if (typeof action !== "undefined") {
+			if (action) {
+				disable()
+			} else {
+				enable()
+			}
+		} else {
+			toggle()
+		}
 	}
-}
+})()
 
 /**
  *
@@ -88,24 +93,6 @@ function headerHeightToCSS() {
 	}).observe(header)
 }
 
-function isVarName(name) {
-	if (typeof name !== 'string') {
-		return false
-	}
-
-	if (name.trim() !== name) {
-		return false
-	}
-
-	try {
-		new Function(name, 'var ' + name)
-	} catch (_) {
-		return false
-	}
-
-	return true
-}
-
 let breakpoints = (() => {
 	let style = getComputedStyle(document.documentElement)
 	return {
@@ -115,4 +102,4 @@ let breakpoints = (() => {
 	}
 })()
 
-export { toggleNoscrollBody, ifClickInside, bindSplideArrows, headerHeightToCSS, isVarName, breakpoints }
+export { toggleNoscrollBody, ifClickInside, bindSplideArrows, headerHeightToCSS, breakpoints }
