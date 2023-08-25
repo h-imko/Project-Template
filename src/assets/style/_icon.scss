@@ -9,7 +9,7 @@
 	mask-position: center;
 	flex-shrink: 0;
 	transition: opacity var(--transition-duration) ease;
-	width: var(--size, 24px);
-	height: var(--size, 24px);
+	width: var(--icon-width, var(--size, 24px));
+	height: var(--icon-height, var(--size, 24px));
 	background-color: var(--color, #000);
 }
