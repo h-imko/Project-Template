@@ -243,7 +243,6 @@ function css() {
 }
 
 function js() {
-	gulp.src(["!./src/assets/script/**/*.js", "./src/assets/script/**/_*.js"]).pipe(currentGulp.dest("./build/assets/script/")).pipe(bs.stream())
 	return gulp.src(["./src/assets/script/**/*.js", "!./src/assets/script/**/_*.js"])
 		.pipe(sourcemaps.init())
 		.pipe(esbuild({
