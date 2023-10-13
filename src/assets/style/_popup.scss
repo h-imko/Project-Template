@@ -9,10 +9,13 @@
 	padding-bottom: 64px;
 	overflow: auto;
 	z-index: 666;
-	transition: opacity var(--transition-duration) ease;
 	pointer-events: none;
 	opacity: 0;
 	display: flex;
+
+	&.is-initialized {
+		transition: opacity var(--default-duration) ease;
+	}
 
 	&.is-active {
 		pointer-events: auto;
@@ -22,7 +25,7 @@
 	&__inner {
 		margin-top: auto;
 		margin-bottom: auto;
-		@extend .container;
+		// @extend .container;
 		background-color: #fff;
 	}
 }

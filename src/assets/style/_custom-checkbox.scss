@@ -4,60 +4,40 @@
 	gap: 12px;
 	cursor: pointer;
 	--size: 24px;
-	--border-width: 2px;
 
 	input[type="checkbox"] {
 		width: var(--size);
 		height: var(--size);
 		position: relative;
-		cursor: pointer;
 		appearance: none;
 		display: flex;
 		justify-content: center;
 		align-items: center;
 		flex-shrink: 0;
-		visibility: hidden;
 		user-select: none;
+		border-radius: 2px;
+		border-width: 1px;
+		border-style: solid;
+		border-color: grey;
+		transition: border-color var(--default-duration) ease;
+		cursor: pointer;
 
 		&::before {
-			visibility: visible;
-			position: absolute;
-			content: "";
-			width: 100%;
-			height: 100%;
-			border-width: var(--border-width);
-			border-style: solid;
-			// border-color: ;
-			// background: ;
-			border-radius: 2px;
-			transition: opacity var(--transition-duration) ease;
-		}
-
-		&::after {
-			visibility: visible;
-			position: absolute;
-			content: "";
-			opacity: 0;
+			content: '';
 			@extend .icon;
-			// background: ;
-			width: calc(var(--size) - var(--border-width) * 2) !important;
-			height: calc(var(--size) - var(--border-width) * 2) !important;
-			transition: opacity var(--transition-duration) ease;
+			--color: black;
+			opacity: 0;
+			position: absolute;
+			border-radius: inherit;
 		}
 
-		&:hover {
-			&::before {
-				// border: ;
-			}
+		&:hover,
+		&:checked {
+			border-color: black;
 		}
 
 		&:checked {
 			&::before {
-				// border: ;
-				// background: ;
-			}
-
-			&::after {
 				opacity: 1;
 			}
 		}

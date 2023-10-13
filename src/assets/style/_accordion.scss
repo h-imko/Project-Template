@@ -7,7 +7,6 @@
 		pointer-events: none;
 		grid-column: 1;
 		grid-row: 1;
-		border: 3px dashed grey;
 	}
 
 	&__controller {
@@ -23,7 +22,7 @@
 		display: grid;
 		grid-template-rows: 0fr;
 		overflow: hidden;
-		transition: grid-template-rows var(--transition-duration) ease;
+		transition: grid-template-rows var(--default-duration) ease;
 	}
 
 	&__controller:checked ~ &__wrapper {

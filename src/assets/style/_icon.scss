@@ -8,7 +8,9 @@
 	mask-repeat: no-repeat;
 	mask-position: center;
 	flex-shrink: 0;
-	transition: opacity var(--transition-duration) ease;
+	transition-duration: var(--default-duration);
+	transition-timing-function: ease;
+	transition-property: opacity, background-color;
 	width: var(--icon-width, var(--size, 24px));
 	height: var(--icon-height, var(--size, 24px));
 	background-color: var(--color, #000);

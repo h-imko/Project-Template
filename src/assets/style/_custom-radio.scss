@@ -1,61 +1,45 @@
 .custom-radio {
 	display: flex;
 	align-items: center;
+	gap: 12px;
 	cursor: pointer;
 	--size: 24px;
-	--border-width: 2px;
-	--check-size: 14px;
 
 	input[type="radio"] {
 		width: var(--size);
 		height: var(--size);
-		visibility: hidden;
 		position: relative;
-		cursor: pointer;
-		display: flex;
-		align-items: center;
-		justify-content: center;
 		appearance: none;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		flex-shrink: 0;
 		user-select: none;
+		border-radius: 50%;
+		border-width: 1px;
+		border-style: solid;
+		border-color: grey;
+		transition: border-color var(--default-duration) ease;
+		cursor: pointer;
 
 		&::before {
-			visibility: visible;
-			position: absolute;
-			content: "";
-			width: 100%;
-			height: 100%;
-			border-width: var(--border-width);
-			border-style: solid;
-			// border-color: ;
-			// background: ;
-			border-radius: 50%;
-			transition: opacity var(--transition-duration) ease;
-		}
-
-		&::after {
-			visibility: visible;
-			position: absolute;
-			content: "";
-			border-radius: 50%;
-			transition: opacity var(--transition-duration) ease;
-			border-width: calc(var(--check-size) / 2);
-			border-style: solid;
-			// border-color: ;
+			content: '';
 			opacity: 0;
+			position: absolute;
+			border-radius: inherit;
+			border-style: solid;
+			border-color: black;
+			border-width: calc(var(--size) / 4);
+			transition: opacity var(--default-duration) ease;
 		}
 
-		&:hover {
-			&::before {
-				// border-color: ;
-			}
+		&:hover,
+		&:checked {
+			border-color: black;
 		}
 
 		&:checked {
 			&::before {
-				// border-color: ;
-			}
-
-			&::after {
 				opacity: 1;
 			}
 		}

@@ -17,7 +17,6 @@ let toggleNoscrollBody = (function () {
 			document.body.classList.remove('noscroll')
 			window.scrollTo({
 				top: lastPosition,
-				left: 0,
 				behavior: "instant"
 			})
 		}
@@ -45,9 +44,8 @@ let toggleNoscrollBody = (function () {
  * @returns
  */
 function ifClickInside(event, targets) {
-	let path = event.composedPath()
 	return targets.some(target => {
-		return path.includes(target)
+		return event.composedPath().includes(target)
 	})
 }
 

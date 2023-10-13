@@ -19,6 +19,7 @@ img {
 	width: 100%;
 	height: auto;
 	object-fit: contain;
+	object-position: center;
 	display: block;
 }
 
@@ -45,20 +46,4 @@ main {
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-start;
-}
-
-.d-mobile {
-	@media (min-width: $mobile) {
-		display: none !important;
-	}
-}
-
-.d-desktop {
-	@media (max-width: $mobile) {
-		display: none !important;
-	}
-}
-
-[hidden] {
-	display: none !important;
 }

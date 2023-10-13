@@ -10,13 +10,13 @@
 
 	&__helper {
 		order: 3;
-		transition: opacity var(--transition-duration) ease;
+		transition: opacity var(--default-duration) ease;
 	}
 
 	%base {
 		order: 2;
 		outline: none;
-		transition: opacity var(--transition-duration) ease;
+		transition: opacity var(--default-duration) ease;
 
 		&:disabled {
 			~ #{$parent}__helper {}
@@ -55,19 +55,5 @@
 				}
 			}
 		}
-	}
-}
-
-input[type="text"],
-input[type="password"],
-input[type="email"],
-input[type="tel"],
-input[type="number"],
-textarea {
-	appearance: textfield;
-
-	&::-webkit-inner-spin-button,
-	&::-webkit-inner-spin-button {
-		-webkit-appearance: none;
 	}
 }
