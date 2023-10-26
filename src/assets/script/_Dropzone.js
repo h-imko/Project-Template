@@ -10,12 +10,33 @@ class Dropzone {
 		this.placeholder = target.querySelector(".dropzone__list__item--placeholder")
 		this.files = new DataTransfer()
 		this.bases = []
-		this.changeEvent = new Event("dropzonechange")
 		this.dragOverClass = "dropzone--dragover"
 		this.emptyClass = "dropzone--empty"
+		this.fullClass = "dropzone--full"
 		this.dragCounter = 0
+		this.isMultiple = this.input.multiple
+		this.initialFiles = target.querySelectorAll(".dropzone__list__item--initial")
+		this.loadInitials()
 		this.checkEmptyState()
 		this.bindEvents()
+	}
+
+	loadInitials() {
+		this.initialFiles.forEach(async (node) => {
+			let url = node.dataset.base
+
+			let file = fetch(url)
+				.then(res => res.blob())
+				.then(blob => {
+					return new File([blob], node.dataset.fileName, { type: url.split(";")[0].split(":")[1] })
+				})
+
+			let files = new DataTransfer()
+			files.items.add(await file)
+			node.remove()
+			this.add(files.files)
+		})
+
 	}
 
 	/**
@@ -41,6 +62,7 @@ class Dropzone {
 		this.bases.splice(index, 1)
 		this.fillInput()
 		this.checkEmptyState()
+		this.checkFullState()
 	}
 
 	/**
@@ -77,27 +99,48 @@ class Dropzone {
 		this.list.insertBefore(item, this.placeholder)
 	}
 
-	add() {
-		let incoming = this.input.files
+	testFileType(type) {
+		return this.input.accept.split(",").reduce((acc, pattern) => {
+			return new RegExp(pattern).test(type) || acc
+		}, false)
+	}
+
+	add(incoming) {
+		incoming = incoming ?? this.input.files
+
 		this.dropzone.classList.add("dropzone--processing")
 
-		for (let index = 0; index < incoming.length; index++) {
-			this.getBase(incoming[index]).then((base) => {
-				if (!this.bases.includes(base)) {
-					this.bases.push(base)
-					this.files.items.add(incoming[index])
-					this.fillInput()
-					this.appendItem(this.makeListItem(incoming[index], base))
-					this.checkEmptyState()
-				}
-			}).catch((error) => {
-				alert("Произошла ошибка обработки файла")
-			}).finally(() => {
-				if (index == incoming.length - 1) {
-					this.dropzone.classList.remove("dropzone--processing")
-				}
-			})
+		if (Boolean(this.files.items.length && !this.isMultiple)) {
+			this.dropzone.querySelector(".dropzone__list__item").remove()
+			this.removeFile(0)
 		}
+
+		for (let index = 0; index < incoming.length; index++) {
+			this.getBase(incoming[index])
+				.then((base) => {
+					if (!this.testFileType(incoming[index].type)) {
+						throw new Error(`Выбран файл недопустимого типа - ${incoming[index].name}`)
+					}
+					if (!this.bases.includes(base)) {
+						this.bases.push(base)
+						this.files.items.add(incoming[index])
+						this.fillInput()
+						this.appendItem(this.makeListItem(incoming[index], base))
+						this.checkEmptyState()
+						this.checkFullState()
+					}
+				})
+				.catch(error => { alert(error.message ?? "Произошла ошибка обработки файла") })
+				.finally(() => {
+					if (index == incoming.length - 1) {
+						this.dropzone.classList.remove("dropzone--processing")
+					}
+				})
+		}
+	}
+
+	checkFullState() {
+		this.dropzone.classList.toggle(this.fullClass, Boolean(this.files.items.length) && !this.isMultiple)
 	}
 
 	checkEmptyState() {
