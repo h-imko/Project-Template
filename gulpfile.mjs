@@ -82,7 +82,9 @@ function clean() {
 			fs.rm(chunk.path, {
 				recursive: true,
 				force: true
-			}, callback)
+			}, (error) => {
+				callback(error, chunk)
+			})
 		}
 	})
 }
