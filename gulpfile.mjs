@@ -22,13 +22,52 @@ const gulpMem = new gulpMemory(),
 
 gulpMem.logFn = null
 gulpMem.serveBasePath = "./build"
+const directories = {}
 
-function changeExt(fileName, newExt, ...oldExt) {
-	oldExt = oldExt.length ? oldExt : [path.extname(fileName)]
-	let pathObject = path.parse(fileName)
+const tree = {
+	// root - костыль для src или build 
+	root: null,
+	assets: {
+		ejs: null,
+		script: null,
+		static: {
+			font: null,
+			img: null,
+			"img-raw": null,
+		},
+		style: null,
+	}
+}
 
-	if (oldExt.includes(pathObject.ext)) {
-		return path.format({ ...pathObject, base: '', ext: newExt })
+function fillDirectories() {
+	function pushDir(dir, mapath) {
+		for (const key in dir) {
+			let manewpath = path.join(mapath, key)
+			directories[key] = {
+				"src": path.join("src", manewpath),
+				"build": path.join("build", manewpath),
+			}
+			pushDir(dir[key], manewpath, true)
+		}
+	}
+
+	pushDir(tree, '/')
+}
+
+fillDirectories()
+
+/**
+ * 
+ * @param {String} fileName полное имя файла
+ * @param {String} newExt новое расширение
+ * @param  {String[]} oldExts заменяемые расширения
+ * @returns новое имя файла
+ */
+function changeExt(fileName, newExt, oldExts = [path.parse(fileName).ext]) {
+	let currPath = path.parse(fileName)
+
+	if (oldExts.includes(currPath.ext)) {
+		return path.format({ ...currPath, base: '', ext: newExt })
 	} else {
 		return fileName
 	}
