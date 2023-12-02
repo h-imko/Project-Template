@@ -33,7 +33,8 @@ const tree = {
 		static: {
 			font: null,
 			img: null,
-			"img-raw": null,
+			"img-raw": {
+			},
 		},
 		style: null,
 	}
@@ -56,6 +57,7 @@ function fillDirectories() {
 
 fillDirectories()
 
+// console.log(path.join(directories.static.src, "/**/*"))
 /**
  * 
  * @param {String} fileName полное имя файла
@@ -148,33 +150,33 @@ function cleanExtraImgs() {
 		allowEmpty: true,
 		read: false
 	})
-		.pipe(new stream.Transform({
-			readableObjectMode: true,
-			writableObjectMode: true,
-			transform(chunk, encoding, callback) {
-				try {
-					if (!fs.lstatSync(chunk.path).isDirectory()) {
-						let currentExt = path.extname(chunk.path)
-						let originExts = [currentExt]
+	.pipe(new stream.Transform({
+		readableObjectMode: true,
+		writableObjectMode: true,
+		transform(chunk, encoding, callback) {
+			try {
+				if (!fs.lstatSync(chunk.path).isDirectory()) {
+					let currentExt = path.extname(chunk.path)
+					let originExts = [currentExt]
 
-						if (currentExt != ".svg") {
-							originExts.push(".png", ".jpg", ".jpeg")
-						}
-
-						let exists = originExts.some(ext => {
-							return fs.existsSync(changeExt(chunk.path, ext).replace(`${path.sep}img${path.sep}`, `${path.sep}img-raw${path.sep}`))
-						})
-
-						if (!exists) {
-							fs.rmSync(chunk.path)
-						}
+					if (currentExt != ".svg") {
+						originExts.push(".png", ".jpg", ".jpeg")
 					}
-				} catch (err) {
-					var error = err
+
+					let exists = originExts.some(ext => {
+						return fs.existsSync(changeExt(chunk.path, ext).replace(`${path.sep}img${path.sep}`, `${path.sep}img-raw${path.sep}`))
+					})
+
+					if (!exists) {
+						fs.rmSync(chunk.path)
+					}
 				}
+				callback(null, chunk)
+			} catch (error) {
 				callback(error, chunk)
 			}
-		}))
+		}
+	}))
 }
 
 function newer(relatedTo, newExt, ...oldExt) {
@@ -183,10 +185,9 @@ function newer(relatedTo, newExt, ...oldExt) {
 		writableObjectMode: true,
 		transform(chunk, encoding, callback) {
 			let newPath = path.join(relatedTo, path.relative(chunk.base, chunk.path))
-			let currExt = path.extname(newPath)
 
 			if (newExt) {
-				newPath = changeExt(newPath, newExt, ...(oldExt.includes(currExt) ? oldExt : []))
+				newPath = changeExt(newPath, newExt, ...(oldExt.includes(path.extname(newPath)) ? oldExt : []))
 			}
 
 			fs.stat(newPath, function (relatedError, relatedStat) {
@@ -203,10 +204,9 @@ function ext(newExt, ...oldExt) {
 		transform(chunk, encoding, callback) {
 			if (!fs.lstatSync(chunk.path).isDirectory()) {
 				chunk.path = changeExt(chunk.path, newExt, ...oldExt)
-				callback(null, chunk)
-			} else {
-				callback(null, null)
 			}
+
+			callback(null, chunk)
 		}
 	})
 }
@@ -227,12 +227,12 @@ function sassCompile() {
 				chunk.path = changeExt(chunk.path, ".css")
 				Object.assign(chunk.sourceMap, compiled.sourceMap)
 				chunk.sourceMap.file = path.basename(chunk.path)
+				callback(null, chunk)
 			}
-			catch (err) {
-				var error = err
+			catch (error) {
 				error.fileName = path.relative(cwd(), chunk.path)
+				callback(error, chunk)
 			}
-			callback(error, chunk)
 		}
 	})
 }
@@ -248,15 +248,12 @@ function browserSyncInit() {
 }
 
 function printPaintedMessage(message, module) {
-	let errs = [...message.matchAll(new RegExp(/(?:[A-Za-z]+:*\\[а-яА-Яa-zA-Z-_.\\/]+)|('[а-яА-Яa-zA-Z-_.\\/]+')/gm))]
-		.map(function (curr) {
-			return {
-				text: curr[0],
-				index: curr.index,
-				length: curr[0].length
-			}
-		})
-		.reverse()
+	let errs = [...message.matchAll(new RegExp(/(?:[A-Za-z]+:*\\[а-яА-Яa-zA-Z-_.\\/]+)|('[а-яА-Яa-zA-Z-_.\\/]+')/gm))].map(function (curr) {
+		return {
+			text: curr[0], index: curr.index,
+			length: curr[0].length
+		}
+	}).reverse()
 	message = message.split("")
 	errs.forEach(item => {
 		message.splice(item.index, item.length, "\x1b[0m", '\x1b[35m', item.text, "\x1b[0m")
@@ -410,22 +407,21 @@ function watch() {
 	gulp.watch(["./src/assets/static/**/*", "!./src/assets/static/img-raw/**/*"], copyStatic)
 }
 
-export default gulp.series(
-	gulp.parallel(
-		argv.ram ? nothing : cleanBuild,
-		imageMin,
-		cleanExtraImgs,
-		makeIconsSCSS,
-		makeIconsStack
-	), gulp.parallel(
-		copyStatic,
-		css,
-		js,
-		html
-	), argv.fwatch ? gulp.parallel(
-		watch,
-		browserSyncInit
-	) : nothing
+export default gulp.series(gulp.parallel(
+	argv.ram ? nothing : cleanBuild,
+	imageMin,
+	cleanExtraImgs,
+	makeIconsSCSS,
+	makeIconsStack
+), gulp.parallel(
+	copyStatic,
+	css,
+	js,
+	html
+), argv.fwatch ? gulp.parallel(
+	watch,
+	browserSyncInit
+) : nothing
 )
 
 export { imageMin, ttfToWoff, cleanInitials }
