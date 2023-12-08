@@ -13,6 +13,7 @@ import ttf2woff2 from "ttf2woff2"
 import stream from "stream"
 import { stacksvg } from "gulp-stacksvg"
 import ejs from "ejs"
+import Vinyl from "vinyl"
 import { cwd } from "process"
 import rename from "gulp-rename"
 
@@ -41,6 +42,18 @@ function getArgs() {
 		}
 	}, {})
 }
+/**
+ * 
+ * @param {function(Vinyl, BufferEncoding, stream.TransformCallback): void } func 
+ * @returns stream.Transform
+ */
+function transform(func) {
+	return new stream.Transform({
+		readableObjectMode: true,
+		writableObjectMode: true,
+		transform: func
+	})
+}
 
 function nothing(callback = () => { }) {
 	callback()
@@ -51,47 +64,35 @@ function nothing(callback = () => { }) {
 }
 
 function ejsCompile() {
-	return new stream.Transform({
-		writableObjectMode: true,
-		readableObjectMode: true,
-		transform(chunk, encoding, callback) {
-			ejs.renderFile(chunk.path, {}, {
-				root: path.join(cwd(), "src", "assets", "ejs"),
-				beautify: false,
-				compileDebug: argv.min ?? false,
-			}).then(html => {
-				chunk.contents = Buffer.from(html, encoding)
-				callback(null, chunk)
-			}).catch(error => {
-				callback(error, chunk)
-			})
-		}
+	return transform((chunk, encoding, callback) => {
+		ejs.renderFile(chunk.path, {}, {
+			root: path.join(cwd(), "src", "assets", "ejs"),
+			beautify: false,
+			compileDebug: argv.min ?? false,
+		}).then(html => {
+			chunk.contents = Buffer.from(html, encoding)
+			callback(null, chunk)
+		}).catch(error => {
+			callback(error, chunk)
+		})
 	})
 }
 
 function clean() {
-	return new stream.Transform({
-		readableObjectMode: true,
-		writableObjectMode: true,
-		transform(chunk, encoding, callback) {
-			fs.rm(chunk.path, {
-				recursive: true,
-				force: true
-			}, (error) => {
-				callback(error, chunk)
-			})
-		}
+	return transform((chunk, encoding, callback) => {
+		fs.rm(chunk.path, {
+			recursive: true,
+			force: true
+		}, (error) => {
+			callback(error, chunk)
+		})
 	})
 }
 
 function replace(searchValue, repaceValue) {
-	return new stream.Transform({
-		writableObjectMode: true,
-		readableObjectMode: true,
-		transform(chunk, encoding, callback) {
-			chunk.contents = Buffer.from(chunk.contents.toString(encoding).replaceAll(searchValue, repaceValue), encoding)
-			callback(null, chunk)
-		}
+	return transform((chunk, encoding, callback) => {
+		chunk.contents = Buffer.from(chunk.contents.toString(encoding).replaceAll(searchValue, repaceValue), encoding)
+		callback(null, chunk)
 	})
 }
 
@@ -105,42 +106,34 @@ function cleanExtraImgs() {
 		read: false,
 		nodir: true
 	})
-		.pipe(new stream.Transform({
-			readableObjectMode: true,
-			writableObjectMode: true,
-			transform(chunk, encoding, callback) {
-				try {
-					let exists = [chunk.extname, ...convertingImgTypes].some(ext => {
-						return fs.existsSync(changeExt(chunk.path, ext).replace(`${path.sep}img${path.sep}`, `${path.sep}img-raw${path.sep}`))
-					})
+		.pipe(transform((chunk, encoding, callback) => {
+			try {
+				let exists = [chunk.extname, ...convertingImgTypes].some(ext => {
+					return fs.existsSync(changeExt(chunk.path, ext).replace(`${path.sep}img${path.sep}`, `${path.sep}img-raw${path.sep}`))
+				})
 
-					if (!exists) {
-						fs.rmSync(chunk.path)
-					}
-
-					callback(null, chunk)
-				} catch (error) {
-					callback(error, chunk)
+				if (!exists) {
+					fs.rmSync(chunk.path)
 				}
+
+				callback(null, chunk)
+			} catch (error) {
+				callback(error, chunk)
 			}
 		}))
 }
 
 function newer(relatedTo, newExt, ...oldExt) {
-	return new stream.Transform({
-		readableObjectMode: true,
-		writableObjectMode: true,
-		transform(chunk, encoding, callback) {
-			let newPath = path.join(relatedTo, path.relative(chunk.base, chunk.path))
+	return transform((chunk, encoding, callback) => {
+		let newPath = path.join(relatedTo, path.relative(chunk.base, chunk.path))
 
-			if (newExt) {
-				newPath = changeExt(newPath, newExt, ...oldExt)
-			}
-
-			fs.stat(newPath, function (relatedError, relatedStat) {
-				callback(null, (relatedError || (relatedStat.mtime < chunk.stat.mtime)) ? chunk : null)
-			})
+		if (newExt) {
+			newPath = changeExt(newPath, newExt, ...oldExt)
 		}
+
+		fs.stat(newPath, function (relatedError, relatedStat) {
+			callback(null, (relatedError || (relatedStat.mtime < chunk.stat.mtime)) ? chunk : null)
+		})
 	})
 }
 
@@ -153,27 +146,23 @@ function ext(newExt, ...oldExt) {
 }
 
 function sassCompile() {
-	return new stream.Transform({
-		writableObjectMode: true,
-		readableObjectMode: true,
-		transform(chunk, encoding, callback) {
-			try {
-				let compiled = sass.compileString(chunk.contents.toString(encoding), {
-					sourceMap: true,
-					sourceMapIncludeSources: true,
-					style: argv.min ? "compressed" : "expanded",
-					loadPaths: ["node_modules", chunk.base]
-				})
-				chunk.contents = Buffer.from(compiled.css, encoding)
-				Object.assign(chunk.sourceMap, compiled.sourceMap)
-				chunk.sourceMap.file = path.basename(chunk.path)
-			}
-			catch (err) {
-				var error = err
-				error.fileName = path.relative(cwd(), chunk.path)
-			}
-			callback(error, chunk)
+	return transform((chunk, encoding, callback) => {
+		try {
+			let compiled = sass.compileString(chunk.contents.toString(encoding), {
+				sourceMap: true,
+				sourceMapIncludeSources: true,
+				style: argv.min ? "compressed" : "expanded",
+				loadPaths: ["node_modules", chunk.base]
+			})
+			chunk.contents = Buffer.from(compiled.css, encoding)
+			Object.assign(chunk.sourceMap, compiled.sourceMap)
+			chunk.sourceMap.file = path.basename(chunk.path)
 		}
+		catch (err) {
+			var error = err
+			error.fileName = path.relative(cwd(), chunk.path)
+		}
+		callback(error, chunk)
 	})
 }
 
@@ -269,30 +258,21 @@ function copyStatic() {
 		nodir: true
 	})
 		.pipe(currentGulp.dest("./build/assets/static/"))
-		.pipe(new stream.PassThrough({
-			readableObjectMode: true,
-			writableObjectMode: true,
-			transform(chunk, encoding, callback) {
-				bs.reload()
-				callback(null, chunk)
-			}
+		.pipe(transform((chunk, encoding, callback) => {
+			bs.reload()
+			callback(null, chunk)
 		}))
 }
 
 function makeIconsSCSS() {
 	return gulp.src("./src/assets/static/img-raw/icon/**/*.svg", {
 		allowEmpty: true,
-		read: false,
-		nodir: true
+		read: false
 	})
-		.pipe(new stream.Transform({
-			readableObjectMode: true,
-			writableObjectMode: true,
-			transform(chunk, encoding, callback) {
-				let name = path.relative(chunk.base, chunk.path).replaceAll(path.sep, '__').replace(/\.[^/.]+$/, "").replaceAll(" ", '-')
-				let css = `.icon--${name}{mask-image: url(/src/assets/static/img/icon/stack.svg#${name});}`
-				callback(null, css)
-			}
+		.pipe(transform((chunk, encoding, callback) => {
+			let name = path.relative(chunk.base, chunk.path).replaceAll(path.sep, '__').replace(/\.[^/.]+$/, "").replaceAll(" ", '-')
+			let css = `.icon--${name}{mask-image: url(/src/assets/static/img/icon/stack.svg#${name});}`
+			callback(null, css)
 		}))
 		.pipe(fs.createWriteStream("./src/assets/style/_icons.scss"))
 }
@@ -326,15 +306,11 @@ function cleanBuild() {
 
 function ttfToWoff() {
 	return gulp.src("./src/assets/static/font/**/*.ttf")
-		.pipe(new stream.Transform({
-			writableObjectMode: true,
-			readableObjectMode: true,
-			transform(chunk, encoding, callback) {
-				fs.createWriteStream(changeExt(chunk.path, ".woff2"), {
-					autoClose: true
-				}).write(ttf2woff2(chunk.contents))
-				fs.rm(chunk.path, callback)
-			}
+		.pipe(transform((chunk, encoding, callback) => {
+			fs.createWriteStream(changeExt(chunk.path, ".woff2"), {
+				autoClose: true
+			}).write(ttf2woff2(chunk.contents))
+			fs.rm(chunk.path, callback)
 		}))
 }
 
