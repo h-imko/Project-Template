@@ -25,7 +25,8 @@
 		"gulp-stacksvg": "^3.0.0",
 		"imagemin-webp": "^8.0.0",
 		"sass": "^1.69.5",
-		"ttf2woff2": "^5.0.0"
+		"ttf2woff2": "^5.0.0",
+		"gulp-rename": "^2.0.0"
 	},
 	"dependencies": {
 		"@splidejs/splide": "^4.1.4",

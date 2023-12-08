@@ -14,24 +14,21 @@ import stream from "stream"
 import { stacksvg } from "gulp-stacksvg"
 import ejs from "ejs"
 import { cwd } from "process"
+import rename from "gulp-rename"
 
 const gulpMem = new gulpMemory(),
 	argv = getArgs(),
 	currentGulp = argv.ram ? gulpMem : gulp,
-	bs = browserSync.create()
+	bs = browserSync.create(),
+	convertingImgTypes = [".png", ".jpg", ".jpeg", ".webp"]
 
 gulpMem.logFn = null
 gulpMem.serveBasePath = "./build"
 
 function changeExt(fileName, newExt, ...oldExt) {
-	oldExt = oldExt.length ? oldExt : [path.extname(fileName)]
 	let pathObject = path.parse(fileName)
-
-	if (oldExt.includes(pathObject.ext)) {
-		return path.format({ ...pathObject, base: '', ext: newExt })
-	} else {
-		return fileName
-	}
+	let currExt = pathObject.ext
+	return path.format({ ...pathObject, base: '', ext: oldExt.includes(currExt) ? newExt : oldExt.length ? currExt : newExt })
 }
 
 function getArgs() {
@@ -64,10 +61,8 @@ function ejsCompile() {
 				compileDebug: argv.min ?? false,
 			}).then(html => {
 				chunk.contents = Buffer.from(html, encoding)
-				chunk.path = changeExt(chunk.path, ".html")
 				callback(null, chunk)
 			}).catch(error => {
-				chunk.path = changeExt(chunk.path, ".html")
 				callback(error, chunk)
 			})
 		}
@@ -107,33 +102,26 @@ function replaceSrc() {
 function cleanExtraImgs() {
 	return gulp.src([`./src/assets/static/img/**/*`, `!./src/assets/static/img/icon/stack.svg`], {
 		allowEmpty: true,
-		read: false
+		read: false,
+		nodir: true
 	})
 		.pipe(new stream.Transform({
 			readableObjectMode: true,
 			writableObjectMode: true,
 			transform(chunk, encoding, callback) {
 				try {
-					if (!fs.lstatSync(chunk.path).isDirectory()) {
-						let currentExt = path.extname(chunk.path)
-						let originExts = [currentExt]
+					let exists = [chunk.extname, ...convertingImgTypes].some(ext => {
+						return fs.existsSync(changeExt(chunk.path, ext).replace(`${path.sep}img${path.sep}`, `${path.sep}img-raw${path.sep}`))
+					})
 
-						if (currentExt != ".svg") {
-							originExts.push(".png", ".jpg", ".jpeg")
-						}
-
-						let exists = originExts.some(ext => {
-							return fs.existsSync(changeExt(chunk.path, ext).replace(`${path.sep}img${path.sep}`, `${path.sep}img-raw${path.sep}`))
-						})
-
-						if (!exists) {
-							fs.rmSync(chunk.path)
-						}
+					if (!exists) {
+						fs.rmSync(chunk.path)
 					}
-				} catch (err) {
-					var error = err
+
+					callback(null, chunk)
+				} catch (error) {
+					callback(error, chunk)
 				}
-				callback(error, chunk)
 			}
 		}))
 }
@@ -144,10 +132,9 @@ function newer(relatedTo, newExt, ...oldExt) {
 		writableObjectMode: true,
 		transform(chunk, encoding, callback) {
 			let newPath = path.join(relatedTo, path.relative(chunk.base, chunk.path))
-			let currExt = path.extname(newPath)
 
 			if (newExt) {
-				newPath = changeExt(newPath, newExt, ...(oldExt.includes(currExt) ? oldExt : []))
+				newPath = changeExt(newPath, newExt, ...oldExt)
 			}
 
 			fs.stat(newPath, function (relatedError, relatedStat) {
@@ -158,16 +145,9 @@ function newer(relatedTo, newExt, ...oldExt) {
 }
 
 function ext(newExt, ...oldExt) {
-	return new stream.Transform({
-		writableObjectMode: true,
-		readableObjectMode: true,
-		transform(chunk, encoding, callback) {
-			if (!fs.lstatSync(chunk.path).isDirectory()) {
-				chunk.path = changeExt(chunk.path, newExt, ...oldExt)
-				callback(null, chunk)
-			} else {
-				callback(null, null)
-			}
+	return rename((path) => {
+		if (oldExt.includes(path.extname) || !oldExt.length) {
+			path.extname = newExt
 		}
 	})
 }
@@ -185,7 +165,6 @@ function sassCompile() {
 					loadPaths: ["node_modules", chunk.base]
 				})
 				chunk.contents = Buffer.from(compiled.css, encoding)
-				chunk.path = changeExt(chunk.path, ".css")
 				Object.assign(chunk.sourceMap, compiled.sourceMap)
 				chunk.sourceMap.file = path.basename(chunk.path)
 			}
@@ -234,6 +213,7 @@ function css() {
 				bs.notify("SASS Error")
 				this.emit("end")
 			}))
+		.pipe(ext(".css"))
 		.pipe(autoPrefixer({
 			cascade: false,
 			flexbox: false,
@@ -275,6 +255,7 @@ function html() {
 				this.emit("end")
 			})
 		)
+		.pipe(ext(".html"))
 		.pipe(replace(".scss", ".css"))
 		.pipe(replaceSrc())
 		.pipe(currentGulp.dest("./build"))
@@ -282,9 +263,10 @@ function html() {
 }
 
 function copyStatic() {
-	return gulp.src(["./src/assets/static/**", "!./src/assets/static/img-raw/**"], {
+	return gulp.src(["./src/assets/static/**/*", "!./src/assets/static/img-raw/**/*"], {
 		allowEmpty: true,
-		since: gulp.lastRun(copyStatic)
+		since: gulp.lastRun(copyStatic),
+		nodir: true
 	})
 		.pipe(currentGulp.dest("./build/assets/static/"))
 		.pipe(new stream.PassThrough({
@@ -300,7 +282,8 @@ function copyStatic() {
 function makeIconsSCSS() {
 	return gulp.src("./src/assets/static/img-raw/icon/**/*.svg", {
 		allowEmpty: true,
-		read: false
+		read: false,
+		nodir: true
 	})
 		.pipe(new stream.Transform({
 			readableObjectMode: true,
@@ -324,11 +307,12 @@ function makeIconsStack() {
 
 function imageMin() {
 	return gulp.src("./src/assets/static/img-raw/**/*", {
-		allowEmpty: true
+		allowEmpty: true,
+		nodir: true
 	})
-		.pipe(newer("./src/assets/static/img/", ".webp", ".png", ".jpg", ".jpeg"))
+		.pipe(newer("./src/assets/static/img/", ".webp", ...convertingImgTypes))
 		.pipe(imagemin([webp({ method: 6 })]))
-		.pipe(ext(".webp", ".png", ".jpg", ".jpeg"))
+		.pipe(ext(".webp", ...convertingImgTypes))
 		.pipe(gulp.dest("./src/assets/static/img/"))
 }
 
