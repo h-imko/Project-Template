@@ -42,9 +42,10 @@ function getArgs() {
 		}
 	}, {})
 }
+
 /**
  * 
- * @param {function(Vinyl, BufferEncoding, stream.TransformCallback): void } func 
+ * @param {(chunk: Vinyl, encoding: BufferEncoding, callback: stream.TransformCallback)=> void } func 
  * @returns stream.Transform
  */
 function transform(func) {
