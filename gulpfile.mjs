@@ -29,7 +29,10 @@ gulpMem.serveBasePath = "./build"
 function changeExt(fileName, newExt, ...oldExt) {
 	let pathObject = path.parse(fileName)
 	let currExt = pathObject.ext
-	return path.format({ ...pathObject, base: '', ext: oldExt.includes(currExt) ? newExt : oldExt.length ? currExt : newExt })
+
+	if (oldExt.includes(currExt) || !oldExt.length) {
+		return path.format({ ...pathObject, base: '', ext: newExt })
+	}
 }
 
 function getArgs() {
