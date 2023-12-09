@@ -161,12 +161,12 @@ function sassCompile() {
 			chunk.contents = Buffer.from(compiled.css, encoding)
 			Object.assign(chunk.sourceMap, compiled.sourceMap)
 			chunk.sourceMap.file = path.basename(chunk.path)
+			callback(null, chunk)
 		}
-		catch (err) {
-			var error = err
+		catch (error) {
 			error.fileName = path.relative(cwd(), chunk.path)
+			callback(error, chunk)
 		}
-		callback(error, chunk)
 	})
 }
 
