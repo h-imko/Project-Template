@@ -32,6 +32,8 @@ function changeExt(fileName, newExt, ...oldExt) {
 
 	if (oldExt.includes(currExt) || !oldExt.length) {
 		return path.format({ ...pathObject, base: '', ext: newExt })
+	} else {
+		return fileName
 	}
 }
 
@@ -56,6 +58,13 @@ function transform(func) {
 		readableObjectMode: true,
 		writableObjectMode: true,
 		transform: func
+	})
+}
+
+function reload() {
+	return transform((chunk, encoding, callback) => {
+		bs.reload()
+		callback(null, chunk)
 	})
 }
 
@@ -181,18 +190,18 @@ function browserSyncInit() {
 }
 
 function printPaintedMessage(message, module) {
-	let errs = [...message.matchAll(new RegExp(/(?:[A-Za-z]+:*\\[а-яА-Яa-zA-Z-_.\\/]+)|('[а-яА-Яa-zA-Z-_.\\/]+')/gm))]
-		.map(function (curr) {
+	let errors = [...message.matchAll(new RegExp(/(?:[A-Za-z]+:*\\[а-яА-Яa-zA-Z-_.\\/]+)|('[а-яА-Яa-zA-Z-_.\\/]+')/gm))]
+		.map(function (error) {
 			return {
-				text: curr[0],
-				index: curr.index,
-				length: curr[0].length
+				text: error[0],
+				index: error.index,
+				length: error[0].length
 			}
 		})
 		.reverse()
 	message = message.split("")
-	errs.forEach(item => {
-		message.splice(item.index, item.length, "\x1b[0m", '\x1b[35m', item.text, "\x1b[0m")
+	errors.forEach(error => {
+		message.splice(error.index, error.length, "\x1b[0m", '\x1b[35m', error.text, "\x1b[0m")
 	})
 	console.log(`[\x1b[31m${module}\x1b[0m] ${message.join("")}`)
 }
@@ -262,10 +271,7 @@ function copyStatic() {
 		nodir: true
 	})
 		.pipe(currentGulp.dest("./build/assets/static/"))
-		.pipe(transform((chunk, encoding, callback) => {
-			bs.reload()
-			callback(null, chunk)
-		}))
+		.pipe(reload())
 }
 
 function makeIconsSCSS() {
@@ -274,7 +280,7 @@ function makeIconsSCSS() {
 		read: false
 	})
 		.pipe(transform((chunk, encoding, callback) => {
-			let name = path.relative(chunk.base, chunk.path).replaceAll(path.sep, '__').replace(/\.[^/.]+$/, "").replaceAll(" ", '-')
+			let name = chunk.relative.replaceAll(path.sep, '__').replace(/\.[^/.]+$/, "").replaceAll(" ", '-')
 			let css = `.icon--${name}{mask-image: url(/src/assets/static/img/icon/stack.svg#${name});}`
 			callback(null, css)
 		}))
@@ -311,12 +317,14 @@ function cleanBuild() {
 function ttfToWoff() {
 	return gulp.src("./src/assets/static/font/**/*.ttf")
 		.pipe(transform((chunk, encoding, callback) => {
-			fs.createWriteStream(changeExt(chunk.path, ".woff2"), {
-				autoClose: true
-			}).write(ttf2woff2(chunk.contents))
-			fs.rm(chunk.path, callback)
+			chunk.contents = ttf2woff2(chunk.contents)
+			callback(null, chunk)
 		}))
+		.pipe(clean())
+		.pipe(ext(".woff2"))
+		.pipe(gulp.dest("./src/assets/static/font/"))
 }
+
 
 function cleanInitials() {
 	return gulp.src("./src/**/.gitkeep", {
