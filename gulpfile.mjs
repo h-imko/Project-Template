@@ -79,14 +79,17 @@ function nothing(callback = () => { }) {
 function ejsCompile() {
 	return transform((chunk, encoding, callback) => {
 		ejs.renderFile(chunk.path, {}, {
-			root: path.join(cwd(), "src", "assets", "ejs"),
+			root: path.join(chunk.cwd, "src", "assets", "ejs"),
 			beautify: false,
 			compileDebug: argv.min ?? false,
 		}).then(html => {
 			chunk.contents = Buffer.from(html, encoding)
 			callback(null, chunk)
 		}).catch(error => {
-			callback(error, chunk)
+
+			callback(new Error(error.message, {
+				cause: chunk.path
+			}), chunk)
 		})
 	})
 }
@@ -138,7 +141,7 @@ function cleanExtraImgs() {
 
 function newer(relatedTo, newExt, ...oldExt) {
 	return transform((chunk, encoding, callback) => {
-		let newPath = path.join(relatedTo, path.relative(chunk.base, chunk.path))
+		let newPath = path.join(relatedTo, chunk.relative)
 
 		if (newExt) {
 			newPath = changeExt(newPath, newExt, ...oldExt)
@@ -173,8 +176,9 @@ function sassCompile() {
 			callback(null, chunk)
 		}
 		catch (error) {
-			error.fileName = path.relative(cwd(), chunk.path)
-			callback(error, chunk)
+			callback(new Error(error.message, {
+				cause: chunk.path
+			}), chunk)
 		}
 	})
 }
@@ -193,7 +197,7 @@ function printPaintedMessage(message, module) {
 	let errors = [...message.matchAll(new RegExp(/(?:[A-Za-z]+:*\\[а-яА-Яa-zA-Z-_.\\/]+)|('[а-яА-Яa-zA-Z-_.\\/]+')/gm))]
 		.map(function (error) {
 			return {
-				text: error[0],
+				text: path.relative(cwd(), error[0]),
 				index: error.index,
 				length: error[0].length
 			}
@@ -211,7 +215,7 @@ function css() {
 		.pipe(sourcemaps.init())
 		.pipe(sassCompile()
 			.on("error", function (error) {
-				printPaintedMessage(`${error.fileName} ${error.message}`, "SASS")
+				printPaintedMessage(`${error.message} in file ${error.cause}`, "SASS")
 				bs.notify("SASS Error")
 				this.emit("end")
 			}))
@@ -252,7 +256,7 @@ function html() {
 	return gulp.src(["./src/*.ejs", "./src/*.html"])
 		.pipe(ejsCompile()
 			.on("error", function (error) {
-				printPaintedMessage(`${error.fileName} ${error.message}`, "EJS")
+				printPaintedMessage(`${error.message} in file ${error.cause}`, "EJS")
 				bs.notify("EJS Error")
 				this.emit("end")
 			})
