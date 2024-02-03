@@ -1,5 +1,6 @@
 import path from "path"
 import stream from "stream"
+import { cwd } from "process"
 
 function changeExt(fileName, newExt, ...oldExt) {
 	let pathObject = path.parse(fileName)
