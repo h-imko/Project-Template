@@ -1,120 +1,15 @@
-import browserSync from "browser-sync"
 import fs from "fs"
 import gulp from "gulp"
 import autoPrefixer from "gulp-autoprefixer"
 import imagemin from "gulp-imagemin"
-import gulpMemory from "gulp-mem"
 import sourcemaps from "gulp-sourcemaps"
 import webp from "imagemin-webp"
-import path from "path"
-import * as sass from "sass"
 import esbuild from "gulp-esbuild"
-import ttf2woff2 from "ttf2woff2"
-import stream from "stream"
 import { stacksvg } from "gulp-stacksvg"
-import ejs from "ejs"
-import Vinyl from "vinyl"
-import { cwd } from "process"
-import rename from "gulp-rename"
+import { nothing } from "./gulp/service.mjs"
+import { reload, replaceSrc, printPaintedMessage, clean, newer, ext, ejsCompile, sassCompile, removeExcess, replace, iconsToCSS } from "./gulp/custom.mjs"
+import { bs, argv, convertingImgTypes, gulpMem, currentGulp } from "./gulp/env.mjs"
 
-const gulpMem = new gulpMemory(),
-	argv = getArgs(),
-	currentGulp = argv.ram ? gulpMem : gulp,
-	bs = browserSync.create(),
-	convertingImgTypes = [".png", ".jpg", ".jpeg", ".webp"]
-
-gulpMem.logFn = null
-gulpMem.serveBasePath = "./build"
-
-function changeExt(fileName, newExt, ...oldExt) {
-	let pathObject = path.parse(fileName)
-	let currExt = pathObject.ext
-
-	if (oldExt.includes(currExt) || !oldExt.length) {
-		return path.format({ ...pathObject, base: '', ext: newExt })
-	} else {
-		return fileName
-	}
-}
-
-function getArgs() {
-	return process.argv.slice(2).reduce(function (acc, curr, index, array) {
-		if (curr.startsWith("--")) {
-			return Object.assign(acc, { [curr.replace("--", "")]: (!array[index + 1] || array[index + 1]?.startsWith("--")) ? true : array[index + 1] })
-		}
-		else {
-			return acc
-		}
-	}, {})
-}
-
-/**
- * 
- * @param {(chunk: Vinyl, encoding: BufferEncoding, callback: stream.TransformCallback)=> void } func 
- * @returns stream.Transform
- */
-function transform(func) {
-	return new stream.Transform({
-		readableObjectMode: true,
-		writableObjectMode: true,
-		transform: func
-	})
-}
-
-function reload() {
-	return transform((chunk, encoding, callback) => {
-		bs.reload()
-		callback(null, chunk)
-	})
-}
-
-function nothing(callback = () => { }) {
-	callback()
-	return new stream.PassThrough({
-		readableObjectMode: true,
-		writableObjectMode: true
-	})
-}
-
-function ejsCompile() {
-	return transform((chunk, encoding, callback) => {
-		ejs.renderFile(chunk.path, {}, {
-			root: path.join(chunk.cwd, "src", "assets", "ejs"),
-			beautify: false,
-			compileDebug: argv.min ?? false,
-		}).then(html => {
-			chunk.contents = Buffer.from(html, encoding)
-			callback(null, chunk)
-		}).catch(error => {
-
-			callback(new Error(error.message, {
-				cause: chunk.path
-			}), chunk)
-		})
-	})
-}
-
-function clean() {
-	return transform((chunk, encoding, callback) => {
-		fs.rm(chunk.path, {
-			recursive: true,
-			force: true
-		}, (error) => {
-			callback(error, chunk)
-		})
-	})
-}
-
-function replace(searchValue, repaceValue) {
-	return transform((chunk, encoding, callback) => {
-		chunk.contents = Buffer.from(chunk.contents.toString(encoding).replaceAll(searchValue, repaceValue), encoding)
-		callback(null, chunk)
-	})
-}
-
-function replaceSrc() {
-	return replace("/src/", "/")
-}
 
 function cleanExtraImgs() {
 	return gulp.src([`./src/assets/static/img/**/*`, `!./src/assets/static/img/icon/stack.svg`], {
@@ -122,65 +17,7 @@ function cleanExtraImgs() {
 		read: false,
 		nodir: true
 	})
-		.pipe(transform((chunk, encoding, callback) => {
-			try {
-				let exists = [chunk.extname, ...convertingImgTypes].some(ext => {
-					return fs.existsSync(changeExt(chunk.path, ext).replace(`${path.sep}img${path.sep}`, `${path.sep}img-raw${path.sep}`))
-				})
-
-				if (!exists) {
-					fs.rmSync(chunk.path)
-				}
-
-				callback(null, chunk)
-			} catch (error) {
-				callback(error, chunk)
-			}
-		}))
-}
-
-function newer(relatedTo, newExt, ...oldExt) {
-	return transform((chunk, encoding, callback) => {
-		let newPath = path.join(relatedTo, chunk.relative)
-
-		if (newExt) {
-			newPath = changeExt(newPath, newExt, ...oldExt)
-		}
-
-		fs.stat(newPath, function (relatedError, relatedStat) {
-			callback(null, (relatedError || (relatedStat.mtime < chunk.stat.mtime)) ? chunk : null)
-		})
-	})
-}
-
-function ext(newExt, ...oldExt) {
-	return rename((path) => {
-		if (oldExt.includes(path.extname) || !oldExt.length) {
-			path.extname = newExt
-		}
-	})
-}
-
-function sassCompile() {
-	return transform((chunk, encoding, callback) => {
-		try {
-			let compiled = sass.compileString(chunk.contents.toString(encoding), {
-				sourceMap: true,
-				sourceMapIncludeSources: true,
-				style: argv.min ? "compressed" : "expanded",
-				loadPaths: ["node_modules", chunk.base]
-			})
-			chunk.contents = Buffer.from(compiled.css, encoding)
-			Object.assign(chunk.sourceMap, compiled.sourceMap)
-			chunk.sourceMap.file = path.basename(chunk.path)
-			callback(null, chunk)
-		}
-		catch (error) {
-			callback(new Error(error.message, {
-				cause: chunk.path
-			}), chunk)
-		}
-	})
+		.pipe(removeExcess('img-raw', 'img', ...convertingImgTypes))
 }
 
 function browserSyncInit() {
@@ -191,23 +28,6 @@ function browserSyncInit() {
 		},
 		port: argv.port ?? 3000
 	})
-}
-
-function printPaintedMessage(message, module) {
-	let errors = [...message.matchAll(new RegExp(/(?:[A-Za-z]+:*\\[а-яА-Яa-zA-Z-_.\\/]+)|('[а-яА-Яa-zA-Z-_.\\/]+')/gm))]
-		.map(function (error) {
-			return {
-				text: path.relative(cwd(), error[0]),
-				index: error.index,
-				length: error[0].length
-			}
-		})
-		.reverse()
-	message = message.split("")
-	errors.forEach(error => {
-		message.splice(error.index, error.length, "\x1b[0m", '\x1b[35m', error.text, "\x1b[0m")
-	})
-	console.log(`[\x1b[31m${module}\x1b[0m] ${message.join("")}`)
 }
 
 function css() {
@@ -283,11 +103,7 @@ function makeIconsSCSS() {
 		allowEmpty: true,
 		read: false
 	})
-		.pipe(transform((chunk, encoding, callback) => {
-			let name = chunk.relative.replaceAll(path.sep, '__').replace(/\.[^/.]+$/, "").replaceAll(" ", '-')
-			let css = `.icon--${name}{mask-image: url(/src/assets/static/img/icon/stack.svg#${name});}`
-			callback(null, css)
-		}))
+		.pipe(iconsToCSS())
 		.pipe(fs.createWriteStream("./src/assets/style/_icons.scss"))
 }
 
@@ -318,17 +134,13 @@ function cleanBuild() {
 		.pipe(clean())
 }
 
-function ttfToWoff() {
+function convertFont() {
 	return gulp.src("./src/assets/static/font/**/*.ttf")
-		.pipe(transform((chunk, encoding, callback) => {
-			chunk.contents = ttf2woff2(chunk.contents)
-			callback(null, chunk)
-		}))
+		.pipe(ttfToWoff())
 		.pipe(clean())
 		.pipe(ext(".woff2"))
 		.pipe(gulp.dest("./src/assets/static/font/"))
 }
-
 
 function cleanInitials() {
 	return gulp.src("./src/**/.gitkeep", {
@@ -365,4 +177,4 @@ export default gulp.series(
 	) : nothing
 )
 
-export { imageMin, ttfToWoff, cleanInitials }
+export { imageMin, convertFont as ttfToWoff, cleanInitials }
