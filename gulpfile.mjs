@@ -8,7 +8,7 @@ import esbuild from "gulp-esbuild"
 import { stacksvg } from "gulp-stacksvg"
 import { nothing } from "./gulp/service.mjs"
 import { reload, replaceSrc, printPaintedMessage, clean, newer, ext, ejsCompile, sassCompile, removeExcess, replace, iconsToCSS } from "./gulp/custom.mjs"
-import { bs, argv, convertingImgTypes, gulpMem, currentGulp } from "./gulp/env.mjs"
+import { bs, argv, convertingImgTypes, gulpMem, destGulp } from "./gulp/env.mjs"
 
 
 function cleanExtraImgs() {
@@ -46,7 +46,7 @@ function css() {
 		}))
 		.pipe(replaceSrc())
 		.pipe(sourcemaps.write("./"))
-		.pipe(currentGulp.dest("./build/assets/style/"))
+		.pipe(destGulp.dest("./build/assets/style/"))
 		.pipe(bs.stream())
 }
 
@@ -68,7 +68,7 @@ function js() {
 		)
 		.pipe(replaceSrc())
 		.pipe(sourcemaps.write("./"))
-		.pipe(currentGulp.dest("./build/assets/script/"))
+		.pipe(destGulp.dest("./build/assets/script/"))
 		.pipe(bs.stream())
 }
 
@@ -84,7 +84,7 @@ function html() {
 		.pipe(ext(".html"))
 		.pipe(replace(".scss", ".css"))
 		.pipe(replaceSrc())
-		.pipe(currentGulp.dest("./build"))
+		.pipe(destGulp.dest("./build"))
 		.pipe(bs.stream())
 }
 
@@ -94,7 +94,7 @@ function copyStatic() {
 		since: gulp.lastRun(copyStatic),
 		nodir: true
 	})
-		.pipe(currentGulp.dest("./build/assets/static/"))
+		.pipe(destGulp.dest("./build/assets/static/"))
 		.pipe(reload())
 }
 

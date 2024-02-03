@@ -16,11 +16,11 @@ function getArgs() {
 
 const gulpMem = new gulpMemory(),
 	argv = getArgs(),
-	currentGulp = argv.ram ? gulpMem : gulp,
+	destGulp = argv.ram ? gulpMem : gulp,
 	bs = browserSync.create(),
 	convertingImgTypes = [".png", ".jpg", ".jpeg", ".webp"]
 
 gulpMem.logFn = null
 gulpMem.serveBasePath = "./build"
 
-export { bs, argv, convertingImgTypes, gulpMem, currentGulp }
+export { bs, argv, convertingImgTypes, gulpMem, destGulp }
