@@ -1,7 +1,6 @@
 import path from "path"
 import stream from "stream"
 
-
 export function changeExt(fileName, newExt, ...oldExt) {
 	let pathObject = path.parse(fileName)
 	let currExt = pathObject.ext
