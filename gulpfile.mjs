@@ -6,10 +6,9 @@ import sourcemaps from "gulp-sourcemaps"
 import webp from "imagemin-webp"
 import esbuild from "gulp-esbuild"
 import { stacksvg } from "gulp-stacksvg"
-import { nothing } from "./gulp/service.mjs"
-import { reload, replaceSrc, printPaintedMessage, clean, newer, ext, ejsCompile, sassCompile, removeExcess, replace, iconsToCSS } from "./gulp/custom.mjs"
+import { nothing, printPaintedMessage } from "./gulp/service.mjs"
+import { reload, replaceSrc, clean, newer, ext, ejsCompile, sassCompile, removeExcess, replace, iconsToCSS } from "./gulp/custom.mjs"
 import { bs, argv, convertingImgTypes, gulpMem, destGulp } from "./gulp/env.mjs"
-
 
 function cleanExtraImgs() {
 	return gulp.src([`./src/assets/static/img/**/*`, `!./src/assets/static/img/icon/stack.svg`], {
