@@ -3,7 +3,7 @@
  * @param {Boolean} action
  */
 
-let toggleNoscrollBody = (function () {
+const toggleNoscrollBody = (function () {
 	let lastPosition, scrollBarWidth = window.innerWidth - document.documentElement.clientWidth
 	return function (action) {
 		function disable() {
@@ -91,7 +91,7 @@ function headerHeightToCSS() {
 	}).observe(header)
 }
 
-let breakpoints = (() => {
+const breakpoints = (() => {
 	let style = getComputedStyle(document.documentElement)
 	return {
 		mobile: parseInt(style.getPropertyValue("--mobile")),
