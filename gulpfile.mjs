@@ -7,7 +7,7 @@ import webp from "imagemin-webp"
 import esbuild from "gulp-esbuild"
 import { stacksvg } from "gulp-stacksvg"
 import { nothing, printPaintedMessage } from "./gulp/service.mjs"
-import { reload, replaceSrc, clean, newer, ext, ejsCompile, sassCompile, removeExcess, replace, iconsToCSS } from "./gulp/custom.mjs"
+import { reload, replaceSrc, clean, newer, ext, ejsCompile, sassCompile, removeExcess, replace, iconsToCSS, ttfToWoff } from "./gulp/custom.mjs"
 import { bs, argv, convertingImgTypes, gulpMem, destGulp } from "./gulp/env.mjs"
 
 function cleanExtraImgs() {
