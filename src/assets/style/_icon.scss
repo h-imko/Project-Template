@@ -13,5 +13,5 @@
 	transition-property: opacity, background-color;
 	width: var(--icon-width, var(--size, 24px));
 	height: var(--icon-height, var(--size, 24px));
-	background-color: var(--color, #000);
+	background-color: var(--color, currentColor);
 }
