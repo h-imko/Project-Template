@@ -1,6 +1,7 @@
 import path from "path"
 import stream from "stream"
 import { cwd } from "process"
+import Vinyl from "vinyl"
 
 function changeExt(fileName, newExt, ...oldExt) {
 	let pathObject = path.parse(fileName)

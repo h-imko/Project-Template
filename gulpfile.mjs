@@ -1,13 +1,11 @@
 import fs from "fs"
 import gulp from "gulp"
 import autoPrefixer from "gulp-autoprefixer"
-import imagemin from "gulp-imagemin"
 import sourcemaps from "gulp-sourcemaps"
-import webp from "imagemin-webp"
 import esbuild from "gulp-esbuild"
 import { stacksvg } from "gulp-stacksvg"
 import { nothing, printPaintedMessage } from "./gulp/service.mjs"
-import { reload, replaceSrc, clean, newer, ext, ejsCompile, sassCompile, removeExcess, replace, iconsToCSS, ttfToWoff } from "./gulp/custom.mjs"
+import { reload, replaceSrc, clean, newer, ext, ejsCompile, sassCompile, removeExcess, replace, iconsToCSS, ttfToWoff, sharpWebp } from "./gulp/custom.mjs"
 import { bs, argv, convertingImgTypes, gulpMem, destGulp } from "./gulp/env.mjs"
 
 function cleanExtraImgs() {
@@ -120,7 +118,7 @@ function imageMin() {
 		nodir: true
 	})
 		.pipe(newer("./src/assets/static/img/", ".webp", ...convertingImgTypes))
-		.pipe(imagemin([webp({ method: 6 })]))
+		.pipe(sharpWebp())
 		.pipe(ext(".webp", ...convertingImgTypes))
 		.pipe(gulp.dest("./src/assets/static/img/"))
 }

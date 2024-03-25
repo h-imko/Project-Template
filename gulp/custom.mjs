@@ -6,6 +6,7 @@ import ejs from "ejs"
 import * as sass from "sass"
 import ttf2woff2 from "ttf2woff2"
 import { bs, argv } from "./env.mjs"
+import sharp from "sharp"
 
 function ext(newExt, ...oldExt) {
 	return rename((path) => {
@@ -26,6 +27,20 @@ function newer(relatedTo, newExt, ...oldExt) {
 		fs.stat(newPath, function (relatedError, relatedStat) {
 			callback(null, (relatedError || (relatedStat.mtime < chunk.stat.mtime)) ? chunk : null)
 		})
+	})
+}
+
+function sharpWebp() {
+	return transform((chunk, encoding, callback) => {
+		sharp(chunk.contents)
+			.webp({
+				effort: 6,
+				quality: 80
+			})
+			.toBuffer((error, buffer) => {
+				chunk.contents = buffer
+				callback(error, chunk)
+			})
 	})
 }
 
@@ -131,4 +146,4 @@ function ttfToWoff() {
 	})
 }
 
-export { ext, newer, replace, reload, replaceSrc, clean, ejsCompile, removeExcess, sassCompile, iconsToCSS, ttfToWoff }
+export { ext, newer, replace, reload, replaceSrc, clean, ejsCompile, removeExcess, sassCompile, iconsToCSS, ttfToWoff, sharpWebp }
