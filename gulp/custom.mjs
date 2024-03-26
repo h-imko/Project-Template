@@ -5,7 +5,7 @@ import { changeExt, transform } from "./service.mjs"
 import ejs from "ejs"
 import * as sass from "sass"
 import ttf2woff2 from "ttf2woff2"
-import { bs, argv } from "./env.mjs"
+import { bs, argv, convertingImgTypes } from "./env.mjs"
 import sharp from "sharp"
 
 function ext(newExt, ...oldExt) {
@@ -32,15 +32,19 @@ function newer(relatedTo, newExt, ...oldExt) {
 
 function sharpWebp() {
 	return transform((chunk, encoding, callback) => {
-		sharp(chunk.contents)
-			.webp({
-				effort: 6,
-				quality: 80
-			})
-			.toBuffer((error, buffer) => {
-				chunk.contents = buffer
-				callback(error, chunk)
-			})
+		if (convertingImgTypes.includes(chunk.extname)) {
+			sharp(chunk.contents)
+				.webp({
+					effort: 6,
+					quality: 80
+				})
+				.toBuffer((error, buffer) => {
+					chunk.contents = buffer
+					callback(error, chunk)
+				})
+		} else {
+			callback(null, chunk)
+		}
 	})
 }
 
