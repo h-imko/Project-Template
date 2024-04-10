@@ -39,8 +39,13 @@ function sharpWebp() {
 					quality: 80
 				})
 				.toBuffer((error, buffer) => {
-					chunk.contents = buffer
-					callback(error, chunk)
+					if (error) {
+						error.cause = chunk.path
+						callback(error, chunk)
+					} else {
+						chunk.contents = buffer
+						callback(error, chunk)
+					}
 				})
 		} else {
 			callback(null, chunk)
