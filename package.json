@@ -25,12 +25,12 @@
 		"gulp-stacksvg": "^3.0.0",
 		"sass": "^1.74.1",
 		"ttf2woff2": "^5.0.0",
-		"vinyl": "^3.0.0"
+		"vinyl": "^3.0.0",
+		"sharp": "^0.33.3"
 	},
 	"dependencies": {
 		"@splidejs/splide": "^4.1.4",
 		"cleave.js": "^1.6.0",
-		"fslightbox": "^3.4.1",
-		"sharp": "^0.33.3"
+		"fslightbox": "^3.4.1"
 	}
 }
