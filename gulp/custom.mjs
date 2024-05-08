@@ -4,9 +4,9 @@ import path from "path"
 import { changeExt, transform } from "./service.mjs"
 import ejs from "ejs"
 import * as sass from "sass"
-import ttf2woff2 from "ttf2woff2"
 import { bs, argv, convertingImgTypes } from "./env.mjs"
 import sharp from "sharp"
+import wawoff2 from "wawoff2"
 
 function ext(newExt, ...oldExt) {
 	return rename((path) => {
@@ -150,8 +150,10 @@ function iconsToCSS() {
 
 function ttfToWoff() {
 	return transform((chunk, encoding, callback) => {
-		chunk.contents = ttf2woff2(chunk.contents)
-		callback(null, chunk)
+		wawoff2.compress(chunk.contents).then(woff => {
+			chunk.contents = Buffer.from(woff)
+			callback(null, chunk)
+		})
 	})
 }
 
