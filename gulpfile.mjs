@@ -134,7 +134,9 @@ function cleanBuild() {
 }
 
 function convertFont() {
-	return gulp.src("./src/assets/static/font/**/*.ttf")
+	return gulp.src("./src/assets/static/font/**/*.ttf", {
+		encoding: false
+	})
 		.pipe(ttfToWoff())
 		.pipe(clean())
 		.pipe(ext(".woff2"))
