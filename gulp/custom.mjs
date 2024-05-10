@@ -92,7 +92,6 @@ function ejsCompile() {
 			chunk.contents = Buffer.from(html, encoding)
 			callback(null, chunk)
 		}).catch(error => {
-
 			callback(new Error(error.message, {
 				cause: chunk.path
 			}), chunk)

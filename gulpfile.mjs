@@ -89,7 +89,8 @@ function copyStatic() {
 	return gulp.src(["./src/assets/static/**/*", "!./src/assets/static/img-raw/**/*"], {
 		allowEmpty: true,
 		since: gulp.lastRun(copyStatic),
-		nodir: true
+		nodir: true,
+		encoding: false
 	})
 		.pipe(destGulp.dest("./build/assets/static/"))
 		.pipe(reload())
@@ -115,7 +116,8 @@ function makeIconsStack() {
 function imageMin() {
 	return gulp.src("./src/assets/static/img-raw/**/*", {
 		allowEmpty: true,
-		nodir: true
+		nodir: true,
+		encoding: false
 	})
 		.pipe(newer("./src/assets/static/img/", ".webp", ...convertingImgTypes))
 		.pipe(sharpWebp())
