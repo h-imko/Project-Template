@@ -1,52 +1,16 @@
-@font-face {
-	font-family: "";
-	src: url(/src/assets/static/font/);
-	font-weight: 500;
-	font-display: swap;
-}
-
-@font-face {
-	font-family: "";
-	src: url(/src/assets/static/font/) format("woff2-variations");
-	font-display: swap;
-	font-weight: 125 950;
-	font-style: normal;
-}
-
-h1,
-.h1 {
-	@media screen and (max-width: $mobile) {}
-}
-
-h2,
-.h2 {
-	@media screen and (max-width: $mobile) {}
-}
-
-h3,
-.h3 {
-	@media screen and (max-width: $mobile) {}
-}
-
-h4,
-.h4 {
-	@media screen and (max-width: $mobile) {}
-}
-
-h5,
-.h5 {
-	@media screen and (max-width: $mobile) {}
-}
-
-h6,
-.h6 {
-	@media screen and (max-width: $mobile) {}
-}
-
-.subtitle {
-	@media screen and (max-width: $mobile) {}
-}
-
+// @font-face {
+// 	font-family: "";
+// 	src: url(/src/assets/static/font/);
+// 	font-weight: 500;
+// 	font-display: swap;
+// }
+// @font-face {
+// 	font-family: "";
+// 	src: url(/src/assets/static/font/) format("woff2-variations");
+// 	font-display: swap;
+// 	font-weight: 125 950;
+// 	font-style: normal;
+// }
 body,
 input {
 	@media screen and (max-width: $mobile) {}

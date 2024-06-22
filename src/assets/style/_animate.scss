@@ -1,22 +1,18 @@
 .animate {}
 
 [data-animate] {
-	animation-name: biba, boba;
-	animation-duration: 1s, 1s;
-	animation-fill-mode: both;
-	animation-iteration-count: 1, 1;
-	animation-play-state: paused;
-	animation-direction: alternate;
-
-	@keyframes biba {
-		from {}
-
-		to {}
-	}
-
-	@keyframes boba {
-		from {}
-
-		to {}
-	}
+	// animation-name: biba, boba;
+	// animation-duration: 1s, 1s;
+	// animation-fill-mode: both;
+	// animation-iteration-count: 1, 1;
+	// animation-play-state: paused;
+	// animation-direction: alternate;
+	// @keyframes biba {
+	// 	from {}
+	// 	to {}
+	// }
+	// @keyframes boba {
+	// 	from {}
+	// 	to {}
+	// }
 }

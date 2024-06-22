@@ -1,0 +1,39 @@
+.dialog {
+	margin: auto;
+	overflow-y: auto;
+	height: 100%;
+	width: 100%;
+	background-color: transparent;
+	border: none;
+	opacity: 0;
+	pointer-events: none;
+	overscroll-behavior: contain;
+	display: grid;
+	grid-template-columns: 32px 1fr 32px;
+	grid-template-rows: 32px 1fr 32px;
+
+	&__body {
+		max-width: var(--container-width);
+		width: 100%;
+		grid-row: 2;
+		grid-column: 2;
+		justify-self: center;
+		align-self: center;
+		background-color: #fff;
+	}
+
+	&__close-backdrop {
+		opacity: 0;
+		grid-row: 1 / -1;
+		grid-column: 1 / -1;
+	}
+
+	&:popover-open {
+		opacity: 1;
+		pointer-events: all;
+	}
+
+	&::backdrop {
+		background: #00000080;
+	}
+}

@@ -4,21 +4,15 @@
  */
 
 const toggleNoscrollBody = (function () {
-	let lastPosition, scrollBarWidth = window.innerWidth - document.documentElement.clientWidth
+	let scrollBarWidth = window.innerWidth - document.documentElement.clientWidth
 	return function (action) {
 		function disable() {
-			lastPosition = window.scrollY
-			document.documentElement.style.setProperty("--scroll-position", `${lastPosition}px`)
 			document.documentElement.style.setProperty("--scrollbar-width", `${scrollBarWidth}px`)
 			document.body.classList.add('noscroll')
 		}
 
 		function enable() {
 			document.body.classList.remove('noscroll')
-			window.scrollTo({
-				top: lastPosition,
-				behavior: "instant"
-			})
 		}
 
 		function toggle() {
@@ -43,7 +37,7 @@ const toggleNoscrollBody = (function () {
  * @param {Array.<Element>} targets
  * @returns
  */
-function ifClickInside(event, targets) {
+function ifClickInside(event, ...targets) {
 	return targets.some(target => {
 		return event.composedPath().includes(target)
 	})

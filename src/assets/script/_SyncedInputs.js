@@ -1,25 +1,30 @@
-class SyncedInputs {
-	/**
-	 *
-	 * @param  {...HTMLInputElement} inputs
-	 */
-	constructor(...inputs) {
-		this.items = inputs
-		this.items.forEach(item => {
-			item.addEventListener("change", () => {
-				let checked = item.checked
-				this.items.forEach(item => {
-					item.checked = checked
-				})
-			})
-		})
-	}
+/**
+ * @type {Object.<string, Set<HTMLInputElement> >} 
+ */
+let groups = {}
 
-	static findGroups() {
-		return Object.values([...document.querySelectorAll("[data-synced-inputs]")].reduce((acc, input) => {
-			acc[input.dataset.syncedInputs] = [...acc[input.dataset.syncedInputs] ?? [], input]
-			return acc
-		}, {}))
-	}
+/**
+ * @this HTMLInputElement
+ */
+function update() {
+	groups[this.dataset.syncedInputs].forEach(elem => {
+		elem.checked = this.checked
+	})
 }
-export default SyncedInputs
+
+/**
+ * 
+ * @param {NodeList | HTMLInputElement[]} [newElements] 
+ */
+export default function (newElements) {
+	(newElements ?? document.querySelectorAll("input[data-synced-inputs]")).forEach(input => {
+		let groupID = input.dataset.syncedInputs
+		groups[groupID] ??= new Set()
+		groups[groupID].add(input)
+	})
+	Object.values(groups).forEach(group => {
+		group.forEach(elem => {
+			elem.addEventListener("change", update)
+		})
+	})
+}

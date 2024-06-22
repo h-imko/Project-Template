@@ -23,7 +23,7 @@ function browserSyncInit() {
 			baseDir: "./build",
 			middleware: argv.ram ? gulpMem.middleware : false,
 		},
-		port: argv.port ?? 3000
+		port: argv.port ?? 80
 	})
 }
 
@@ -79,7 +79,9 @@ function html() {
 			})
 		)
 		.pipe(ext(".html"))
-		.pipe(replace(".scss", ".css"))
+		.pipe(replace(".scss", `.css?timestamp=${new Date().getTime()}`))
+		.pipe(replace(".ejs", ".html"))
+		.pipe(replace(".js", `.js?timestamp=${new Date().getTime()}`))
 		.pipe(replaceSrc())
 		.pipe(destGulp.dest("./build"))
 		.pipe(bs.stream())

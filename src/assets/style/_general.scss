@@ -18,6 +18,7 @@
 img {
 	width: 100%;
 	height: auto;
+	max-height: 100%;
 	object-fit: contain;
 	object-position: center;
 	display: block;
@@ -25,25 +26,23 @@ img {
 
 html {
 	scroll-behavior: smooth;
+	display: grid;
+	min-height: 100%;
 }
 
 body {
-	display: flex;
-	flex-direction: column;
-	min-height: 100vh;
+	display: grid;
+	grid-template-rows: auto 1fr auto;
 
 	&.noscroll {
 		overflow: hidden;
-		top: calc(-1 * var(--scroll-position, 0));
 		padding-right: var(--scrollbar-width, 0);
-		position: fixed;
-		width: 100%;
 	}
 }
 
-main {
-	flex-grow: 1;
-	display: flex;
-	flex-direction: column;
-	justify-content: flex-start;
+:root {
+	--header-margin: 24px;
+	--container-padding: 16px;
+	--container-width: 1280px;
+	--default-duration: .3s;
 }
