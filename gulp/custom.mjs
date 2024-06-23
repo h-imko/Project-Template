@@ -87,7 +87,6 @@ function ejsCompile() {
 		ejs.renderFile(chunk.path, {}, {
 			root: path.join(chunk.cwd, "src", "assets", "ejs"),
 			beautify: false,
-			compileDebug: argv.min ?? false,
 		}).then(html => {
 			chunk.contents = Buffer.from(html, encoding)
 			callback(null, chunk)
