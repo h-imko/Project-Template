@@ -46,6 +46,20 @@ function ifClickInside(event, ...targets) {
 /**
  *
  * @param {Splide} splide
+ * @param {HTMLElement} counter
+ */
+export function bindSplideCounter(splide, counter) {
+	counter.style.setProperty("--splidet-page-current", splide.index + 1)
+	counter.style.setProperty("--splide-page-total", splide.Components.Slides.getLength())
+
+	splide.on("moved", (newPos) => {
+		counter.style.setProperty("--splidet-page-current", newPos + 1)
+	})
+}
+
+/**
+ *
+ * @param {Splide} splide
  * @param {HTMLElement} arrows
  */
 function bindSplideArrows(splide, arrows) {
