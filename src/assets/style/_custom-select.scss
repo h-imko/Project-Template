@@ -1,0 +1,39 @@
+.custom-select {
+	position: relative;
+
+	&__select {
+		&.is-hidden {
+			position: absolute;
+			pointer-events: none;
+			opacity: 0;
+		}
+	}
+
+	&__list {
+		position: absolute;
+		left: 0;
+		right: 0;
+		background-color: #fff;
+		box-shadow: rgba(96, 103, 111, 0.4) 0 4px 14px;
+		opacity: 0;
+		pointer-events: none;
+		max-height: max(20dvh, 300px);
+		overflow: auto;
+
+		&.is-active {
+			opacity: 1;
+			pointer-events: all;
+		}
+	}
+
+	&__option {
+		cursor: pointer;
+		transition-duration: var(--default-duration);
+		transition-timing-function: ease;
+		transition-property: background-color, color;
+
+		&:hover {
+			background-color: #00000080;
+		}
+	}
+}
