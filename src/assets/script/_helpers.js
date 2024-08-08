@@ -57,6 +57,13 @@ export function bindSplideCounter(splide, counter) {
 	})
 }
 
+function setVh() {
+	document.documentElement.style.setProperty("--vh", `${visualViewport.height / 100}px`)
+	visualViewport.addEventListener("resize", () => {
+		document.documentElement.style.setProperty("--vh", `${visualViewport.height / 100}px`)
+	})
+}
+
 /**
  *
  * @param {Splide} splide
@@ -68,21 +75,25 @@ function bindSplideArrows(splide, arrows) {
 
 	function setArrowsState(current_index = 0) {
 		arrow_prev.toggleAttribute("disabled", current_index == 0)
-		arrow_next.toggleAttribute("disabled", current_index == splide.Components.Slides.getLength() - splide.options.perPage)
+		arrow_next.toggleAttribute("disabled", current_index == splide.Components.Controller.getEnd())
 	}
 
-	arrow_prev.addEventListener("click", function () {
+	arrow_prev.addEventListener("click", () => {
 		splide.go('<')
 	})
 
-	arrow_next.addEventListener("click", function () {
+	arrow_next.addEventListener("click", () => {
 		splide.go('>')
+	})
+
+	splide.on("overflow", isOverflow => {
+		arrows.classList.toggle("is-disabled", !isOverflow)
 	})
 
 	splide.on("moved", setArrowsState)
 	splide.on("mounted", setArrowsState)
 
-	setArrowsState()
+	return splide
 }
 
 function headerHeightToCSS() {
