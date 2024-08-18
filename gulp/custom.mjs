@@ -3,8 +3,7 @@ import rename from "gulp-rename"
 import path from "path"
 import { changeExt, transform } from "./service.mjs"
 import ejs from "ejs"
-import * as sass from "sass"
-import { bs, argv, convertingImgTypes } from "./env.mjs"
+import { bs, convertingImgTypes } from "./env.mjs"
 import sharp from "sharp"
 import wawoff2 from "wawoff2"
 
@@ -116,28 +115,6 @@ function removeExcess(src, dest, ...extraExts) {
 	})
 }
 
-function sassCompile() {
-	return transform((chunk, encoding, callback) => {
-		try {
-			let compiled = sass.compileString(chunk.contents.toString(encoding), {
-				sourceMap: true,
-				sourceMapIncludeSources: true,
-				style: argv.min ? "compressed" : "expanded",
-				loadPaths: ["node_modules", chunk.base]
-			})
-			chunk.contents = Buffer.from(compiled.css, encoding)
-			Object.assign(chunk.sourceMap, compiled.sourceMap)
-			chunk.sourceMap.file = path.basename(chunk.path)
-			callback(null, chunk)
-		}
-		catch (error) {
-			callback(new Error(error.message, {
-				cause: chunk.path
-			}), chunk)
-		}
-	})
-}
-
 function iconsToCSS() {
 	return transform((chunk, encoding, callback) => {
 		let name = chunk.relative.replaceAll(path.sep, '__').replace(/\.[^/.]+$/, "").replaceAll(" ", '-')
@@ -155,4 +132,4 @@ function ttfToWoff() {
 	})
 }
 
-export { ext, newer, replace, reload, replaceSrc, clean, ejsCompile, removeExcess, sassCompile, iconsToCSS, ttfToWoff, sharpWebp }
+export { ext, newer, replace, reload, replaceSrc, clean, ejsCompile, removeExcess, iconsToCSS, ttfToWoff, sharpWebp }

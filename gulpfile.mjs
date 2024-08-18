@@ -1,12 +1,17 @@
 import fs from "fs"
 import gulp from "gulp"
-import autoPrefixer from "gulp-autoprefixer"
 import sourcemaps from "gulp-sourcemaps"
-import esbuild from "gulp-esbuild"
+import { createGulpEsbuild } from "gulp-esbuild"
 import { stacksvg } from "gulp-stacksvg"
-import { nothing, printPaintedMessage } from "./gulp/service.mjs"
-import { reload, replaceSrc, clean, newer, ext, ejsCompile, sassCompile, removeExcess, replace, iconsToCSS, ttfToWoff, sharpWebp } from "./gulp/custom.mjs"
+import { nothing, printPaintedMessage, transform } from "./gulp/service.mjs"
+import { reload, replaceSrc, clean, newer, ext, ejsCompile, removeExcess, replace, iconsToCSS, ttfToWoff, sharpWebp } from "./gulp/custom.mjs"
 import { bs, argv, convertingImgTypes, gulpMem, destGulp } from "./gulp/env.mjs"
+import { sassPlugin } from 'esbuild-sass-plugin'
+import postcss from "postcss"
+import autoprefixer from "autoprefixer"
+
+let esbuild = createGulpEsbuild({ incremental: argv.fwatch })
+let esbuildCSS = createGulpEsbuild({ incremental: argv.fwatch })
 
 function cleanExtraImgs() {
 	return gulp.src([`./src/assets/static/img/**/*`, `!./src/assets/static/img/icon/stack.svg`], {
@@ -29,20 +34,26 @@ function browserSyncInit() {
 
 function css() {
 	return gulp.src(["./src/assets/style/**/*.scss", "!./src/assets/style/**/_*.scss"])
-		.pipe(sourcemaps.init())
-		.pipe(sassCompile()
-			.on("error", function (error) {
-				printPaintedMessage(`${error.message} in file ${error.cause}`, "SASS")
-				bs.notify("SASS Error")
-				this.emit("end")
-			}))
-		.pipe(ext(".css"))
-		.pipe(autoPrefixer({
-			cascade: false,
-			flexbox: false,
+		.pipe(esbuildCSS({
+			minify: true,
+			sourcemap: "linked",
+			plugins: [sassPlugin({
+				sourceMap: true,
+				sourceMapIncludeSources: true,
+				embedded: true,
+				style: "compressed",
+				precompile(source) {
+					return source.replaceAll("/src/", "/")
+				},
+				async transform(source, resolveDir, filePath) {
+					const { css } = await postcss([autoprefixer]).process(source, {
+						from: filePath
+					})
+
+					return css
+				}
+			})]
 		}))
-		.pipe(replaceSrc())
-		.pipe(sourcemaps.write("./"))
 		.pipe(destGulp.dest("./build/assets/style/"))
 		.pipe(bs.stream())
 }
