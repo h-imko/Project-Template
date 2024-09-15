@@ -5,6 +5,7 @@
 // import counter from "./_counter"
 // import dropzone from "./_Dropzone"
 // import toggles from "./_toggles"
+// import watchHTML from "./_watchHTML"
 // import select from "./_select"
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -15,4 +16,5 @@ document.addEventListener('DOMContentLoaded', function () {
 	// dropzone()
 	// toggles()
 	// select()
+	// watchHTML()
 })
