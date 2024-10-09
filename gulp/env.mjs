@@ -13,6 +13,7 @@ function getArgs() {
 	}, {})
 }
 
+
 const gulpMem = new gulpMemory(),
 	argv = getArgs(),
 	destGulp = argv.ram ? gulpMem : gulp,

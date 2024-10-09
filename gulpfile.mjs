@@ -1,17 +1,12 @@
 import fs from "fs"
 import gulp from "gulp"
 import sourcemaps from "gulp-sourcemaps"
-import { createGulpEsbuild } from "gulp-esbuild"
 import { stacksvg } from "gulp-stacksvg"
-import { nothing, printPaintedMessage, transform } from "./gulp/service.mjs"
-import { reload, replaceSrc, clean, newer, ext, ejsCompile, removeExcess, replace, iconsToCSS, ttfToWoff, sharpWebp } from "./gulp/custom.mjs"
+import { nothing, printPaintedMessage } from "./gulp/service.mjs"
+import { reload, replaceSrc, clean, newer, ext, ejsCompile, removeExcess, replace, iconsToCSS, ttfToWoff, sharpWebp, sassCompile, jsCompile, cleanESBuild, getDestPath } from "./gulp/custom.mjs"
 import { bs, argv, convertingImgTypes, gulpMem, destGulp } from "./gulp/env.mjs"
-import { sassPlugin } from 'esbuild-sass-plugin'
-import postcss from "postcss"
-import autoprefixer from "autoprefixer"
+import autoprefixer from "gulp-autoprefixer"
 
-let esbuild = createGulpEsbuild({ incremental: argv.fwatch })
-let esbuildCSS = createGulpEsbuild({ incremental: argv.fwatch })
 
 function cleanExtraImgs() {
 	return gulp.src([`./src/assets/static/img/**/*`, `!./src/assets/static/img/icon/stack.svg`], {
@@ -20,6 +15,11 @@ function cleanExtraImgs() {
 		nodir: true
 	})
 		.pipe(removeExcess('img-raw', 'img', ...convertingImgTypes))
+		.on("error", function (error) {
+			printPaintedMessage(error.message, "Files")
+			bs.notify("Files Error")
+			this.emit("end")
+		})
 }
 
 function browserSyncInit() {
@@ -34,67 +34,47 @@ function browserSyncInit() {
 
 function css() {
 	return gulp.src(["./src/assets/style/**/*.scss", "!./src/assets/style/**/_*.scss"])
-		.pipe(esbuildCSS({
-			minify: true,
-			sourcemap: "linked",
-			plugins: [sassPlugin({
-				sourceMap: true,
-				sourceMapIncludeSources: true,
-				embedded: true,
-				style: "compressed",
-				precompile(source) {
-					return source.replaceAll("/src/", "/")
-				},
-				async transform(source, resolveDir, filePath) {
-					const { css } = await postcss([autoprefixer]).process(source, {
-						from: filePath
-					})
-
-					return css
-				}
-			})]
-		}))
-		.pipe(destGulp.dest("./build/assets/style/"))
+		.pipe(sourcemaps.init())
+		.pipe(sassCompile())
+		.on("error", function (error) {
+			printPaintedMessage(error.message, "CSS")
+			bs.notify("CSS Error")
+			this.emit("end")
+		})
+		.pipe(autoprefixer())
+		.pipe(sourcemaps.write("./"))
+		.pipe(destGulp.dest(getDestPath))
 		.pipe(bs.stream())
 }
 
 function js() {
 	return gulp.src(["./src/assets/script/**/*.js", "!./src/assets/script/**/_*.js"])
 		.pipe(sourcemaps.init())
-		.pipe(esbuild({
-			bundle: true,
-			minify: argv.min,
-			drop: argv.min ? ["console", "debugger"] : [],
-			treeShaking: true,
-			sourcemap: argv.min ? false : "linked"
+		.pipe(jsCompile())
+		.on("error", function (error) {
+			printPaintedMessage(error.message, "JS")
+			bs.notify("JS Error")
+			this.emit("end")
 		})
-			.on("error", function (error) {
-				printPaintedMessage(error.message, "JS")
-				bs.notify("JS Error")
-				this.emit("end")
-			})
-		)
-		.pipe(replaceSrc())
 		.pipe(sourcemaps.write("./"))
-		.pipe(destGulp.dest("./build/assets/script/"))
+		.pipe(destGulp.dest(getDestPath))
 		.pipe(bs.stream())
 }
 
 function html() {
 	return gulp.src(["./src/*.ejs", "./src/*.html"])
-		.pipe(ejsCompile()
-			.on("error", function (error) {
-				printPaintedMessage(`${error.message} in file ${error.cause}`, "EJS")
-				bs.notify("EJS Error")
-				this.emit("end")
-			})
-		)
+		.pipe(ejsCompile())
+		.on("error", function (error) {
+			printPaintedMessage(`${error.message}`, "EJS")
+			bs.notify("EJS Error")
+			this.emit("end")
+		})
 		.pipe(ext(".html"))
 		.pipe(replace(".scss", `.css?timestamp=${new Date().getTime()}`))
 		.pipe(replace(".ejs", ".html"))
 		.pipe(replace(".js", `.js?timestamp=${new Date().getTime()}`))
 		.pipe(replaceSrc())
-		.pipe(destGulp.dest("./build"))
+		.pipe(destGulp.dest(getDestPath))
 		.pipe(bs.stream())
 }
 
@@ -105,7 +85,7 @@ function copyStatic() {
 		nodir: true,
 		encoding: false
 	})
-		.pipe(destGulp.dest("./build/assets/static/"))
+		.pipe(destGulp.dest(getDestPath))
 		.pipe(reload())
 }
 
@@ -188,7 +168,7 @@ export default gulp.series(
 	), argv.fwatch ? gulp.parallel(
 		watch,
 		browserSyncInit
-	) : nothing
+	) : cleanESBuild
 )
 
 export { imageMin, convertFont as ttfToWoff, cleanInitials }
