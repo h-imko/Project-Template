@@ -50,7 +50,8 @@ function sharpWebp() {
 				.resize({
 					fit: "inside",
 					width: 2000,
-					height: 2000
+					height: 2000,
+					withoutEnlargement: true
 				})
 				.webp({
 					effort: 6,
