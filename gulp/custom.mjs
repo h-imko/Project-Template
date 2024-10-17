@@ -3,23 +3,12 @@ import rename from "gulp-rename"
 import path from "path"
 import { changeExt, transform } from "./service.mjs"
 import ejs from "ejs"
-import esbuild from "esbuild"
-import { sassPlugin } from "esbuild-sass-plugin"
-import { bs, argv, convertingImgTypes } from "./env.mjs"
+import { bs, convertingImgTypes } from "./env.mjs"
 import sharp from "sharp"
 import wawoff2 from "wawoff2"
 import Vinyl from "vinyl"
 import { cwd } from "process"
 
-
-/**
- * @type {esbuild.BuildContext} 
- */
-let buildCSS
-/**
- * @type {esbuild.BuildContext} 
- */
-let buildJS
 
 function ext(newExt, ...oldExt) {
 	return rename((path) => {
@@ -132,70 +121,6 @@ function removeExcess(src, dest, ...extraExts) {
 	})
 }
 
-function sassCompile() {
-	return transform(async (chunk, encoding, callback) => {
-		buildCSS ??= await esbuild.context({
-			sourcemap: "linked",
-			entryPoints: [chunk.path],
-			minify: true,
-			write: false,
-			logLevel: "silent",
-			outfile: `./build/${path.relative("./src/", chunk.path)}`,
-			plugins: [sassPlugin({
-				embedded: true,
-				style: "compressed",
-				precompile(source) {
-					return source.replaceAll("/src/", "/")
-				},
-			})]
-		})
-		buildCSS.rebuild().then(result => {
-			for (const file of result.outputFiles) {
-				if (file.path.endsWith(".map")) {
-					Object.assign(chunk.sourceMap, JSON.parse(file.text))
-					chunk.sourceMap.file = path.basename(chunk.path).replace(".scss", ".css")
-				} else {
-					chunk.contents = Buffer.from(file.contents)
-					chunk.extname = ".css"
-				}
-			}
-			callback(null, chunk)
-		}).catch(error => {
-			callback(error, chunk)
-		})
-	})
-}
-
-function jsCompile() {
-	return transform(async (chunk, encoding, callback) => {
-		buildJS ??= await esbuild.context({
-			bundle: true,
-			minify: argv.min,
-			logLevel: "silent",
-			entryPoints: [chunk.path],
-			drop: argv.min ? ["console", "debugger"] : [],
-			treeShaking: true,
-			sourcemap: argv.min ? false : "linked",
-			write: false,
-			outfile: `./build/${path.relative("./src/", chunk.path)}`,
-		})
-
-		buildJS.rebuild().then(result => {
-			for (const file of result.outputFiles) {
-				if (file.path.endsWith(".map")) {
-					Object.assign(chunk.sourceMap, JSON.parse(file.text))
-					chunk.sourceMap.file = path.basename(chunk.path)
-				} else {
-					chunk.contents = Buffer.from(file.contents)
-				}
-			}
-			callback(null, chunk)
-		}).catch(error => {
-			callback(error, chunk)
-		})
-	})
-}
-
 function iconsToCSS() {
 	return transform((chunk, encoding, callback) => {
 		let name = chunk.relative.replaceAll(path.sep, '_').replace(/\.[^/.]+$/, "").replaceAll(" ", '-')
@@ -221,10 +146,4 @@ function getDestPath(chunk) {
 	return destPath
 }
 
-function cleanESBuild(callback) {
-	buildCSS.dispose()
-	buildJS.dispose()
-	callback()
-}
-
-export { ext, newer, replace, reload, replaceSrc, clean, ejsCompile, removeExcess, sassCompile, iconsToCSS, ttfToWoff, sharpWebp, jsCompile, cleanESBuild, getDestPath }
+export { ext, newer, replace, reload, replaceSrc, clean, ejsCompile, removeExcess, iconsToCSS, ttfToWoff, sharpWebp, getDestPath }

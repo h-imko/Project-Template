@@ -3,10 +3,22 @@ import gulp from "gulp"
 import sourcemaps from "gulp-sourcemaps"
 import { stacksvg } from "gulp-stacksvg"
 import { nothing, printPaintedMessage } from "./gulp/service.mjs"
-import { reload, replaceSrc, clean, newer, ext, ejsCompile, removeExcess, replace, iconsToCSS, ttfToWoff, sharpWebp, sassCompile, jsCompile, cleanESBuild, getDestPath } from "./gulp/custom.mjs"
+import { reload, replaceSrc, clean, newer, ext, ejsCompile, removeExcess, replace, iconsToCSS, ttfToWoff, sharpWebp, getDestPath } from "./gulp/custom.mjs"
 import { bs, argv, convertingImgTypes, gulpMem, destGulp } from "./gulp/env.mjs"
-import autoprefixer from "gulp-autoprefixer"
+import { createGulpEsbuild } from "gulp-esbuild"
+import { sassPlugin } from "esbuild-sass-plugin"
+import postcss from "postcss"
+import autoprefixer from "autoprefixer"
 
+const esbuild = createGulpEsbuild({
+	piping: true,
+	incremental: argv.fwatch,
+})
+
+const SASSEsbuild = createGulpEsbuild({
+	piping: true,
+	incremental: argv.fwatch,
+})
 
 function cleanExtraImgs() {
 	return gulp.src([`./src/assets/static/img/**/*`, `!./src/assets/static/img/icon/stack.svg`], {
@@ -35,13 +47,31 @@ function browserSyncInit() {
 function css() {
 	return gulp.src(["./src/assets/style/**/*.scss", "!./src/assets/style/**/_*.scss"])
 		.pipe(sourcemaps.init())
-		.pipe(sassCompile())
+		.pipe(SASSEsbuild({
+			sourcemap: "linked",
+			outbase: "/src",
+			outdir: "/build",
+			minify: true,
+			plugins: [sassPlugin({
+				embedded: true,
+				style: "compressed",
+				precompile(source) {
+					return source.replaceAll("/src/", "/")
+				},
+				async transform(source, resolveDir, filePath) {
+					const { css } = await postcss([autoprefixer]).process(source, {
+						from: filePath
+					})
+
+					return css
+				}
+			})]
+		}))
 		.on("error", function (error) {
 			printPaintedMessage(error.message, "CSS")
 			bs.notify("CSS Error")
 			this.emit("end")
 		})
-		.pipe(autoprefixer())
 		.pipe(sourcemaps.write("./"))
 		.pipe(destGulp.dest(getDestPath))
 		.pipe(bs.stream())
@@ -50,7 +80,11 @@ function css() {
 function js() {
 	return gulp.src(["./src/assets/script/**/*.js", "!./src/assets/script/**/_*.js"])
 		.pipe(sourcemaps.init())
-		.pipe(jsCompile())
+		.pipe(esbuild({
+			outbase: "/src",
+			outdir: "/build",
+			sourcemap: "linked",
+		}))
 		.on("error", function (error) {
 			printPaintedMessage(error.message, "JS")
 			bs.notify("JS Error")
@@ -168,7 +202,7 @@ export default gulp.series(
 	), argv.fwatch ? gulp.parallel(
 		watch,
 		browserSyncInit
-	) : cleanESBuild
+	) : nothing
 )
 
 export { imageMin, convertFont as ttfToWoff, cleanInitials }
