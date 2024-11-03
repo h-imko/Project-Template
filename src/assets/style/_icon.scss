@@ -7,6 +7,7 @@
 	mask-size: contain;
 	mask-repeat: no-repeat;
 	mask-position: center;
+	mask-image: var(--mask);
 	flex-shrink: 0;
 	transition-duration: var(--default-duration);
 	transition-timing-function: ease;

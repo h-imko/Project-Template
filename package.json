@@ -23,9 +23,9 @@
 		"gulp-mem": "^0.1.3",
 		"gulp-rename": "^2.0.0",
 		"gulp-sourcemaps": "^3.0.0",
-		"gulp-stacksvg": "^4.0.0",
+		"gulp-stacksvg": "^5.0.1",
 		"postcss": "^8.4.47",
-		"sass-embedded": "^1.79.4",
+		"sass-embedded": "^1.80.6",
 		"sharp": "^0.33.5",
 		"vinyl": "^3.0.0",
 		"wawoff2": "^2.0.1"

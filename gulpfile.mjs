@@ -84,6 +84,9 @@ function js() {
 			outbase: "/src",
 			outdir: "/build",
 			sourcemap: "linked",
+			bundle: true,
+			drop: argv.min ? ["console", "debugger"] : [],
+			minify: argv.min
 		}))
 		.on("error", function (error) {
 			printPaintedMessage(error.message, "JS")

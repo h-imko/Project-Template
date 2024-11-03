@@ -124,7 +124,7 @@ function removeExcess(src, dest, ...extraExts) {
 function iconsToCSS() {
 	return transform((chunk, encoding, callback) => {
 		let name = chunk.relative.replaceAll(path.sep, '_').replace(/\.[^/.]+$/, "").replaceAll(" ", '-')
-		let css = `.icon--${name}{--mask: url(/src/assets/static/img/icon/stack.svg#${name});}%icon--${name}{--mask: url(/src/assets/static/img/icon/stack.svg#${name}) }`
+		let css = `.icon--${name}, %icon--${name}{--mask: url(/src/assets/static/img/icon/stack.svg#${name});}`
 		callback(null, css)
 	})
 }
