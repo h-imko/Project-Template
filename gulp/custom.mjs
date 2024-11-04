@@ -3,7 +3,7 @@ import rename from "gulp-rename"
 import path from "path"
 import { changeExt, transform } from "./service.mjs"
 import ejs from "ejs"
-import { bs, convertingImgTypes } from "./env.mjs"
+import { argv, bs, convertingImgTypes, gulpMem } from "./env.mjs"
 import sharp from "sharp"
 import wawoff2 from "wawoff2"
 import Vinyl from "vinyl"
@@ -112,6 +112,11 @@ function removeExcess(src, dest, ...extraExts) {
 
 			if (!exists) {
 				fs.rmSync(chunk.path)
+
+				if (argv.ram) {
+					let pathmem = path.relative(cwd(), chunk.path).replace(`src`, `/build`).replaceAll(path.sep, "/")
+					gulpMem.fs.unlinkSync(pathmem)
+				}
 			}
 
 			callback(null, chunk)

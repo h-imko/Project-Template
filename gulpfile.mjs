@@ -10,12 +10,12 @@ import { sassPlugin } from "esbuild-sass-plugin"
 import postcss from "postcss"
 import autoprefixer from "autoprefixer"
 
-const esbuild = createGulpEsbuild({
+let esbuild = createGulpEsbuild({
 	piping: true,
 	incremental: argv.fwatch,
 })
 
-const SASSEsbuild = createGulpEsbuild({
+let SASSEsbuild = createGulpEsbuild({
 	piping: true,
 	incremental: argv.fwatch,
 })
@@ -181,12 +181,33 @@ function cleanInitials() {
 		.pipe(clean())
 }
 
+function remakeSCSSEsbuild() {
+	SASSEsbuild = createGulpEsbuild({
+		piping: true,
+		incremental: argv.fwatch,
+	})
+
+	return nothing()
+}
+
+function remakeEsbuild() {
+	esbuild = createGulpEsbuild({
+		piping: true,
+		incremental: argv.fwatch,
+	})
+
+	return nothing()
+}
+
 function watch() {
 	gulp.watch(["./src/**/*.html", "./src/**/*.ejs"], html)
-	gulp.watch(["./src/assets/script/**/*"], js)
-	gulp.watch(["./src/assets/style/**/*"], css)
+	gulp.watch(["./src/assets/style/**/*"], { events: "add" }, gulp.series(remakeEsbuild, js))
+	gulp.watch(["./src/assets/script/**/*"], { events: "change" }, js)
+	gulp.watch(["./src/assets/style/**/*"], { events: "add" }, gulp.series(remakeSCSSEsbuild, css))
+	gulp.watch(["./src/assets/style/**/*"], { events: "change" }, css)
 	gulp.watch(["./src/assets/static/img-raw/icon/**/*.svg"], gulp.parallel(makeIconsStack, makeIconsSCSS))
-	gulp.watch(["./src/assets/static/img-raw/"], gulp.parallel(imageMin, cleanExtraImgs))
+	gulp.watch(["./src/assets/static/img-raw/**/*"], { events: ["change", "add"] }, imageMin)
+	gulp.watch(["./src/assets/static/img-raw/**/*"], { events: ["unlink", "unlinkDir"] }, cleanExtraImgs)
 	gulp.watch(["./src/assets/static/**/*", "!./src/assets/static/img-raw/**/*"], copyStatic)
 }
 

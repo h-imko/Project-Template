@@ -13,12 +13,8 @@ function changeExt(fileName, newExt, ...oldExt) {
 	}
 }
 
-function nothing(callback = () => { }) {
-	callback()
-	return new stream.PassThrough({
-		readableObjectMode: true,
-		writableObjectMode: true
-	})
+function nothing() {
+	return new stream.PassThrough().end()
 }
 
 /**
