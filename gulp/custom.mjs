@@ -52,7 +52,7 @@ function sharpWebp() {
 						callback(error, chunk)
 					} else {
 						chunk.contents = buffer
-						callback(error, chunk)
+						callback(null, chunk)
 					}
 				})
 		} else {
