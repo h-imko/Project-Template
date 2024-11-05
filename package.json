@@ -31,7 +31,6 @@
 	},
 	"dependencies": {
 		"@splidejs/splide": "^4.1.4",
-		"cleave.js": "^1.6.0",
-		"fslightbox": "^3.4.2"
+		"cleave.js": "^1.6.0"
 	}
 }
