@@ -1,0 +1,65 @@
+.dialog-gallery {
+	height: 100%;
+	width: 100%;
+	max-width: unset;
+	max-height: unset;
+	border: none;
+	background-color: #00000080;
+
+	&[open] {
+		display: flex;
+	}
+
+	&__closer {
+		position: absolute;
+		top: 16px;
+		right: 16px;
+		@extend %icon;
+		--size: 32px;
+	}
+
+	.splide {
+		display: flex;
+		flex-grow: 1;
+		gap: 32px;
+		padding: 32px;
+		overflow: hidden;
+
+		&__track {
+			flex-grow: 1;
+			overflow: visible;
+		}
+
+		&__arrows {
+			display: contents;
+		}
+
+		&__arrow {
+			@extend %icon;
+			--size: 64px;
+			align-self: center;
+			flex-shrink: 0;
+			z-index: 1;
+
+			@media (max-width: $mobile) {
+				display: none;
+			}
+
+			&--prev {
+				order: -999;
+			}
+		}
+
+		&__slide {
+			display: flex;
+		}
+	}
+}
+
+@layer unset {
+
+	.dialog-gallery__closer,
+	.dialog-gallery .splide__arrow {
+		all: unset;
+	}
+}

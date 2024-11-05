@@ -1,4 +1,6 @@
-@import "@splidejs/splide/dist/css/splide-core.min";
+@layer {
+	@import "@splidejs/splide/dist/css/splide-core.min";
+}
 
 .splide {
 	&__arrows {}
