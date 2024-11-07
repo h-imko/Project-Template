@@ -143,12 +143,26 @@ function ttfToWoff() {
 	})
 }
 
-/**
- * @param {Vinyl} chunk 
+/** 
+ * @param {boolean} inSrc 
+ * @param {...[string, string]} replaces 
  */
-function getDestPath(chunk) {
-	let destPath = chunk.base.replace("\\src", "\\build").replace("\\img-raw", "\\img").replace(cwd(), ".\\")
-	return destPath
+function getDestPath(inSrc, ...replaces) {
+	/**
+	 * @param {Vinyl} chunk 
+	 */
+	return function (chunk) {
+		let dest = chunk.base.replace(chunk.cwd, ".").replaceAll(path.sep, path.posix.sep)
+		if (!inSrc) {
+			dest = dest.replace("/src", "/build")
+		}
+		replaces.forEach(pair => {
+			dest = dest.replace(pair[0], pair[1])
+		})
+
+		return dest
+	}
 }
+
 
 export { ext, newer, replace, reload, replaceSrc, clean, ejsCompile, removeExcess, iconsToCSS, ttfToWoff, sharpWebp, getDestPath }
