@@ -48,8 +48,8 @@ function css() {
 		.pipe(sourcemaps.init())
 		.pipe(SASSEsbuild({
 			sourcemap: "linked",
-			outbase: "/src",
-			outdir: "/build",
+			outbase: "./src",
+			outdir: "./build",
 			minify: true,
 			treeShaking: true,
 			plugins: [sassPlugin({
@@ -81,8 +81,8 @@ function js() {
 	return gulp.src(["./src/assets/script/**/*.js", "!./src/assets/script/**/_*.js"])
 		.pipe(sourcemaps.init())
 		.pipe(esbuild({
-			outbase: "/src",
-			outdir: "/build",
+			outbase: "./src",
+			outdir: "./build",
 			sourcemap: "linked",
 			bundle: true,
 			drop: argv.min ? ["console", "debugger"] : [],
