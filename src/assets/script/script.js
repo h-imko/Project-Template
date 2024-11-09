@@ -8,7 +8,7 @@
 // import select from "./_select"
 // import gallery from "./_gallery"
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener("DOMContentLoaded", function () {
 	// headerHeightToCSS()
 	// cleave()
 	// syncInputs()

@@ -10,7 +10,7 @@
 			&:not(:last-child) {
 				span {
 					&::after {
-						content: '';
+						content: "";
 						--size: 3px;
 						width: var(--size);
 						height: var(--size);

@@ -25,7 +25,7 @@ function cleanExtraImgs() {
 		allowEmpty: true,
 		read: false,
 	})
-		.pipe(removeExcess('img-raw', 'img', ...convertingImgTypes))
+		.pipe(removeExcess("img-raw", "img", ...convertingImgTypes))
 		.on("error", function (error) {
 			printPaintedMessage(error.message, "Files")
 			bs.notify("Files Error")
@@ -100,14 +100,11 @@ function html() {
 	return gulp.src(["./src/*.ejs", "./src/*.html"])
 		.pipe(ejsCompile())
 		.on("error", function (error) {
-			printPaintedMessage(`${error.message}`, "EJS")
+			printPaintedMessage(error.message, "EJS")
 			bs.notify("EJS Error")
 			this.emit("end")
 		})
-		.pipe(ext(".html"))
-		.pipe(replace(".scss", `.css?timestamp=${new Date().getTime()}`))
-		.pipe(replace(".ejs", ".html"))
-		.pipe(replace(".js", `.js?timestamp=${new Date().getTime()}`))
+		// .pipe(ext(".html"))
 		.pipe(replaceSrc())
 		.pipe(destGulp.dest(getDestPath()))
 		.pipe(bs.stream())
@@ -133,13 +130,13 @@ function makeIconsSCSS() {
 }
 
 function makeIconsStack() {
-	return gulp.src(`./src/assets/static/img-raw/icon/**/*.svg`)
+	return gulp.src("./src/assets/static/img-raw/icon/**/*.svg")
 		.pipe(stacksvg({
 			separator: "__"
 		}))
 		.pipe(transform((chunk, encoding, callback) => {
 			chunk.path = `./src/assets/static/img-raw/icon/${chunk.path}`
-			chunk.base = `./src/assets/static/img-raw/icon/`
+			chunk.base = "./src/assets/static/img-raw/icon/"
 			callback(null, chunk)
 		}))
 		.pipe(gulp.dest(getDestPath(true, ["/img-raw", "/img"])))

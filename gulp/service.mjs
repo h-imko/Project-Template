@@ -32,7 +32,7 @@ function transform(func) {
 }
 
 function printPaintedMessage(message, module) {
-	message = message.replaceAll("..\\", "").replaceAll(/[A-Za-z]+:*[\\/][а-яА-Яa-zA-Z-_.\\/]+/gm, `\x1b[35m$&\x1b[0m`)
+	message = message.replaceAll("..\\", "").replaceAll(/[A-Za-z]+:*[\\/][а-яА-Яa-zA-Z-_.\\/]+/gm, "\x1b[35m$&\x1b[0m")
 	console.log(`[\x1b[31m${module}\x1b[0m] ${message}`)
 }
 

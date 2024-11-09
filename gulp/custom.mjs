@@ -95,6 +95,8 @@ function ejsCompile() {
 		ejs.renderFile(chunk.path, {}, {
 			root: path.join(chunk.cwd, "src", "assets", "ejs"),
 		}).then(html => {
+			html = html.replaceAll(".scss", ".css").replaceAll(".ejs", ".html")
+			chunk.path = chunk.path.replace(chunk.extname, ".html")
 			chunk.contents = Buffer.from(html, encoding)
 			callback(null, chunk)
 		}).catch(error => {
@@ -114,8 +116,7 @@ function removeExcess(src, dest, ...extraExts) {
 				fs.rmSync(chunk.path)
 
 				if (argv.ram) {
-					let pathmem = path.relative(cwd(), chunk.path).replace(`src`, `/build`).replaceAll(path.sep, "/")
-					gulpMem.fs.unlinkSync(pathmem)
+					gulpMem.fs.unlinkSync(path.relative(cwd(), chunk.path).replace("src", "/build").replaceAll(path.sep, path.posix.sep))
 				}
 			}
 
@@ -128,7 +129,7 @@ function removeExcess(src, dest, ...extraExts) {
 
 function iconsToCSS() {
 	return transform((chunk, encoding, callback) => {
-		let name = chunk.relative.replaceAll(path.sep, '_').replace(/\.[^/.]+$/, "").replaceAll(" ", '-')
+		let name = chunk.relative.replaceAll(path.sep, "_").replace(/\.[^/.]+$/, "").replaceAll(" ", "-")
 		let css = `.icon--${name}, %icon--${name}{--mask: url(/src/assets/static/img/icon/stack.svg#${name});}`
 		callback(null, css)
 	})
