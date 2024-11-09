@@ -102,7 +102,6 @@ function html() {
 			bs.notify("EJS Error")
 			this.emit("end")
 		})
-		// .pipe(ext(".html"))
 		.pipe(replaceSrc())
 		.pipe(destGulp.dest(getDestPath()))
 		.pipe(bs.stream())
