@@ -54,10 +54,8 @@ function css() {
 			plugins: [sassPlugin({
 				embedded: true,
 				style: "compressed",
-				precompile(source) {
-					return source.replaceAll("/src/", "/")
-				},
 				async transform(source, resolveDir, filePath) {
+					source = source.replaceAll("(/src/", "(/").replaceAll("\"/src/", "\"/")
 					const { css } = await postcss([autoprefixer]).process(source, {
 						from: filePath
 					})
