@@ -7,7 +7,6 @@ import { argv, bs, convertingImgTypes, gulpMem } from "./env.mjs"
 import sharp from "sharp"
 import wawoff2 from "wawoff2"
 import Vinyl from "vinyl"
-import { cwd } from "process"
 
 
 function ext(newExt, ...oldExt) {
@@ -116,7 +115,7 @@ function removeExcess(src, dest, ...extraExts) {
 				fs.rmSync(chunk.path)
 
 				if (argv.ram) {
-					gulpMem.fs.unlinkSync(path.relative(cwd(), chunk.path).replace("src", "/build").replaceAll(path.sep, path.posix.sep))
+					gulpMem.fs.unlinkSync(path.relative(chunk.cwd, chunk.path).replace("src", "/build").replaceAll(path.sep, path.posix.sep))
 				}
 			}
 
