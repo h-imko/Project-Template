@@ -48,8 +48,7 @@ function css() {
 		.pipe(sourcemaps.init())
 		.pipe(SASSEsbuild({
 			sourcemap: "linked",
-			outbase: "./src",
-			outdir: "./build",
+			outbase: "./",
 			minify: true,
 			treeShaking: true,
 			plugins: [sassPlugin({
@@ -72,7 +71,7 @@ function css() {
 			bs.notify("CSS Error")
 			this.emit("end")
 		})
-		.pipe(sourcemaps.write("./"))
+		.pipe(sourcemaps.write())
 		.pipe(destGulp.dest(getDestPath()))
 		.pipe(bs.stream())
 }
@@ -81,8 +80,7 @@ function js() {
 	return gulp.src(["./src/assets/script/**/*.js", "!./src/assets/script/**/_*.js"])
 		.pipe(sourcemaps.init())
 		.pipe(esbuild({
-			outbase: "./src",
-			outdir: "./build",
+			outbase: "./",
 			sourcemap: "linked",
 			bundle: true,
 			drop: argv.min ? ["console", "debugger"] : [],
@@ -93,7 +91,7 @@ function js() {
 			bs.notify("JS Error")
 			this.emit("end")
 		})
-		.pipe(sourcemaps.write("./"))
+		.pipe(sourcemaps.write())
 		.pipe(destGulp.dest(getDestPath()))
 		.pipe(bs.stream())
 }
