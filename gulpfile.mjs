@@ -132,8 +132,7 @@ function makeIconsStack() {
 			separator: "__"
 		}))
 		.pipe(transform((chunk, encoding, callback) => {
-			chunk.path = `./src/assets/static/img-raw/icon/${chunk.path}`
-			chunk.base = "./src/assets/static/img-raw/icon/"
+			chunk.path = `${chunk.base}/src/assets/static/img-raw/icon/${chunk.path}`
 			callback(null, chunk)
 		}))
 		.pipe(gulp.dest(getDestPath(true, ["/img-raw", "/img"])))

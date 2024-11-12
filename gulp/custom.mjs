@@ -158,8 +158,7 @@ function getDestPath(inSrc, ...replaces) {
 			newpath = newpath.replace(pair[0], pair[1])
 		})
 
-		chunk.base = chunk.cwd
-
+		chunk.base = "./"
 		chunk.path = newpath
 
 		return inSrc ? "./src" : "./build"
