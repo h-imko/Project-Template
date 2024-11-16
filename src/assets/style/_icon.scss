@@ -13,7 +13,7 @@
 	transition-duration: var(--default-duration);
 	transition-timing-function: ease;
 	transition-property: opacity, background-color;
-	width: var(--icon-width, var(--size, 24px));
-	height: var(--icon-height, var(--size, 24px));
-	background-color: var(--color, currentColor);
+	width: var(--icon-width, var(--icon-size, 24px));
+	height: var(--icon-height, var(--icon-size, 24px));
+	background-color: var(--icon-color, currentColor);
 }
