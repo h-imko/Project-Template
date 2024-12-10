@@ -11,6 +11,8 @@
 // 	font-weight: 125 950;
 // 	font-style: normal;
 // }
+@use "breakpoint" as *;
+
 body,
 input {
 	@media screen and (max-width: $mobile) {}

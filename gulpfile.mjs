@@ -6,19 +6,16 @@ import { nothing, printPaintedMessage, transform } from "./gulp/service.mjs"
 import { reload, replaceSrc, clean, newer, ext, ejsCompile, removeExcess, replace, iconsToCSS, ttfToWoff, sharpWebp, getDestPath } from "./gulp/custom.mjs"
 import { bs, argv, convertingImgTypes, gulpMem, destGulp } from "./gulp/env.mjs"
 import { createGulpEsbuild } from "gulp-esbuild"
-import { sassPlugin } from "esbuild-sass-plugin"
-import postcss from "postcss"
-import autoprefixer from "autoprefixer"
+import gSass from "gulp-sass"
+import * as rawsass from "sass"
+import autoprefixer from 'gulp-autoprefixer'
 
 let esbuild = createGulpEsbuild({
 	piping: true,
 	incremental: argv.fwatch,
 })
 
-let SASSEsbuild = createGulpEsbuild({
-	piping: true,
-	incremental: argv.fwatch,
-})
+const sass = gSass(rawsass)
 
 function cleanExtraImgs() {
 	return gulp.src(["./src/assets/static/img/**/*.*", "!./src/assets/static/img/icon/stack.svg"], {
@@ -46,24 +43,11 @@ function browserSyncInit() {
 function css() {
 	return gulp.src(["./src/assets/style/**/*.scss", "!./src/assets/style/**/_*.scss"])
 		.pipe(sourcemaps.init())
-		.pipe(SASSEsbuild({
-			sourcemap: "linked",
-			outbase: "./",
-			minify: true,
-			treeShaking: true,
-			plugins: [sassPlugin({
-				embedded: true,
-				style: "compressed",
-				async transform(source, resolveDir, filePath) {
-					source = source.replaceAll("(/src/", "(/").replaceAll("\"/src/", "\"/")
-					const { css } = await postcss([autoprefixer]).process(source, {
-						from: filePath
-					})
-
-					return css
-				}
-			})]
+		.pipe(sass({
+			style: "compressed"
 		}))
+		.pipe(replaceSrc())
+		.pipe(autoprefixer())
 		.on("error", function (error) {
 			printPaintedMessage(error.message, "CSS")
 			bs.notify("CSS Error")
@@ -175,15 +159,6 @@ function cleanInitials() {
 		.pipe(clean())
 }
 
-function remakeSCSSEsbuild() {
-	SASSEsbuild = createGulpEsbuild({
-		piping: true,
-		incremental: argv.fwatch,
-	})
-
-	return nothing()
-}
-
 function remakeEsbuild() {
 	esbuild = createGulpEsbuild({
 		piping: true,
@@ -197,7 +172,7 @@ function watch() {
 	gulp.watch(["./src/**/*.html", "./src/**/*.ejs"], html)
 	gulp.watch(["./src/assets/style/**/*.*"], { events: "add" }, gulp.series(remakeEsbuild, js))
 	gulp.watch(["./src/assets/script/**/*.*"], { events: "change" }, js)
-	gulp.watch(["./src/assets/style/**/*.*"], { events: "add" }, gulp.series(remakeSCSSEsbuild, css))
+	gulp.watch(["./src/assets/style/**/*.*"], { events: "add" }, css)
 	gulp.watch(["./src/assets/style/**/*.*"], { events: "change" }, css)
 	gulp.watch(["./src/assets/static/img-raw/icon/**/*.svg"], gulp.parallel(makeIconsStack, makeIconsSCSS))
 	gulp.watch(["./src/assets/static/img-raw/**/*.*"], { events: ["change", "add"] }, imageMin)
