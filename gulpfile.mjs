@@ -170,10 +170,9 @@ function remakeEsbuild() {
 
 function watch() {
 	gulp.watch(["./src/**/*.html", "./src/**/*.ejs"], html)
-	gulp.watch(["./src/assets/style/**/*.*"], { events: "add" }, gulp.series(remakeEsbuild, js))
+	gulp.watch(["./src/assets/script/**/*.*"], { events: "add" }, gulp.series(remakeEsbuild, js))
 	gulp.watch(["./src/assets/script/**/*.*"], { events: "change" }, js)
-	gulp.watch(["./src/assets/style/**/*.*"], { events: "add" }, css)
-	gulp.watch(["./src/assets/style/**/*.*"], { events: "change" }, css)
+	gulp.watch(["./src/assets/style/**/*.*"], css)
 	gulp.watch(["./src/assets/static/img-raw/icon/**/*.svg"], gulp.parallel(makeIconsStack, makeIconsSCSS))
 	gulp.watch(["./src/assets/static/img-raw/**/*.*"], { events: ["change", "add"] }, imageMin)
 	gulp.watch(["./src/assets/static/img-raw/**/*.*"], { events: ["unlink", "unlinkDir"] }, cleanExtraImgs)
