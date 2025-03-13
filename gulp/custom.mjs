@@ -7,7 +7,7 @@ import { argv, bs, convertingImgTypes, gulpMem } from "./env.mjs"
 import sharp from "sharp"
 import wawoff2 from "wawoff2"
 import Vinyl from "vinyl"
-
+import svgo from "svgo"
 
 function ext(newExt, ...oldExt) {
 	return rename((path) => {
@@ -31,6 +31,27 @@ function newer(relatedTo, newExt, ...oldExt) {
 	})
 }
 
+function svgOptimize() {
+	return transform((chunk, encoding, callback) => {
+		if (chunk.extname == ".svg") {
+			chunk.contents = Buffer.from(svgo.optimize(chunk.contents.toString(), {
+				plugins: [
+					{
+						name: 'preset-default',
+						params: {
+							overrides: {
+								cleanupIds: false,
+							},
+						},
+					},
+				],
+			}).data, encoding)
+		}
+		callback(null, chunk)
+	})
+}
+
+
 function sharpWebp() {
 	return transform((chunk, encoding, callback) => {
 		if (convertingImgTypes.includes(chunk.extname)) {
@@ -43,7 +64,8 @@ function sharpWebp() {
 				})
 				.webp({
 					effort: 6,
-					quality: 80
+					quality: 80,
+					alphaQuality: 80
 				})
 				.toBuffer((error, buffer) => {
 					if (error) {
@@ -75,7 +97,7 @@ function reload() {
 }
 
 function replaceSrc() {
-	return replace("/src/", "/")
+	return replace(argv.prod ? "/src/assets/" : "/src/", argv.github ? "/zn-test/" : argv.prod ? "/v2/" : "/")
 }
 
 function clean() {
@@ -152,7 +174,7 @@ function getDestPath(inSrc, ...replaces) {
 	 * @param {Vinyl} chunk 
 	 */
 	return function (chunk) {
-		let newpath = chunk.path.replaceAll(path.sep, path.posix.sep).replace("src", "")
+		let newpath = chunk.path.replaceAll(path.sep, path.posix.sep).replace("src", "").replace("build", "")
 
 		replaces.forEach(pair => {
 			newpath = newpath.replace(pair[0], pair[1])
@@ -166,4 +188,4 @@ function getDestPath(inSrc, ...replaces) {
 }
 
 
-export { ext, newer, replace, reload, replaceSrc, clean, ejsCompile, removeExcess, iconsToCSS, ttfToWoff, sharpWebp, getDestPath }
+export { ext, newer, replace, reload, replaceSrc, clean, ejsCompile, removeExcess, iconsToCSS, ttfToWoff, sharpWebp, getDestPath, svgOptimize }

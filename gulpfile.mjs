@@ -3,16 +3,15 @@ import gulp from "gulp"
 import sourcemaps from "gulp-sourcemaps"
 import { stacksvg } from "gulp-stacksvg"
 import { nothing, printPaintedMessage, transform } from "./gulp/service.mjs"
-import { reload, replaceSrc, clean, newer, ext, ejsCompile, removeExcess, replace, iconsToCSS, ttfToWoff, sharpWebp, getDestPath } from "./gulp/custom.mjs"
+import { reload, replaceSrc, clean, newer, ext, ejsCompile, removeExcess, iconsToCSS, ttfToWoff, sharpWebp, getDestPath, svgOptimize } from "./gulp/custom.mjs"
 import { bs, argv, convertingImgTypes, gulpMem, destGulp } from "./gulp/env.mjs"
 import { createGulpEsbuild } from "gulp-esbuild"
 import gSass from "gulp-sass"
-import * as rawsass from "sass"
+import * as rawsass from "sass-embedded"
 import autoprefixer from 'gulp-autoprefixer'
 
 let esbuild = createGulpEsbuild({
 	piping: true,
-	incremental: argv.fwatch,
 })
 
 const sass = gSass(rawsass)
@@ -32,11 +31,12 @@ function cleanExtraImgs() {
 
 function browserSyncInit() {
 	bs.init({
+		ui: false,
+		middleware: argv.ram ? gulpMem.middleware : false,
+		port: argv.port ?? 80,
 		server: {
 			baseDir: "./build",
-			middleware: argv.ram ? gulpMem.middleware : false,
-		},
-		port: argv.port ?? 80
+		}
 	})
 }
 
@@ -44,16 +44,15 @@ function css() {
 	return gulp.src(["./src/assets/style/**/*.scss", "!./src/assets/style/**/_*.scss"])
 		.pipe(sourcemaps.init())
 		.pipe(sass({
-			style: "compressed"
-		}))
-		.pipe(replaceSrc())
-		.pipe(autoprefixer())
-		.on("error", function (error) {
+			style: "compressed",
+		})).on("error", function (error) {
 			printPaintedMessage(error.message, "CSS")
 			bs.notify("CSS Error")
 			this.emit("end")
 		})
-		.pipe(sourcemaps.write())
+		.pipe(replaceSrc())
+		.pipe(autoprefixer())
+		.pipe(sourcemaps.write("./"))
 		.pipe(destGulp.dest(getDestPath()))
 		.pipe(bs.stream())
 }
@@ -62,11 +61,15 @@ function js() {
 	return gulp.src(["./src/assets/script/**/*.js", "!./src/assets/script/**/_*.js"])
 		.pipe(sourcemaps.init())
 		.pipe(esbuild({
-			outbase: "./",
+			outbase: "./src/assets/script",
+			outdir: "./build/assets/script",
 			sourcemap: "linked",
+			format: "esm",
 			bundle: true,
+			splitting: true,
+			treeShaking: true,
 			drop: argv.min ? ["console", "debugger"] : [],
-			minify: argv.min
+			minify: argv.min,
 		}))
 		.on("error", function (error) {
 			printPaintedMessage(error.message, "JS")
@@ -79,7 +82,7 @@ function js() {
 }
 
 function html() {
-	return gulp.src(["./src/*.ejs", "./src/*.html"])
+	return gulp.src(["./src/**/*.ejs", "./src/**/*.html", "!./src/assets/**/*"])
 		.pipe(ejsCompile())
 		.on("error", function (error) {
 			printPaintedMessage(error.message, "EJS")
@@ -129,6 +132,7 @@ function imageMin() {
 	})
 		.pipe(newer("./src/assets/static/img/", ".webp", ...convertingImgTypes))
 		.pipe(sharpWebp())
+		.pipe(svgOptimize())
 		.pipe(ext(".webp", ...convertingImgTypes))
 		.pipe(gulp.dest(getDestPath(true, ["/img-raw", "/img"])))
 }
@@ -162,7 +166,6 @@ function cleanInitials() {
 function remakeEsbuild() {
 	esbuild = createGulpEsbuild({
 		piping: true,
-		incremental: argv.fwatch,
 	})
 
 	return nothing()

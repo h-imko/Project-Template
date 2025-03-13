@@ -13,8 +13,14 @@ function changeExt(fileName, newExt, ...oldExt) {
 	}
 }
 
-function nothing() {
-	return new stream.PassThrough().end()
+function nothing(cb) {
+	if (cb) {
+		cb()
+	} else {
+		return transform((chunk, _, callback) => {
+			callback(null, chunk)
+		})
+	}
 }
 
 /**
