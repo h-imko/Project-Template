@@ -16,7 +16,7 @@ let esbuild = createGulpEsbuild({
 
 const sass = gSass(rawsass)
 
-function cleanExtraImgs() {
+function cleanExtraImgs(cb) {
 	return gulp.src(["./src/assets/static/img/**/*.*", "!./src/assets/static/img/icon/stack.svg"], {
 		allowEmpty: true,
 		read: false,
@@ -27,9 +27,10 @@ function cleanExtraImgs() {
 			bs.notify("Files Error")
 			this.emit("end")
 		})
+		.on("finish", () => cb())
 }
 
-function browserSyncInit() {
+function browserSyncInit(cb) {
 	bs.init({
 		ui: false,
 		middleware: argv.ram ? gulpMem.middleware : false,
@@ -38,9 +39,10 @@ function browserSyncInit() {
 			baseDir: "./build",
 		}
 	})
+	cb()
 }
 
-function css() {
+function css(cb) {
 	return gulp.src(["./src/assets/style/**/*.scss", "!./src/assets/style/**/_*.scss"])
 		.pipe(sourcemaps.init())
 		.pipe(sass({
@@ -55,9 +57,10 @@ function css() {
 		.pipe(sourcemaps.write("./"))
 		.pipe(destGulp.dest(getDestPath()))
 		.pipe(bs.stream())
+		.on("finish", () => cb())
 }
 
-function js() {
+function js(cb) {
 	return gulp.src(["./src/assets/script/**/*.js", "!./src/assets/script/**/_*.js"])
 		.pipe(sourcemaps.init())
 		.pipe(esbuild({
@@ -79,9 +82,10 @@ function js() {
 		.pipe(sourcemaps.write())
 		.pipe(destGulp.dest(getDestPath()))
 		.pipe(bs.stream())
+		.on("finish", () => cb())
 }
 
-function html() {
+function html(cb) {
 	return gulp.src(["./src/**/*.ejs", "./src/**/*.html", "!./src/assets/**/*"])
 		.pipe(ejsCompile())
 		.on("error", function (error) {
@@ -92,9 +96,10 @@ function html() {
 		.pipe(replaceSrc())
 		.pipe(destGulp.dest(getDestPath()))
 		.pipe(bs.stream())
+		.on("finish", () => cb())
 }
 
-function copyStatic() {
+function copyStatic(cb) {
 	return gulp.src(["./src/assets/static/**/*.*", "!./src/assets/static/img-raw/**/*.*"], {
 		allowEmpty: true,
 		since: gulp.lastRun(copyStatic),
@@ -102,18 +107,20 @@ function copyStatic() {
 	})
 		.pipe(destGulp.dest(getDestPath()))
 		.pipe(reload())
+		.on("finish", () => cb())
 }
 
-function makeIconsSCSS() {
+function makeIconsSCSS(cb) {
 	return gulp.src("./src/assets/static/img-raw/icon/**/*.svg", {
 		allowEmpty: true,
 		read: false
 	})
 		.pipe(iconsToCSS())
 		.pipe(fs.createWriteStream("./src/assets/style/_icons.scss"))
+		.on("finish", () => cb())
 }
 
-function makeIconsStack() {
+function makeIconsStack(cb) {
 	return gulp.src("./src/assets/static/img-raw/icon/**/*.svg")
 		.pipe(stacksvg({
 			separator: "__"
@@ -123,9 +130,10 @@ function makeIconsStack() {
 			callback(null, chunk)
 		}))
 		.pipe(gulp.dest(getDestPath(true, ["/img-raw", "/img"])))
+		.on("finish", () => cb())
 }
 
-function imageMin() {
+function imageMin(cb) {
 	return gulp.src("./src/assets/static/img-raw/**/*.*", {
 		allowEmpty: true,
 		encoding: false
@@ -135,14 +143,16 @@ function imageMin() {
 		.pipe(svgOptimize())
 		.pipe(ext(".webp", ...convertingImgTypes))
 		.pipe(gulp.dest(getDestPath(true, ["/img-raw", "/img"])))
+		.on("finish", () => cb())
 }
 
-function cleanBuild() {
+function cleanBuild(cb) {
 	return gulp.src("./build/", {
 		read: false,
 		allowEmpty: true
 	})
 		.pipe(clean())
+		.on("finish", () => cb())
 }
 
 function convertFont() {
