@@ -85,6 +85,11 @@ function js() {
 
 function html() {
 	return gulp.src(["./src/**/*.jsx", "!./src/components/**/*.jsx"])
+		.on("error", function (error) {
+			printPaintedMessage(error.message, "HTML")
+			bs.notify("HTML Error")
+			this.emit("end")
+		})
 		.pipe(transform((chunk, encoding, callback) => {
 			const transformed = esbuildd.buildSync({
 				jsx: "automatic",
@@ -98,13 +103,22 @@ function html() {
 				format: "esm",
 			})
 
-			const script = transformed.outputFiles.at(0).text.replace(/export {[\d\D]*/gm, "")
-			const evaluated = eval(`${script} \n index()`)
-			const rendered = `<!DOCTYPE html>${render(evaluated).replaceAll(".scss", ".css")}`
-			chunk.contents = Buffer.from(rendered)
+			try {
+				const script = transformed.outputFiles.at(0).text.replace(/export {[\d\D]*/gm, "")
+				const evaluated = eval(`${script} \n index()`)
+				const rendered = `<!DOCTYPE html>${render(evaluated).replaceAll(".scss", ".css")}`
+				chunk.contents = Buffer.from(rendered)
 
-			callback(null, chunk)
-		}))
+				callback(null, chunk)
+			} catch (error) {
+				callback(error, chunk)
+			}
+		})
+			.on("error", function (error) {
+				printPaintedMessage(error.message, "HTML")
+				bs.notify("HTML Error")
+				this.emit("end")
+			}))
 		.pipe(ext(".html"))
 		.pipe(replaceSrc())
 		.pipe(destGulp.dest(getDestPath()))
