@@ -174,7 +174,7 @@ function getDestPath(inSrc, ...replaces) {
 	 * @param {Vinyl} chunk 
 	 */
 	return function (chunk) {
-		let newpath = chunk.path.replaceAll(path.sep, path.posix.sep).replace("src", "").replace("build", "")
+		let newpath = chunk.path.replaceAll(path.sep, path.posix.sep).replace("src/", "").replace("build/", "")
 
 		replaces.forEach(pair => {
 			newpath = newpath.replace(pair[0], pair[1])

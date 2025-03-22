@@ -9,6 +9,8 @@ import { createGulpEsbuild } from "gulp-esbuild"
 import gSass from "gulp-sass"
 import * as rawsass from "sass-embedded"
 import autoprefixer from 'gulp-autoprefixer'
+import esbuildd from "esbuild"
+import render from 'preact-render-to-string'
 
 let esbuild = createGulpEsbuild({
 	piping: true,
@@ -16,7 +18,7 @@ let esbuild = createGulpEsbuild({
 
 const sass = gSass(rawsass)
 
-function cleanExtraImgs(cb) {
+function cleanExtraImgs() {
 	return gulp.src(["./src/assets/static/img/**/*.*", "!./src/assets/static/img/icon/stack.svg"], {
 		allowEmpty: true,
 		read: false,
@@ -27,10 +29,9 @@ function cleanExtraImgs(cb) {
 			bs.notify("Files Error")
 			this.emit("end")
 		})
-		.on("finish", () => cb())
 }
 
-function browserSyncInit(cb) {
+function browserSyncInit() {
 	bs.init({
 		ui: false,
 		middleware: argv.ram ? gulpMem.middleware : false,
@@ -39,10 +40,9 @@ function browserSyncInit(cb) {
 			baseDir: "./build",
 		}
 	})
-	cb()
 }
 
-function css(cb) {
+function css() {
 	return gulp.src(["./src/assets/style/**/*.scss", "!./src/assets/style/**/_*.scss"])
 		.pipe(sourcemaps.init())
 		.pipe(sass({
@@ -57,10 +57,9 @@ function css(cb) {
 		.pipe(sourcemaps.write("./"))
 		.pipe(destGulp.dest(getDestPath()))
 		.pipe(bs.stream())
-		.on("finish", () => cb())
 }
 
-function js(cb) {
+function js() {
 	return gulp.src(["./src/assets/script/**/*.js", "!./src/assets/script/**/_*.js"])
 		.pipe(sourcemaps.init())
 		.pipe(esbuild({
@@ -82,24 +81,37 @@ function js(cb) {
 		.pipe(sourcemaps.write())
 		.pipe(destGulp.dest(getDestPath()))
 		.pipe(bs.stream())
-		.on("finish", () => cb())
 }
 
-function html(cb) {
-	return gulp.src(["./src/**/*.ejs", "./src/**/*.html", "!./src/assets/**/*"])
-		.pipe(ejsCompile())
-		.on("error", function (error) {
-			printPaintedMessage(error.message, "EJS")
-			bs.notify("EJS Error")
-			this.emit("end")
-		})
+function html() {
+	return gulp.src(["./src/**/*.jsx", "!./src/components/**/*.jsx"])
+		.pipe(transform((chunk, encoding, callback) => {
+			const transformed = esbuildd.buildSync({
+				jsx: "automatic",
+				bundle: true,
+				jsxFactory: 'h',
+				jsxFragment: 'Fragment',
+				jsxImportSource: 'preact',
+				jsxDev: true,
+				entryPoints: [chunk.path],
+				write: false,
+				format: "esm",
+			})
+
+			const script = transformed.outputFiles.at(0).text.replace(/export {[\d\D]*/gm, "")
+			const evaluated = eval(`${script} \n index()`)
+			const rendered = `<!DOCTYPE html>${render(evaluated).replaceAll(".scss", ".css")}`
+			chunk.contents = Buffer.from(rendered)
+
+			callback(null, chunk)
+		}))
+		.pipe(ext(".html"))
 		.pipe(replaceSrc())
 		.pipe(destGulp.dest(getDestPath()))
 		.pipe(bs.stream())
-		.on("finish", () => cb())
 }
 
-function copyStatic(cb) {
+function copyStatic() {
 	return gulp.src(["./src/assets/static/**/*.*", "!./src/assets/static/img-raw/**/*.*"], {
 		allowEmpty: true,
 		since: gulp.lastRun(copyStatic),
@@ -107,20 +119,18 @@ function copyStatic(cb) {
 	})
 		.pipe(destGulp.dest(getDestPath()))
 		.pipe(reload())
-		.on("finish", () => cb())
 }
 
-function makeIconsSCSS(cb) {
+function makeIconsSCSS() {
 	return gulp.src("./src/assets/static/img-raw/icon/**/*.svg", {
 		allowEmpty: true,
 		read: false
 	})
 		.pipe(iconsToCSS())
 		.pipe(fs.createWriteStream("./src/assets/style/_icons.scss"))
-		.on("finish", () => cb())
 }
 
-function makeIconsStack(cb) {
+function makeIconsStack() {
 	return gulp.src("./src/assets/static/img-raw/icon/**/*.svg")
 		.pipe(stacksvg({
 			separator: "__"
@@ -130,10 +140,9 @@ function makeIconsStack(cb) {
 			callback(null, chunk)
 		}))
 		.pipe(gulp.dest(getDestPath(true, ["/img-raw", "/img"])))
-		.on("finish", () => cb())
 }
 
-function imageMin(cb) {
+function imageMin() {
 	return gulp.src("./src/assets/static/img-raw/**/*.*", {
 		allowEmpty: true,
 		encoding: false
@@ -143,16 +152,14 @@ function imageMin(cb) {
 		.pipe(svgOptimize())
 		.pipe(ext(".webp", ...convertingImgTypes))
 		.pipe(gulp.dest(getDestPath(true, ["/img-raw", "/img"])))
-		.on("finish", () => cb())
 }
 
-function cleanBuild(cb) {
+function cleanBuild() {
 	return gulp.src("./build/", {
 		read: false,
 		allowEmpty: true
 	})
 		.pipe(clean())
-		.on("finish", () => cb())
 }
 
 function convertFont() {
@@ -182,7 +189,7 @@ function remakeEsbuild() {
 }
 
 function watch() {
-	gulp.watch(["./src/**/*.html", "./src/**/*.ejs"], html)
+	gulp.watch(["./src/**/*.jsx", "./src/**/*.js"], html)
 	gulp.watch(["./src/assets/script/**/*.*"], { events: "add" }, gulp.series(remakeEsbuild, js))
 	gulp.watch(["./src/assets/script/**/*.*"], { events: "change" }, js)
 	gulp.watch(["./src/assets/style/**/*.*"], css)
