@@ -1,5 +1,5 @@
 @layer {
-	@import "@splidejs/splide/dist/css/splide-core.min";
+	@include meta.load-css("../../../node_modules/@splidejs/splide/dist/css/splide-core.min")
 }
 
 .splide {
