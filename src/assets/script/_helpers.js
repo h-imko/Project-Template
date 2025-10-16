@@ -1,13 +1,12 @@
-/**
- *	@description Блокирует {@link true} или разблокирует {@link false}  прокрутку страницы
- * @param {Boolean} action
- */
-
 import Splide from "@splidejs/splide"
 // import { Grid } from "@splidejs/splide-extension-grid"
 import { childGalleryPropertyName } from "./_gallery"
 
-const toggleNoscrollBody = (function () {
+/**
+ *	@description Блокирует {@link true} или разблокирует {@link false}  прокрутку страницы
+ * @param {Boolean} action
+ */
+export const toggleNoscrollBody = (function () {
 	let scrollBarWidth = window.innerWidth - document.documentElement.clientWidth
 	return function (action) {
 		function disable() {
@@ -41,7 +40,7 @@ const toggleNoscrollBody = (function () {
  * @param {Array.<Element>} targets
  * @returns
  */
-function ifClickInside(event, ...targets) {
+export function ifClickInside(event, ...targets) {
 	return targets.some(target => {
 		return event.composedPath().includes(target)
 	})
@@ -63,7 +62,7 @@ export function bindSplideCounter(splide, counter) {
 	})
 }
 
-function setVh() {
+export function setVh() {
 	document.documentElement.style.setProperty("--vh", `${visualViewport.height / 100}px`)
 	visualViewport.addEventListener("resize", () => {
 		document.documentElement.style.setProperty("--vh", `${visualViewport.height / 100}px`)
@@ -75,7 +74,7 @@ function setVh() {
  * @param {Splide} splide
  * @param {HTMLElement[]} arrows
  */
-function bindSplideArrows(splide, arrows) {
+export function bindSplideArrows(splide, arrows) {
 	arrows.forEach(arrows => {
 
 		let arrow_prev = arrows.querySelector(".splide__arrow--prev")
@@ -109,7 +108,7 @@ function bindSplideArrows(splide, arrows) {
  * @param {import("@splidejs/splide").Options} options 
  * @param {string} selector 
  */
-function makeSplide(selector, options) {
+export function makeSplide(selector, options) {
 	document.querySelectorAll(selector).forEach(container => {
 		let slider = container.querySelector(".splide")
 		let arrows = container.querySelectorAll(".splide__arrows")
@@ -134,7 +133,7 @@ function makeSplide(selector, options) {
  * 
  * @param {Splide} splide 
  */
-function disableSplideDragOverflow(splide) {
+export function disableSplideDragOverflow(splide) {
 	splide.on("overflow", isOverflow => {
 		splide.options = {
 			drag: isOverflow
@@ -147,7 +146,7 @@ function disableSplideDragOverflow(splide) {
  * @param {Splide} splide
  * @param {HTMLElement} container
  */
-function syncSplideGridToStyle(splide, container) {
+export function syncSplideGridToStyle(splide, container) {
 	function setStyle() {
 		container.style.setProperty("--splide-grid-row-gap", `${splide.options.grid.gap.row}px`)
 		container.style.setProperty("--splide-grid-col-gap", `${splide.options.grid.gap.col}px`)
@@ -156,7 +155,7 @@ function syncSplideGridToStyle(splide, container) {
 	splide.on("updated", setStyle)
 }
 
-function headerHeightToCSS() {
+export function headerHeightToCSS() {
 	let header = document.body.querySelector("header")
 
 	function setSize() {
@@ -170,13 +169,22 @@ function headerHeightToCSS() {
 	}).observe(header)
 }
 
-const breakpoints = (() => {
+/**
+ * @param {HTMLElement} element 
+ */
+export function watchIfSticky(element) {
+	new IntersectionObserver(([e]) => {
+		e.target.classList.toggle('is-sticky', e.intersectionRatio < 1)
+	}, {
+		threshold: [1]
+	}).observe(element)
+}
+
+export const breakpoints = (() => {
 	let style = getComputedStyle(document.documentElement)
 	return {
 		mobile: parseInt(style.getPropertyValue("--mobile")),
 		tablet: parseInt(style.getPropertyValue("--tablet")),
 		laptop: parseInt(style.getPropertyValue("--laptop"))
 	}
-})()
-
-export { toggleNoscrollBody, ifClickInside, bindSplideArrows, headerHeightToCSS, breakpoints, syncSplideGridToStyle, makeSplide, disableSplideDragOverflow }
+})() 
