@@ -146,11 +146,11 @@ function makeIconsSCSS() {
 
 function makeIconsJSON() {
 	const writeStream = fs.createWriteStream("./src/components/_icons.ts")
-	writeStream.write("const icons = {\n")
+	writeStream.write("export default interface icons {\n")
 
 	writeStream.on("close", () => {
 		const restWriter = fs.createWriteStream("./src/components/_icons.ts", { flags: 'a' })
-		restWriter.write("}\n\nexport default icons", "utf8")
+		restWriter.write("}", "utf8")
 		restWriter.close()
 	})
 
@@ -251,3 +251,4 @@ export default gulp.series(
 )
 
 export { cleanInitials, imageMin, convertFont as ttfToWoff }
+
