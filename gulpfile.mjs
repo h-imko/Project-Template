@@ -8,7 +8,7 @@ import sourcemaps from "gulp-sourcemaps"
 import { stacksvg } from "gulp-stacksvg"
 import render from 'preact-render-to-string'
 import * as rawsass from "sass-embedded"
-import { clean, ext, getDestPath, iconsToCSS, newer, reload, removeExcess, replaceSrc, sharpWebp, svgOptimize, ttfToWoff } from "./gulp/custom.mjs"
+import { clean, ext, getDestPath, iconsToCSS, iconsToTS, newer, reload, removeExcess, replaceSrc, sharpWebp, svgOptimize, ttfToWoff } from "./gulp/custom.mjs"
 import { argv, bs, convertingImgTypes, destGulp, gulpMem } from "./gulp/env.mjs"
 import { nothing, printPaintedMessage, transform } from "./gulp/service.mjs"
 
@@ -84,7 +84,7 @@ function js() {
 }
 
 function html() {
-	return gulp.src(["./src/**/*.jsx", "!./src/components/**/*.jsx"])
+	return gulp.src(["./src/**/*.jsx", "!./src/components/**/*.jsx", "./src/**/*.tsx", "!./src/components/**/*.tsx"])
 		.on("error", function (error) {
 			printPaintedMessage(error.message, "HTML")
 			bs.notify("HTML Error")
@@ -142,6 +142,24 @@ function makeIconsSCSS() {
 	})
 		.pipe(iconsToCSS())
 		.pipe(fs.createWriteStream("./src/assets/style/_icons.scss"))
+}
+
+function makeIconsJSON() {
+	const writeStream = fs.createWriteStream("./src/components/_icons.ts")
+	writeStream.write("const icons = {\n")
+
+	writeStream.on("close", () => {
+		const restWriter = fs.createWriteStream("./src/components/_icons.ts", { flags: 'a' })
+		restWriter.write("}\n\nexport default icons", "utf8")
+		restWriter.close()
+	})
+
+	return gulp.src("./src/assets/static/img-raw/icon/**/*.svg", {
+		allowEmpty: true,
+		read: false
+	})
+		.pipe(iconsToTS())
+		.pipe(writeStream)
 }
 
 function makeIconsStack() {
@@ -203,11 +221,11 @@ function remakeEsbuild() {
 }
 
 function watch() {
-	gulp.watch(["./src/**/*.jsx", "./src/**/*.js"], html)
+	gulp.watch(["./src/**/*.jsx", "./src/**/*.tsx", "./src/**/*.js"], html)
 	gulp.watch(["./src/assets/script/**/*.*"], { events: "add" }, gulp.series(remakeEsbuild, js))
 	gulp.watch(["./src/assets/script/**/*.*"], { events: "change" }, js)
 	gulp.watch(["./src/assets/style/**/*.*"], css)
-	gulp.watch(["./src/assets/static/img-raw/icon/**/*.svg"], gulp.parallel(makeIconsStack, makeIconsSCSS))
+	gulp.watch(["./src/assets/static/img-raw/icon/**/*.svg"], gulp.parallel(makeIconsStack, makeIconsSCSS, makeIconsJSON))
 	gulp.watch(["./src/assets/static/img-raw/**/*.*"], { events: ["change", "add"] }, imageMin)
 	gulp.watch(["./src/assets/static/img-raw/**/*.*"], { events: ["unlink", "unlinkDir"] }, cleanExtraImgs)
 	gulp.watch(["./src/assets/static/**/*.*", "!./src/assets/static/img-raw/**/*.*"], copyStatic)
@@ -219,6 +237,7 @@ export default gulp.series(
 		imageMin,
 		cleanExtraImgs,
 		makeIconsSCSS,
+		makeIconsJSON,
 		makeIconsStack
 	), gulp.parallel(
 		copyStatic,
@@ -232,4 +251,3 @@ export default gulp.series(
 )
 
 export { cleanInitials, imageMin, convertFont as ttfToWoff }
-

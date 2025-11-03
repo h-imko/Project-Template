@@ -150,10 +150,23 @@ function removeExcess(src, dest, ...extraExts) {
 
 function iconsToCSS() {
 	return transform((chunk, encoding, callback) => {
-		let name = chunk.relative.replaceAll(path.sep, "_").replace(/\.[^/.]+$/, "").replaceAll(" ", "-")
-		let css = `.icon--${name}, %icon--${name}{--mask: url(/src/assets/static/img/icon/stack.svg#${name});}`
+		const name = chunk.relative.replaceAll(path.sep, "_").replace(/\.[^/.]+$/, "").replaceAll(" ", "-")
+		const css = `.icon--${name}, %icon--${name}{--mask: url(/src/assets/static/img/icon/stack.svg#${name});}`
 		callback(null, css)
 	})
+}
+
+function iconsToTS() {
+	const stream = transform((chunk, encoding, callback) => {
+		const className = chunk.relative.replaceAll(path.sep, "_").replace(/\.[^/.]+$/, "").replaceAll(" ", "-")
+		const name = chunk.relative.replaceAll(path.sep, "_").replace(/\.[^/.]+$/, "").replaceAll(" ", "_").replaceAll("-", "_")
+		const js = `\t${name}: "icon icon--${className}",\n`
+
+		callback(null, js)
+	})
+
+
+	return stream
 }
 
 function ttfToWoff() {
@@ -188,5 +201,5 @@ function getDestPath(inSrc, ...replaces) {
 }
 
 
-export { clean, ejsCompile, ext, getDestPath, iconsToCSS, newer, reload, removeExcess, replace, replaceSrc, sharpWebp, svgOptimize, ttfToWoff }
+export { clean, ejsCompile, ext, getDestPath, iconsToCSS, iconsToTS, newer, reload, removeExcess, replace, replaceSrc, sharpWebp, svgOptimize, ttfToWoff }
 
