@@ -146,11 +146,11 @@ function makeIconsSCSS() {
 
 function makeIconsJSON() {
 	const writeStream = fs.createWriteStream("./src/components/_icons.ts")
-	writeStream.write("export default interface icons {\n")
+	writeStream.write("const icons = {\n")
 
 	writeStream.on("close", () => {
 		const restWriter = fs.createWriteStream("./src/components/_icons.ts", { flags: 'a' })
-		restWriter.write("}", "utf8")
+		restWriter.write("}\n\nexport default icons", "utf8")
 		restWriter.close()
 	})
 

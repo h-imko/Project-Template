@@ -1,1 +1,3 @@
-export default interface icons { }
+const icons = {}
+
+export default icons

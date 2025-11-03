@@ -1,8 +1,7 @@
-import icons from "./_icons.tsx"
+import icons from "./_icons"
 
-export default function ({ icon }: { icon: keyof icons }) {
-
+export default function ({ icon }: { icon: keyof typeof icons }) {
   return (
-    <span className={ icon }></span>
+    <span className={ icons[icon] }></span>
   )
 }
