@@ -221,7 +221,7 @@ function remakeEsbuild() {
 }
 
 function watch() {
-	gulp.watch(["./src/**/*.jsx", "./src/**/*.tsx", "./src/**/*.js"], html)
+	gulp.watch(["./src/**/*.jsx", "./src/**/*.tsx"], html)
 	gulp.watch(["./src/assets/script/**/*.*"], { events: "add" }, gulp.series(remakeEsbuild, js))
 	gulp.watch(["./src/assets/script/**/*.*"], { events: "change" }, js)
 	gulp.watch(["./src/assets/style/**/*.*"], css)

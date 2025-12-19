@@ -97,7 +97,7 @@ function reload() {
 }
 
 function replaceSrc() {
-	return replace(argv.prod ? "/src/assets/" : "/src/", argv.github ? "/zn-test/" : argv.prod ? "/v2/" : "/")
+	return replace("/src/", "/")
 }
 
 function clean() {
