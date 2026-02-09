@@ -42,4 +42,4 @@ function printPaintedMessage(message, module) {
 	console.log(`[\x1b[31m${module}\x1b[0m] ${message}`)
 }
 
-export { changeExt, nothing, transform, printPaintedMessage }
+export { changeExt, nothing, printPaintedMessage, transform }
