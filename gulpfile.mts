@@ -1,20 +1,17 @@
-import esbuildd from "esbuild"
-import fs from "fs"
-import gulp from "gulp"
+import * as fs from "fs"
+import * as gulp from "gulp"
 import autoprefixer from 'gulp-autoprefixer'
 import { createGulpEsbuild } from "gulp-esbuild"
 import gSass from "gulp-sass"
 import sourcemaps from "gulp-sourcemaps"
 import { stacksvg } from "gulp-stacksvg"
-import render from 'preact-render-to-string'
+import * as ReactDOMServer from "react-dom/server"
 import * as rawsass from "sass-embedded"
-import { clean, ext, getDestPath, iconsToCSS, iconsToTS, newer, reload, removeExcess, replaceSrc, sharpWebp, svgOptimize, ttfToWoff } from "./gulp/custom.mjs"
+import { clean, ext, getDestPath, iconsToCSS, iconsToTS, newer, reload, removeExcess, replace, sharpWebp, svgOptimize, ttfToWoff } from "./gulp/custom.mjs"
 import { argv, bs, convertingImgTypes, destGulp, gulpMem } from "./gulp/env.mjs"
 import { nothing, printPaintedMessage, transform } from "./gulp/service.mjs"
 
-let esbuild = createGulpEsbuild({
-	piping: true,
-})
+let esbuild = createGulpEsbuild({})
 
 const sass = gSass(rawsass)
 
@@ -52,8 +49,12 @@ function css() {
 			bs.notify("CSS Error")
 			this.emit("end")
 		})
-		.pipe(replaceSrc())
-		.pipe(autoprefixer())
+		.pipe(replace("/src/assets/", argv.github ? "/zn-test/assets/" : argv.prod ? "../" : "/assets/"))
+		.pipe(autoprefixer({
+			overrideBrowserslist: [
+				"chrome >= 100"
+			]
+		}))
 		.pipe(sourcemaps.write("./"))
 		.pipe(destGulp.dest(getDestPath()))
 		.pipe(bs.stream())
@@ -69,6 +70,7 @@ function js() {
 			format: "esm",
 			bundle: true,
 			splitting: true,
+			target: "es6",
 			treeShaking: true,
 			drop: argv.min ? ["console", "debugger"] : [],
 			minify: argv.min,
@@ -83,44 +85,42 @@ function js() {
 		.pipe(bs.stream())
 }
 
+function passComponents(cb) {
+	return nothing(cb)
+}
+
 function html() {
-	return gulp.src(["./src/**/*.jsx", "!./src/components/**/*.jsx", "./src/**/*.tsx", "!./src/components/**/*.tsx"])
+	return gulp.src(["./src/**/*.jsx", "!./src/components/**/*.jsx", "./src/**/*.tsx", "!./src/components/**/*.tsx"],
+		{
+			read: false,
+			...(gulp.lastRun(html) > gulp.lastRun(passComponents) && { since: gulp.lastRun(html) })
+		}
+	)
 		.on("error", function (error) {
+			console.log(error.chunk.path)
 			printPaintedMessage(error.message, "HTML")
 			bs.notify("HTML Error")
 			this.emit("end")
 		})
 		.pipe(transform((chunk, encoding, callback) => {
 			try {
-				const transformed = esbuildd.buildSync({
-					jsx: "automatic",
-					bundle: true,
-					jsxFactory: 'h',
-					jsxFragment: 'Fragment',
-					jsxImportSource: 'preact',
-					jsxDev: true,
-					entryPoints: [chunk.path],
-					write: false,
-					format: "esm",
+				import(`file://${chunk.path}`).then((module) => {
+					chunk.contents = Buffer.from(ReactDOMServer.renderToString(module.default()).replaceAll(".scss", ".css"))
+					callback(null, chunk)
 				})
-
-				const script = transformed.outputFiles.at(0).text.replace(/export {[\d\D]*/gm, "")
-				const evaluated = eval(`${script} \n index()`)
-				const rendered = `<!DOCTYPE html>${render(evaluated).replaceAll(".scss", ".css")}`
-				chunk.contents = Buffer.from(rendered)
-
-				callback(null, chunk)
 			} catch (error) {
 				callback(error, chunk)
 			}
-		})
-			.on("error", function (error) {
-				printPaintedMessage(error.message, "HTML")
-				bs.notify("HTML Error")
-				this.emit("end")
-			}))
+		}).on("error", function (error) {
+			console.log(error.chunk.path)
+
+			printPaintedMessage(error.message, "HTML")
+			bs.notify("HTML Error")
+			this.emit("end")
+		}))
 		.pipe(ext(".html"))
-		.pipe(replaceSrc())
+		.pipe(replace("/src/assets/", argv.github ? "/zn-test/assets/" : argv.prod ? "../" : "/assets/"))
+		.pipe(replace("/src/", argv.github ? "/zn-test/" : "/"))
 		.pipe(destGulp.dest(getDestPath()))
 		.pipe(bs.stream())
 }
@@ -213,15 +213,14 @@ function cleanInitials() {
 }
 
 function remakeEsbuild() {
-	esbuild = createGulpEsbuild({
-		piping: true,
-	})
+	esbuild = createGulpEsbuild({})
 
 	return nothing()
 }
 
 function watch() {
-	gulp.watch(["./src/**/*.jsx", "./src/**/*.tsx"], html)
+	gulp.watch(["./src/components/**/*.jsx", "./src/components/**/*.tsx"], gulp.series(passComponents, html))
+	gulp.watch(["./src/**/*.jsx"], html)
 	gulp.watch(["./src/assets/script/**/*.*"], { events: "add" }, gulp.series(remakeEsbuild, js))
 	gulp.watch(["./src/assets/script/**/*.*"], { events: "change" }, js)
 	gulp.watch(["./src/assets/style/**/*.*"], css)
@@ -238,8 +237,10 @@ export default gulp.series(
 		cleanExtraImgs,
 		makeIconsSCSS,
 		makeIconsJSON,
-		makeIconsStack
-	), gulp.parallel(
+		makeIconsStack,
+	),
+	passComponents,
+	gulp.parallel(
 		copyStatic,
 		css,
 		js,

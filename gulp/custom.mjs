@@ -1,4 +1,3 @@
-import ejs from "ejs"
 import fs from "fs"
 import rename from "gulp-rename"
 import path from "path"
@@ -97,7 +96,7 @@ function reload() {
 }
 
 function replaceSrc() {
-	return replace("/src/", "/")
+	return replace("/src/assets/", argv.prod ? "/" : "/assets/")
 }
 
 function clean() {
@@ -106,21 +105,6 @@ function clean() {
 			recursive: true,
 			force: true
 		}, (error) => {
-			callback(error, chunk)
-		})
-	})
-}
-
-function ejsCompile() {
-	return transform((chunk, encoding, callback) => {
-		ejs.renderFile(chunk.path, {}, {
-			root: path.join(chunk.cwd, "src", "assets", "ejs"),
-		}).then(html => {
-			html = html.replaceAll(".scss", ".css").replaceAll(".ejs", ".html")
-			chunk.path = chunk.path.replace(chunk.extname, ".html")
-			chunk.contents = Buffer.from(html, encoding)
-			callback(null, chunk)
-		}).catch(error => {
 			callback(error, chunk)
 		})
 	})
@@ -179,7 +163,7 @@ function ttfToWoff() {
 }
 
 /** 
- * @param {boolean} inSrc 
+ * @param {boolean} [inSrc] 
  * @param {...[string, string]} replaces 
  */
 function getDestPath(inSrc, ...replaces) {
@@ -200,6 +184,5 @@ function getDestPath(inSrc, ...replaces) {
 	}
 }
 
-
-export { clean, ejsCompile, ext, getDestPath, iconsToCSS, iconsToTS, newer, reload, removeExcess, replace, replaceSrc, sharpWebp, svgOptimize, ttfToWoff }
+export { clean, ext, getDestPath, iconsToCSS, iconsToTS, newer, reload, removeExcess, replace, replaceSrc, sharpWebp, svgOptimize, ttfToWoff }
 
